@@ -39,6 +39,7 @@ file(GLOB SOURCES "src/*.cpp")
 ####
 # build
 ####
+add_definitions(-std=gnu++0x)
 
 add_executable(halo_extractor ${SOURCES})
 
