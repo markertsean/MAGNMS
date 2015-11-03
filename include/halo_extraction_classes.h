@@ -1,3 +1,6 @@
+#include <iostream>
+#include <cstring>
+
 #ifndef HE_CLASSES
 #define HE_CLASSES
 
