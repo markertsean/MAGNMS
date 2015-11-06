@@ -1,17 +1,10 @@
 #include <cstring>
 
-#ifndef
-#defint READ_FILES
+#ifndef READ_FILES
+#define READ_FILES
 
   //Reads input files and optional directories to write files to (otherwise default)
-  bool readUserInput( inputInfo myInput );
-
-
-
-
-
-
-
+  bool readUserInput( std::string fileName, inputInfo &myInput );
 
 
 #endif
