@@ -46,6 +46,18 @@ int main( int arg, char ** argv ){
   }
 
 
+  unsigned long N_halos =0;
+  {
+
+    haloInfo myHalos[2];
+
+    N_halos = readCatalog( myHalos, userInput, N_halos );
+
+  }
+
+  haloInfo myHalos[N_halos];
+  N_halos = readCatalog( myHalos, userInput, N_halos );
+
   //Have input files and directories to write to.
   //Need to:
   //        Include halo selection criteria, mass, distinct, coordinates,
