@@ -46,22 +46,32 @@ int main( int arg, char ** argv ){
   }
 
 
+  //Read the number of valid halos, for allocation
   unsigned long N_halos =0;
   {
-
     haloInfo myHalos[2];
-
     N_halos = readCatalog( myHalos, userInput, N_halos );
-
+    printf(" Number of halos read: %lu\n",N_halos);
   }
 
   haloInfo myHalos[N_halos];
-  N_halos = readCatalog( myHalos, userInput, N_halos );
+  {
+    unsigned long old_N_halos = N_halos;
+    N_halos = readCatalog( myHalos, userInput, N_halos );
+    if ( old_N_halos != N_halos ){
+      printf("\nError: Read mismatch\nN_halos allocated: %lu\nN_halos read in: %lu\n\n", old_N_halos, N_halos);
+      exit(1);
+    }
+  }
+
+  printf("\n Catalog read in complete\n\n");
+
+//  system("mkdir .......");
 
   //Have input files and directories to write to.
   //Need to:
-  //        Include halo selection criteria, mass, distinct, coordinates,
-  //                radius, triaxiality, ...
+  //        Refine halos criteria, read in values
+  //        Read in particles
   //        Create directories
   //        Write overarching header file, with used halos
   //        Read in short halo list, if catalog already used

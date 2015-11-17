@@ -2,6 +2,10 @@
 #include <fstream>
 #include <cstring>
 #include <sstream>
+#include <iomanip>
+
+#include <cmath>
+
 #include "halo_extraction_classes.h"
 #include "read_files.h"
 
@@ -47,6 +51,10 @@ bool readUserInput( std::string fileName, inputInfo &myInput ){
       else if ( strcmp( inpC1, "rMult"    ) == 0 ){
         myInput.setRadiusMult  ( std::stod( inpS )  );
       }
+      else if ( strcmp( inpC1, "useShortCatalog" ) == 0 ){
+        myInput.setShortCat    ( std::stoi( inpS )  );
+      }
+
     }
   }
   //If file doesn't open, throw error
@@ -73,28 +81,149 @@ bool readUserInput( std::string fileName, inputInfo &myInput ){
 
 
 //Reads halo catalog, and saves in halos array
-unsigned long readCatalog( haloInfo   halos[] ,  //Stores data of halos
-                          inputInfo userInfo ,  //Contains input data from user
-                          int        N_halos ){ //0-just count valid halos, 1-store values
+unsigned long readCatalog( haloInfo      halos[] ,  //Stores data of halos
+                          inputInfo     userInfo ,  //Contains input data from user
+                          unsigned long  N_halos ){ //0-just count valid halos, 1-store values
 
 
+
+  //Generate short catalog name, based on input catalogs and flags
+  int lastDot = (userInfo.getInputCatalog()).find_last_of(".");
+  std::string shortCat = (userInfo.getInputCatalog()).substr( 0, lastDot + 1 );
+  if ( userInfo.getShortCat() == 1 ){
+    //Sets name based on flags
+    if ( GLOBAL_MASS_LOWER_LIM != -1 ){
+      std::stringstream stream;
+      stream << std::fixed << std::setprecision(1) << log10( GLOBAL_MASS_LOWER_LIM );
+      shortCat = shortCat + "Mmin_" + stream.str() +".";
+    }
+    if ( GLOBAL_MASS_UPPER_LIM != -1 ){
+      std::stringstream stream;
+      stream << std::fixed << std::setprecision(1) << log10( GLOBAL_MASS_UPPER_LIM );
+      shortCat = shortCat + "Mmax_" + stream.str() +".";
+    }
+    shortCat = shortCat + "short_cat.DAT";
+  }
+
+
+  //First time for allocation, try to open file to see if it exists
+  // if it exists, can read in first line to know size of halos
+  // Otherwise, attempt to open normal file
+  std::ifstream shortFile( shortCat );
   std::ifstream myFile( userInfo.getInputCatalog() );
-  if( !myFile.is_open() ){
+  if ((              N_halos   == 0 ) &&  //First time read in
+      ( userInfo.getShortCat() == 1 ) &&  //Using short catalog
+      (       shortFile.good() == 1 ) ){  //Short file found
+    userInfo.setCatType( "short" );
+    std::cout << " Found short catalog: " << shortCat << std::endl;
+  }
+  else if( !myFile.is_open() ){
     std::cout << "\n Error opening halo catalog: " << userInfo.getInputCatalog() << std::endl;
     exit(1);
   }
 
-  //Call read functions per function, to assign values
-  //Different function if it's a file we used, will write to new file
-  N_halos = readMultiDark( myFile, halos, N_halos );
+  unsigned long N_read = 0;
 
-  return N_halos;
+  //Call read functions per function, to assign values, will use short if available
+  if ( (userInfo.getCatType()).compare( "short" ) == 0 ){
+    N_read = readShortCat ( shortFile, halos, N_halos );
+  }
+  else
+  if ( (userInfo.getCatType()).compare(    "MD" ) == 0 ){
+    N_read = readMultiDark(    myFile, halos, N_halos );
+  }
+  else
+  {
+      std::cout << " Unrecognized catalog type: " << userInfo.getCatType() << std::endl;
+      exit(1);
+  }
+
+  //Write short catalog if one doesn't exist, and second time through
+  if ( (userInfo.getShortCat() == 1) &&   //If using shortcat
+               shortFile.bad() == 0  &&   //And couldn't find shortcat
+       (             N_halos   >  0 ) ) { //And second time through
+    std::ofstream writeFile( shortCat );
+    writeShortCat( writeFile, halos, N_halos );
+  }
+
+  return N_read;
+}
+
+
+//Reads short catalog for easy reading
+unsigned long readShortCat ( std::ifstream &inpFile   ,
+                             haloInfo         halos[] ,
+                             unsigned long  N_halos   ){
+
+  unsigned long num_Head;
+
+  std::string str;  //The read in line
+
+  //Reads header, which is one line with the number of halos
+  // If we are just finding number to allocate, just read this
+  std::getline( inpFile, str );
+  std::stringstream num( str );
+  num >> num_Head;
+  if ( N_halos == 0 ){
+    return num_Head;
+  }
+
+  float x, y, z, M, R, C, N, ba, ca, xa, ya, za;
+  long id;
+  long ds;
+
+  int N_valid = 0;
+
+  while ( std::getline( inpFile, str ) ){
+
+    std::stringstream line( str );
+    // x, y, z coordinate
+    line >>    x;    line >>    y;     line >>    z;
+    //M_tot, R_vir
+    line >>    M;    line >>    R;
+    // halo id number, Concentration, Number of halo, distinct/sub,
+    line >>   id;    line >>    C;    line >>    N;    line >>   ds;
+
+    // axis b/a ratio, c/a ratio, x axis, y axis, z axis
+    line >>   ba;    line >>   ca;    line >>   xa;    line >>   ya;    line >>   za;
+
+    //Test if halo is distinct and in mass range
+    if ( validHalo ( M, ds ) ){
+
+      //Can only occur on second run
+      //First run returns number of valid halos
+      //halos array then allocated
+      //Then run through and save those values
+      if ( N_halos > 0 ){
+        halos[ N_valid ].setX (  x );
+        halos[ N_valid ].setY (  y );
+        halos[ N_valid ].setZ (  z );
+        halos[ N_valid ].setC (  C );
+        halos[ N_valid ].setM (  M );
+        halos[ N_valid ].setN (  N );
+        halos[ N_valid ].setRm(  R );
+        halos[ N_valid ].setID( id );
+        halos[ N_valid ].setXa( xa );
+        halos[ N_valid ].setYa( ya );
+        halos[ N_valid ].setZa( za );
+        halos[ N_valid ].setBA( ba );
+        halos[ N_valid ].setCA( ca );
+        halos[ N_valid ].setDistinct( ds );
+      }
+
+      ++N_valid;
+    }
+
+  }
+
+
+  return N_valid;
 }
 
 
 unsigned long readMultiDark( std::ifstream &inpFile   ,
-                            haloInfo         halos[] ,
-                            int            N_halos   ){
+                            haloInfo          halos[] ,
+                            unsigned long   N_halos   ){
 
   //Skip the header of file
   int headerLength = 17;
@@ -160,6 +289,46 @@ unsigned long readMultiDark( std::ifstream &inpFile   ,
 
   return N_valid;
 
+}
+
+//Writes short catalog for easy reading
+bool         writeShortCat ( std::ofstream &inpFile   ,
+                             haloInfo         halos[] ,
+                             unsigned long  N_halos   ){
+
+  //Writes number of valid halos at start
+
+  inpFile << N_halos << std::endl;
+
+  float x, y, z, M, R, C, N, ba, ca, xa, ya, za;
+  long id;
+  long ds;
+
+  for ( int i=0; i<N_halos; ++i ){
+
+    char writeLine[200];
+
+    x  = halos[ i ].getX ();
+    y  = halos[ i ].getY ();
+    z  = halos[ i ].getZ ();
+    C  = halos[ i ].getC ();
+    M  = halos[ i ].getM ();
+    N  = halos[ i ].getN ();
+    R  = halos[ i ].getRm();
+    id = halos[ i ].getID();
+    xa = halos[ i ].getXa();
+    ya = halos[ i ].getYa();
+    za = halos[ i ].getZa();
+    ba = halos[ i ].getBA();
+    ca = halos[ i ].getCA();
+    ds = halos[ i ].getDistinct();
+
+    sprintf(writeLine,"%12.4lf%12.4lf%12.4lf%12.4e%12.4lf%12lu%12.4lf%12.2lf%14lu%11.4lf%11.4lf%11.4lf%11.4lf%11.4lf\n",x,y,z,M,R,id,C,N,ds,ba,ca,xa,ya,za);
+
+    inpFile << writeLine;
+  }
+
+  return true;
 }
 
 

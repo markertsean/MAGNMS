@@ -7,14 +7,25 @@
   bool readUserInput( std::string fileName, inputInfo &myInput );
 
   //Reads halo catalog, and saves in halos array
-  unsigned long readCatalog( haloInfo   halos[] ,  //Stores data of halos
-                             inputInfo userInfo ,  //Contains input data from user
-                             int        N_halos ); //0-just count valid halos, 1-store values
+  unsigned long readCatalog( haloInfo      halos[] ,  //Stores data of halos
+                             inputInfo    userInfo ,  //Contains input data from user
+                             unsigned long N_halos ); //0-just count valid halos, 1-store values
+
+  //Reads short catalog for easy reading
+  unsigned long readShortCat ( std::ifstream &inpFile   ,
+                               haloInfo         halos[] ,
+                               unsigned long  N_halos   );
+
 
   //Reads catalog with Multidark format
   unsigned long readMultiDark( std::ifstream &inpFile   ,
                                haloInfo         halos[] ,
-                               int            N_halos   );
+                               unsigned long  N_halos   );
+
+  //Writes short catalog for easy reading
+  bool         writeShortCat ( std::ofstream &inpFile   ,
+                               haloInfo         halos[] ,
+                               unsigned long  N_halos   );
 
   //Test halos against user constraints
   bool validHalo( float  inpM ,  //Input halos mass

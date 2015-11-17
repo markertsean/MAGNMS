@@ -18,6 +18,7 @@ class inputInfo{
     void setMinMass     ( double      inpD ) {   minMass       = inpD; }
     void setMaxMass     ( double      inpD ) {   maxMass       = inpD; }
     void setRadiusMult  ( double      inpD ) {radiusMultiplier = inpD; }
+    void setShortCat    ( short       inpI ) {  useShortCat    = inpI; }
 
     std::string getReadFile    () { return readFile         ; }
     std::string getInputCatalog() { return inputCatalog     ; }
@@ -28,6 +29,7 @@ class inputInfo{
     double      getMinMass     () { return   minMass        ; }
     double      getMaxMass     () { return   maxMass        ; }
     double      getRadiusMult  () { return radiusMultiplier ; }
+    short       getShortCat    () { return   useShortCat    ; }
 
     void setDirectory(){
 
@@ -71,6 +73,8 @@ class inputInfo{
     double          minMass    =  1e15;
     double          maxMass    = -1.0 ;
     double    radiusMultiplier =  1.0 ;
+
+    short          useShortCat =  1   ;
 };
 
 
