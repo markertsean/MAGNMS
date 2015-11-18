@@ -143,7 +143,12 @@ unsigned long readCatalog( haloInfo      halos[] ,  //Stores data of halos
                shortFile.bad() == 0  &&   //And couldn't find shortcat
        (             N_halos   >  0 ) ) { //And second time through
     std::ofstream writeFile( shortCat );
-    writeShortCat( writeFile, halos, N_halos );
+    if ( writeShortCat( writeFile, halos, N_halos ) ){
+      std::cout << " Wrote short catalog: " << shortCat << std::endl;
+    }
+    else {
+      std::cout << " Failed to write short catalog: " << shortCat << std::endl;
+    }
   }
 
   return N_read;
@@ -168,7 +173,7 @@ unsigned long readShortCat ( std::ifstream &inpFile   ,
     return num_Head;
   }
 
-  float x, y, z, M, R, C, N, ba, ca, xa, ya, za;
+  float x, y, z, M, R, C, N, ba, ca;
   long id;
   long ds;
 
@@ -185,7 +190,7 @@ unsigned long readShortCat ( std::ifstream &inpFile   ,
     line >>   id;    line >>    C;    line >>    N;    line >>   ds;
 
     // axis b/a ratio, c/a ratio, x axis, y axis, z axis
-    line >>   ba;    line >>   ca;    line >>   xa;    line >>   ya;    line >>   za;
+    line >>   ba;    line >>   ca;
 
     //Test if halo is distinct and in mass range
     if ( validHalo ( M, ds ) ){
@@ -203,9 +208,6 @@ unsigned long readShortCat ( std::ifstream &inpFile   ,
         halos[ N_valid ].setN (  N );
         halos[ N_valid ].setRm(  R );
         halos[ N_valid ].setID( id );
-        halos[ N_valid ].setXa( xa );
-        halos[ N_valid ].setYa( ya );
-        halos[ N_valid ].setZa( za );
         halos[ N_valid ].setBA( ba );
         halos[ N_valid ].setCA( ca );
         halos[ N_valid ].setDistinct( ds );
@@ -256,7 +258,7 @@ unsigned long readMultiDark( std::ifstream &inpFile   ,
     line >>   id;    line >>    C;    line >>    N;    line >>   ds;    line >> junk;    line >> junk;    line >> junk;    line >> junk;
 
     // axis b/a ratio, c/a ratio, x axis, y axis, z axis
-    line >>   ba;    line >>   ca;    line >>   xa;    line >>   ya;    line >>   za;
+    line >>   ba;    line >>   ca;    line >> junk;    line >> junk;    line >> junk;
 
     //Test if halo is distinct and in mass range
     if ( validHalo ( M, ds ) ){
@@ -274,9 +276,6 @@ unsigned long readMultiDark( std::ifstream &inpFile   ,
         halos[ N_valid ].setN (  N );
         halos[ N_valid ].setRm(  R );
         halos[ N_valid ].setID( id );
-        halos[ N_valid ].setXa( xa );
-        halos[ N_valid ].setYa( ya );
-        halos[ N_valid ].setZa( za );
         halos[ N_valid ].setBA( ba );
         halos[ N_valid ].setCA( ca );
         halos[ N_valid ].setDistinct( ds );
@@ -300,7 +299,7 @@ bool         writeShortCat ( std::ofstream &inpFile   ,
 
   inpFile << N_halos << std::endl;
 
-  float x, y, z, M, R, C, N, ba, ca, xa, ya, za;
+  float x, y, z, M, R, C, N, ba, ca;
   long id;
   long ds;
 
@@ -316,14 +315,11 @@ bool         writeShortCat ( std::ofstream &inpFile   ,
     N  = halos[ i ].getN ();
     R  = halos[ i ].getRm();
     id = halos[ i ].getID();
-    xa = halos[ i ].getXa();
-    ya = halos[ i ].getYa();
-    za = halos[ i ].getZa();
     ba = halos[ i ].getBA();
     ca = halos[ i ].getCA();
     ds = halos[ i ].getDistinct();
 
-    sprintf(writeLine,"%12.4lf%12.4lf%12.4lf%12.4e%12.4lf%12lu%12.4lf%12.2lf%14lu%11.4lf%11.4lf%11.4lf%11.4lf%11.4lf\n",x,y,z,M,R,id,C,N,ds,ba,ca,xa,ya,za);
+    sprintf(writeLine,"%12.4lf%12.4lf%12.4lf%12.4e%12.4lf%12lu%12.4lf%12.2lf%14lu%11.4lf%11.4lf\n",x,y,z,M,R,id,C,N,ds,ba,ca);
 
     inpFile << writeLine;
   }

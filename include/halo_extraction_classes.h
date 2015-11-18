@@ -91,9 +91,6 @@ class haloInfo {
     void setN ( float inpI ) {     N = inpI; }
     void setRm( float inpF ) { R_max = inpF; }
     void setID( long  inpL ) {    id = inpL; }
-    void setXa( float inpF ) {  x_ax = inpF; }
-    void setYa( float inpF ) {  y_ax = inpF; }
-    void setZa( float inpF ) {  z_ax = inpF; }
     void setBA( float inpF ) { ba_rat= inpF; }
     void setCA( float inpF ) { ca_rat= inpF; }
     void setDistinct( long inpL ) { distinct = inpL; }
@@ -107,9 +104,6 @@ class haloInfo {
     float getN () { return  N     ; }
     float getRm() { return  R_max ; }
     long  getID() { return  id    ; }
-    float getXa() { return  x_ax  ; }
-    float getYa() { return  y_ax  ; }
-    float getZa() { return  z_ax  ; }
     float getBA() { return  ba_rat; }
     float getCA() { return  ca_rat; }
 
@@ -130,9 +124,6 @@ class haloInfo {
 
     float ba_rat  = -1.0;  // Ratio of axis b to a
     float ca_rat  = -1.0;  // Ratio of axis c to a
-    float x_ax    = -1.0;  // x, y, z axis lengths?
-    float y_ax    = -1.0;
-    float z_ax    = -1.0;
 
 };
 
