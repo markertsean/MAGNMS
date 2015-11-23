@@ -21,17 +21,19 @@
 
 int main( int arg, char ** argv ){
 
+  //////////////////////////////////////
+  //////////User info read in///////////
+  //////////////////////////////////////
+
 
   //Stores the user input from the input file
   inputInfo userInput;
-
 
   //User can specify input file via command line, default: extractInfo.dat
   if ( arg > 1 ){
     userInput.setReadFile( argv[1] );
   }
   printf("\n Using input file: %s\n", (userInput.getReadFile()).c_str());
-
 
   //Attempts to read the input file, and displays the resultant info
   if ( readUserInput( userInput.getReadFile(), userInput ) ){
@@ -45,6 +47,11 @@ int main( int arg, char ** argv ){
     printf("Error in reading input file, aborting\n\n");
     exit(1);
   }
+
+
+  ///////////////////////////////////////////
+  ////////Read in the catalog file///////////
+  ///////////////////////////////////////////
 
 
   //Read the number of valid halos, for allocation
@@ -66,6 +73,11 @@ int main( int arg, char ** argv ){
   }
 
   printf("\n Catalog read in complete\n\n");
+
+
+  /////////////////////////////////////////
+  //////Write header/part directory////////
+  /////////////////////////////////////////
 
   {
     struct stat sb;
@@ -93,15 +105,12 @@ int main( int arg, char ** argv ){
     printf("\n\n");
   }
 
-//  system("mkdir .......");
 
   //Have input files and directories to write to.
   //Need to:
   //        Refine halos criteria, read in values
   //        Read in particles
-  //        Create directories
   //        Write overarching header file, with used halos
-  //        Read in short halo list, if catalog already used
   //        Read in particles, maybe use link list to speed up process?
 
 
