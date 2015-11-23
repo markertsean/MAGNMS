@@ -106,10 +106,40 @@ int main( int arg, char ** argv ){
   }
 
 
+  /////////////////////////////////////////
+  ///////////Read in particles/////////////
+  /////////////////////////////////////////
+
+
+
+
+
+
+
+  /////////////////////////////////////////
+  //////////Write header files/////////////
+  /////////////////////////////////////////
+
+  //Catalog
+  //ID number
+  //Halo position
+  //Particle number from catalog
+  //Mass of particles
+  //Halo mass
+  //Rmax
+  //Concentration
+  //b/a ratio
+  //c/a ratio
+  //
+  //Rotation vector for along LOS
+  //Rotation vector for perp to LOS
+  //Number particles using
+  //Number particles in box
+  //Whether could create LOS cones
+  //Largest LOS cones
+
   //Have input files and directories to write to.
   //Need to:
-  //        Refine halos criteria, read in values
-  //        Read in particles
   //        Write overarching header file, with used halos
   //        Read in particles, maybe use link list to speed up process?
 
