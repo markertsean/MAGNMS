@@ -8,6 +8,8 @@ class inputInfo{
 
   public:
 
+    inline inputInfo();
+
     //Functions to change files the user may input
     void setReadFile    ( std::string inpS ) { readFile        = inpS; }
     void setInputCatalog( std::string inpS ) { inputCatalog    = inpS; }
@@ -55,27 +57,43 @@ class inputInfo{
 
   private:
     //User end input file
-    std::string readFile       = "extractInfo.dat";
-
-    //Data in input file, as to what files to use
-    std::string inputCatalog   = "";
-    std::string inputPartFiles = "";
-
-    std::string particleDir    = "";
-    std::string   headerDir    = "";
-
-    std::string     catDir     = "";
-    std::string     catName    = "";
-
-    std::string     catType    = "MD";
+    std::string readFile      ;// = "extractInfo.dat";	
+		                                        
+    //Data in input file, as to what files to use	
+    std::string inputCatalog  ;// = "";			
+    std::string inputPartFiles;// = "";			
+		                                        
+    std::string particleDir   ;// = "";			
+    std::string   headerDir   ;// = "";			
+		                                        
+    std::string     catDir    ;// = "";			
+    std::string     catName   ;// = "";			
+		                                        
+    std::string     catType   ;// = "MD";               
 
     //Halo restrictions imposed by user
-    double          minMass    =  1e15;
-    double          maxMass    = -1.0 ;
-    double    radiusMultiplier =  1.0 ;
+    double          minMass    ;//=  1e15;
+    double          maxMass    ;//= -1.0 ;
+    double    radiusMultiplier ;//=  1.0 ;
 
-    short          useShortCat =  1   ;
+    short          useShortCat ;//=  1   ;
 };
+
+//Default values initialized on construction
+inputInfo::inputInfo( ){
+  readFile       = "extractInfo.dat";	
+  inputCatalog   = "";			
+  inputPartFiles = "";			
+  particleDir    = "";			
+    headerDir    = "";			
+      catDir     = "";			
+      catName    = "";			
+      catType    = "MD";               
+       minMass    =  1e15;
+       maxMass    = -1.0 ;
+ radiusMultiplier =  1.0 ;                          
+      useShortCat =  1   ;
+}
 
 
 class haloInfo {
@@ -112,18 +130,18 @@ class haloInfo {
 
   private:
 
-    float x       =  0.0;  // x, y, z center of halo
-    float y       =  0.0;
-    float z       =  0.0;
-    float C       = -1.0;  // Concentration
-    float M       = -1.0;  // Mass of halo
-    float N       = -1  ;  // N_particles
-    float R_max   = -1.0;  // Rvir of halo
-    long  id      = -1  ;  // id number of halo
-    long distinct = -1  ;  // Distinct or subhalo, 0 or -1 d, #-distinct halo is subhalo of
+    float x       ;//=  0.0;  // x, y, z center of halo
+    float y       ;//=  0.0;
+    float z       ;//=  0.0;
+    float C       ;//= -1.0;  // Concentration
+    float M       ;//= -1.0;  // Mass of halo
+    float N       ;//= -1  ;  // N_particles
+    float R_max   ;//= -1.0;  // Rvir of halo
+    long  id      ;//= -1  ;  // id number of halo
+    long distinct ;//= -1  ;  // Distinct or subhalo, 0 or -1 d, #-distinct halo is subhalo of
 
-    float ba_rat  = -1.0;  // Ratio of axis b to a
-    float ca_rat  = -1.0;  // Ratio of axis c to a
+    float ba_rat  ;//= -1.0;  // Ratio of axis b to a
+    float ca_rat  ;//= -1.0;  // Ratio of axis c to a
 
 };
 
