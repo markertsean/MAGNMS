@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstring>
+#include <sys/stat.h>
 
 #include "halo_extraction_classes.h"
 #include "read_files.h"
@@ -29,7 +30,7 @@ int main( int arg, char ** argv ){
   if ( arg > 1 ){
     userInput.setReadFile( argv[1] );
   }
-  printf("\nUsing input file: %s\n", (userInput.getReadFile()).c_str());
+  printf("\n Using input file: %s\n", (userInput.getReadFile()).c_str());
 
 
   //Attempts to read the input file, and displays the resultant info
@@ -65,6 +66,32 @@ int main( int arg, char ** argv ){
   }
 
   printf("\n Catalog read in complete\n\n");
+
+  {
+    struct stat sb;
+    int maxStrLength=400;
+    char str[maxStrLength];
+
+    //If header directory exists, we use it
+    //If not, create it
+    sprintf( str, "mkdir %s", (userInput.getHeaderDir()).c_str() );
+    if ( stat((userInput.getHeaderDir()).c_str(), &sb) == 0 ){
+      std::cout << " Found directory: " << userInput.getHeaderDir() << std::endl;;
+    } else {
+      std::cout << " Writing directory: " << userInput.getHeaderDir() << std::endl;
+      system(str);
+    }
+
+    sprintf( str, "mkdir %s", (userInput.getParticleDir()).c_str() );
+    if ( stat((userInput.getParticleDir()).c_str(), &sb) == 0 ){
+      std::cout << " Found directory: " << userInput.getParticleDir() << std::endl;;
+    } else {
+      std::cout << " Writing directory: " << userInput.getParticleDir() << std::endl;
+      system(str);
+    }
+
+    printf("\n\n");
+  }
 
 //  system("mkdir .......");
 
