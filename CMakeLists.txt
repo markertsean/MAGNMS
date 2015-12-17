@@ -3,13 +3,17 @@ cmake_minimum_required(VERSION 2.8)
 ####
 # project settings
 ####
+enable_language(Fortran)
 
 set(sample_VERSION_MAJOR 1)
 set(sample_VERSION_MINOR 0)
 
+#set(CMAKE_Fortran_COMPILER "gfortran") 
+#set(MY_FFLAGS_DOUBLE $ENV{FFLAGS_DOUBLE})
+get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 
-project(haloExtractor)
-
+project(haloExtractor C CXX Fortran)
+#get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 include_directories(include)
 
 ####
@@ -17,7 +21,7 @@ include_directories(include)
 ####
 
 #set(SOURCES lensingCalculator.cpp myUtilities.cpp inputFunctions.cpp lensFitter.cpp pixelmapFunctions.cpp)
-file(GLOB SOURCES "src/*.cpp")
+file(GLOB SOURCES "src/*")#.cpp" "src/*.f90")
 
 ####
 # dependencies

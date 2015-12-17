@@ -1,6 +1,8 @@
 #include <iostream>
+#include <fstream>
 #include <cstring>
 #include <sys/stat.h>
+
 
 #include "halo_extraction_classes.h"
 #include "read_files.h"
@@ -106,14 +108,33 @@ int main( int arg, char ** argv ){
   }
 
 
+
   /////////////////////////////////////////
   ///////////Read in particles/////////////
   /////////////////////////////////////////
 
 
+/*
+Use fortran wrapper to read config
+  Will set global variables in block, does this save over?
+  Can count how many files found
+Go through files, reading header & particles
+Write particles that are valid to external file, allowing us
+  to allocate much smaller array for useable halos
+Don't need to allocate ANYTHING yet, can track number of particles to allocate internally
+*/
 
 
+//Read to find files for this snapshot number
+//Set "global" variables
+//Attempt to read header
+//Read particles
+//Test for criteria from halos, avoid any halos w/in 8 Mpc of box edge
+//Find max possible integration length
+//Write to file for within Rv, 8Mpc box, integration lengths
+//Write halo header
 
+  teststuff_();
 
 
   /////////////////////////////////////////

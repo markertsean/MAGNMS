@@ -57,42 +57,52 @@ class inputInfo{
 
   private:
     //User end input file
-    std::string readFile      ;// = "extractInfo.dat";	
-		                                        
-    //Data in input file, as to what files to use	
-    std::string inputCatalog  ;// = "";			
-    std::string inputPartFiles;// = "";			
-		                                        
-    std::string particleDir   ;// = "";			
-    std::string   headerDir   ;// = "";			
-		                                        
-    std::string     catDir    ;// = "";			
-    std::string     catName   ;// = "";			
-		                                        
-    std::string     catType   ;// = "MD";               
+    std::string readFile      ;// = "extractInfo.dat";
+
+    //Data in input file, as to what files to use
+    std::string inputCatalog  ;// = "";
+    std::string inputPartFiles;// = "";
+
+    std::string particleDir   ;// = "";
+    std::string   headerDir   ;// = "";
+
+    std::string     catDir    ;// = "";
+    std::string     catName   ;// = "";
+
+    std::string     catType   ;// = "MD";
 
     //Halo restrictions imposed by user
     double          minMass    ;//=  1e15;
     double          maxMass    ;//= -1.0 ;
     double    radiusMultiplier ;//=  1.0 ;
 
+    double              boxFOV ;
+    double          losLength1 ;
+    double          losLength2 ;
+    double          losLength3 ;
+
     short          useShortCat ;//=  1   ;
 };
 
 //Default values initialized on construction
 inputInfo::inputInfo( ){
-  readFile       = "extractInfo.dat";	
-  inputCatalog   = "";			
-  inputPartFiles = "";			
-  particleDir    = "";			
-    headerDir    = "";			
-      catDir     = "";			
-      catName    = "";			
-      catType    = "MD";               
+  readFile       = "extractInfo.dat";
+  inputCatalog   = "";
+  inputPartFiles = "";
+  particleDir    = "";
+    headerDir    = "";
+      catDir     = "";
+      catName    = "";
+      catType    = "MD";
        minMass    =  1e15;
        maxMass    = -1.0 ;
- radiusMultiplier =  1.0 ;                          
+ radiusMultiplier =  1.0 ;
       useShortCat =  1   ;
+
+      boxFOV      =   8.0;//All Mpc
+      losLength1  =  50.0;
+      losLength2  = 250.0;
+      losLength3  = 500.0;
 }
 
 
@@ -144,5 +154,50 @@ class haloInfo {
     float ca_rat  ;//= -1.0;  // Ratio of axis c to a
 
 };
+
+
+/*
+extern "C" {
+               extern struct{
+                   double x;
+                   int a, b, c;
+               } abc_;
+             }
+*/
+
+/*
+Integer*4  ::    nx, ny, nz, Nbuffer                               ! number of domains
+Real*4     ::     xL,xR,yL,yR,zL,zR,dBuffer   ! boundaries of domain
+                     ! ------------------------- cosmology ----------------------
+Real*4     ::  AEXPN, Om0,Oml0,hubble        ! cosmology
+Real*4     ::  Box,MassOne,fraction                   !  current simulation
+Integer*4  ::  jStep
+Integer*4  ::  Np,Ntot                          ! Number of particles
+
+                     ! -------------------------  Particles ----------------------
+
+Real*4,       ALLOCATABLE,   DIMENSION(:) ::             &
+                                      Xpp,  Ypp,  Zpp!,   &      !   coords
+!                                      Wxp,  Wyp,  Wzp
+Integer*8       ::  iCount
+*/
+
+extern "C" {
+extern struct{
+int nx, ny, nz;
+float xl, xr, yl, yr, zl, zr, dBuffer;
+float aexpn, om0, oml0, hubble;
+float box,massone,fraction;
+int jstep;
+int np,ntot;
+float* xpp;
+float* ypp;
+float* zpp;
+int icount;
+void readconfig_();
+} setarrs_;
+}
+
+extern "C" void teststuff_();
 
 #endif // HE_CLASSES
