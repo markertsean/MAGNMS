@@ -21,17 +21,21 @@ class inputInfo{
     void setMaxMass     ( double      inpD ) {   maxMass       = inpD; }
     void setRadiusMult  ( double      inpD ) {radiusMultiplier = inpD; }
     void setShortCat    ( short       inpI ) {  useShortCat    = inpI; }
+    void setSnapNum     ( short       inpI ) {  snapshotNum    = inpI; }
 
-    std::string getReadFile    () { return readFile         ; }
-    std::string getInputCatalog() { return inputCatalog     ; }
-    std::string getInputPart   () { return inputPartFiles   ; }
-    std::string getParticleDir () { return particleDir      ; }
-    std::string getHeaderDir   () { return   headerDir      ; }
-    std::string getCatType     () { return   catType        ; }
-    double      getMinMass     () { return   minMass        ; }
-    double      getMaxMass     () { return   maxMass        ; }
-    double      getRadiusMult  () { return radiusMultiplier ; }
-    short       getShortCat    () { return   useShortCat    ; }
+    std::string getReadFile      () { return readFile         ; }
+    std::string getInputCatalog  () { return inputCatalog     ; }
+    std::string getInputPart     () { return inputPartFiles   ; }
+    std::string getParticleDir   () { return particleDir      ; }
+    std::string getHeaderDir     () { return   headerDir      ; }
+    std::string getPartFileStart () { return partFileStart    ; }
+    std::string getCatType       () { return   catType        ; }
+    double      getMinMass       () { return   minMass        ; }
+    double      getMaxMass       () { return   maxMass        ; }
+    double      getRadiusMult    () { return radiusMultiplier ; }
+    short       getShortCat      () { return   useShortCat    ; }
+    short       getSnapNum       () { return   snapshotNum    ; }
+
 
     void setDirectory(){
 
@@ -53,6 +57,8 @@ class inputInfo{
           headerDir = catDir + catName.substr( 0, lastDot ) + "_Headers/";
       }
 
+      partFileStart = catDir + "Part." ;//+ std::to_string( snapshotNum ) + ""
+
     }
 
   private:
@@ -62,6 +68,8 @@ class inputInfo{
     //Data in input file, as to what files to use
     std::string inputCatalog  ;// = "";
     std::string inputPartFiles;// = "";
+
+    std::string  partFileStart;
 
     std::string particleDir   ;// = "";
     std::string   headerDir   ;// = "";
@@ -82,6 +90,9 @@ class inputInfo{
     double          losLength3 ;
 
     short          useShortCat ;//=  1   ;
+
+    short          snapshotNum ;
+
 };
 
 //Default values initialized on construction
@@ -89,6 +100,7 @@ inputInfo::inputInfo( ){
   readFile       = "extractInfo.dat";
   inputCatalog   = "";
   inputPartFiles = "";
+  partFileStart  = "";
   particleDir    = "";
     headerDir    = "";
       catDir     = "";
@@ -98,6 +110,7 @@ inputInfo::inputInfo( ){
        maxMass    = -1.0 ;
  radiusMultiplier =  1.0 ;
       useShortCat =  1   ;
+      snapshotNum =  0   ;
 
       boxFOV      =   8.0;//All Mpc
       losLength1  =  50.0;
@@ -156,48 +169,6 @@ class haloInfo {
 };
 
 
-/*
-extern "C" {
-               extern struct{
-                   double x;
-                   int a, b, c;
-               } abc_;
-             }
-*/
-
-/*
-Integer*4  ::    nx, ny, nz, Nbuffer                               ! number of domains
-Real*4     ::     xL,xR,yL,yR,zL,zR,dBuffer   ! boundaries of domain
-                     ! ------------------------- cosmology ----------------------
-Real*4     ::  AEXPN, Om0,Oml0,hubble        ! cosmology
-Real*4     ::  Box,MassOne,fraction                   !  current simulation
-Integer*4  ::  jStep
-Integer*4  ::  Np,Ntot                          ! Number of particles
-
-                     ! -------------------------  Particles ----------------------
-
-Real*4,       ALLOCATABLE,   DIMENSION(:) ::             &
-                                      Xpp,  Ypp,  Zpp!,   &      !   coords
-!                                      Wxp,  Wyp,  Wzp
-Integer*8       ::  iCount
-*/
-
-extern "C" {
-extern struct{
-int nx, ny, nz;
-float xl, xr, yl, yr, zl, zr, dBuffer;
-float aexpn, om0, oml0, hubble;
-float box,massone,fraction;
-int jstep;
-int np,ntot;
-float* xpp;
-float* ypp;
-float* zpp;
-int icount;
-void readconfig_();
-} setarrs_;
-}
-
-extern "C" void teststuff_();
+extern "C" void readfiles_( int *jstep, char *filestart, int *filestartlength );
 
 #endif // HE_CLASSES

@@ -54,6 +54,9 @@ bool readUserInput( std::string fileName, inputInfo &myInput ){
       else if ( strcmp( inpC1, "useShortCatalog" ) == 0 ){
         myInput.setShortCat    ( std::stoi( inpS )  );
       }
+      else if ( strcmp( inpC1, "snapNum" ) == 0 ){
+        myInput.setSnapNum     ( std::stoi( inpS )  );
+      }
 
     }
   }
@@ -140,7 +143,7 @@ unsigned long readCatalog( haloInfo      halos[] ,  //Stores data of halos
 
   //Write short catalog if one doesn't exist, and second time through
   if ( (userInfo.getShortCat() == 1) &&   //If using shortcat
-               shortFile.bad() == 0  &&   //And couldn't find shortcat
+             !shortFile.good()       &&   //And couldn't find shortcat
        (             N_halos   >  0 ) ) { //And second time through
     std::ofstream writeFile( shortCat );
     if ( writeShortCat( writeFile, halos, N_halos ) ){

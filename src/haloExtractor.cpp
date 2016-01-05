@@ -113,29 +113,23 @@ int main( int arg, char ** argv ){
   ///////////Read in particles/////////////
   /////////////////////////////////////////
 
-
 /*
-Use fortran wrapper to read config
-  Will set global variables in block, does this save over?
-  Can count how many files found
-Go through files, reading header & particles
-Write particles that are valid to external file, allowing us
-  to allocate much smaller array for useable halos
-Don't need to allocate ANYTHING yet, can track number of particles to allocate internally
+readfiles (rename) reads the file name from the snapshop
+and file location passed to it
+Outputs a header file with basic info,
+and a shitton of particles in a file
+now need to read in from the C end,
+allocate the location arrays,
+and then scan used halo catalog for the acceptance criteria
 */
 
+int blah = userInput.getSnapNum();
+std::string tempS = userInput.getPartFileStart();
+char tempC[60];
+strcpy(tempC,tempS.c_str());
+int tempI = tempS.length();
 
-//Read to find files for this snapshot number
-//Set "global" variables
-//Attempt to read header
-//Read particles
-//Test for criteria from halos, avoid any halos w/in 8 Mpc of box edge
-//Find max possible integration length
-//Write to file for within Rv, 8Mpc box, integration lengths
-//Write halo header
-
-  teststuff_();
-
+  readfiles_( &blah, tempC, & tempI );
 
   /////////////////////////////////////////
   //////////Write header files/////////////
