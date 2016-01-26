@@ -113,23 +113,16 @@ int main( int arg, char ** argv ){
   ///////////Read in particles/////////////
   /////////////////////////////////////////
 
-/*
-readfiles (rename) reads the file name from the snapshop
-and file location passed to it
-Outputs a header file with basic info,
-and a shitton of particles in a file
-now need to read in from the C end,
-allocate the location arrays,
-and then scan used halo catalog for the acceptance criteria
-*/
+  //setPartFile will locate the particle files
+  // if the file exists, or create the file
+  // based on the PMSS file it thinks we should use
+  //If the function has issues, will execute this if
+  if ( !setPartFile( userInput ) ){
 
-int blah = userInput.getSnapNum();
-std::string tempS = userInput.getPartFileStart();
-char tempC[60];
-strcpy(tempC,tempS.c_str());
-int tempI = tempS.length();
+    printf(" Error reading particle file:%s\n Specify the file using the variable \"partFile\", using the variable \"snapNum\", and making sure you are in the proper directory"
+            , (userInput.getInputPart()).c_str() );
 
-  readfiles_( &blah, tempC, & tempI );
+  }
 
   /////////////////////////////////////////
   //////////Write header files/////////////

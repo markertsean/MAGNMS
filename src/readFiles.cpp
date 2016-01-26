@@ -356,63 +356,103 @@ bool readParticle(){
 
   return true;
 }
-/*
-#include <fstream>
-#include <vector>
-#include <string>
 
-using namespace std;
 
-struct Point
-{
-   double x, y, z;
-};
+//Locates the particle file, or generates one from PMSS
+bool setPartFile( inputInfo userInput ) { //All the user input
 
-const int RECORD_DELIMITER_LENGTH = 4;
 
-bool ReadPoints(const string& fileName, vector& points)
-{
-   int nbPoints;
+  short fileFoundFlag = 0;
 
-   // clear the points
-   points.clear();
+  //If the user specified a file, use it
+  if ( (userInput.getInputPart()!="") ){
 
-   // open file in binary mode
-   ifstream input(fileName.c_str(), ios::binary);
+    std::string partCatalog = userInput.getInputPart();
 
-   if (input.good())
-   {
-      // read number of points
-      input.seekg(RECORD_DELIMITER_LENGTH, ios::cur);
-      input.read((char*) &nbPoints, sizeof(nbPoints));
-      input.seekg(RECORD_DELIMITER_LENGTH, ios::cur);
+    char tempS[60];
 
-      // set vector size
-      points.resize(nbPoints);
+    sprintf(tempS,"%s.header.dat", (partCatalog.substr(0,partCatalog.length()-4)).c_str() );
 
-      // read each point
-      for (int i = 0; i < nbPoints; ++i)
-      {
-         input.seekg(RECORD_DELIMITER_LENGTH, ios::cur);
 
-         input.read((char*) &points[i].x, sizeof(points[i].x));
-         input.read((char*) &points[i].y, sizeof(points[i].y));
-         input.read((char*) &points[i].z, sizeof(points[i].z));
+    //Attempts to open the files, to see if they exist
+    std::ifstream testPart( partCatalog );
+    std::ifstream testHead(       tempS );
 
-         input.seekg(RECORD_DELIMITER_LENGTH, ios::cur);
-      }
 
-      return true;
-   }
-   else
-   {
-      return false;
-   }
+    //If we could open both files, that's all
+    if ( (testPart.good() == 1) && (testHead.good() == 1) ){
+
+      printf( "%s%s\n", " Using particle file: ", ( userInput.getInputPart() ).c_str() );
+      printf( "%s%s\n", " Using   header file: ",                                tempS );
+
+      userInput.setInputHead( tempS );
+
+      fileFoundFlag = 1;
+    }
+  }
+
+  //If nothing specified, or specified file not found
+  if ( fileFoundFlag == 0 ) {
+
+    int snapNum = userInput.getSnapNum();                     //Snapshot number
+    std::string partFileStart = userInput.getPartFileStart(); //Beginning of particle file name
+
+
+    //Generates file names for particle file, header file, based on beginning of file name
+    char testPartFile[60];
+    char testHeadFile[60];
+    sprintf(testPartFile,"%s%4.4i.DAT"       , partFileStart.c_str(), snapNum );
+    sprintf(testHeadFile,"%s%4.4i.header.dat", partFileStart.c_str(), snapNum );
+
+
+    //Attempts to open the files, to see if they exist
+    std::ifstream testPart( testPartFile );
+    std::ifstream testHead( testHeadFile );
+
+
+
+    //If we could open both files, that's all
+    if ( (testPart.good() == 1) && (testHead.good() == 1) ){
+
+      printf( "%s%s\n", " Using particle file: ", testPartFile );
+      printf( "%s%s\n", " Using   header file: ", testHeadFile );
+
+    }
+    //If we couldn't open both files, read in from pmss file using other input data
+    else{
+
+      char tempC[60];                                           //For passing begining of file name to the fortran function
+                                                                // if blank, just uses current file directory
+      strcpy(tempC, partFileStart.c_str());                     //Copy the string to the char array
+      int fileNameLength = partFileStart.length();              //Length of the particle file name, needed for
+                                                                // fortran format string
+      /*
+        readpmss reads the fortran unformatted binary file for the particles
+        file name from the snapshop
+        and file location passed to it
+        Outputs a header file with basic info,
+        and a shitton of particles in a file
+        now need to read in from the C end,
+        allocate the location arrays,
+        and then scan used halo catalog for the acceptance criteria
+      */
+      unsigned long numParticles=0;
+      numParticles = readpmss_( &snapNum, tempC, &fileNameLength );
+
+      //Couldn't read file, or no halos read
+      if ( numParticles == 0 )
+        return false;
+
+    }
+
+    userInput.setInputPart( testPartFile );
+    userInput.setInputHead( testHeadFile );
+
+  }
+
+//std::cout << userInput.getInputPart() << std::endl;
+//std::cout << userInput.getInputHead() << std::endl;
+
+
+  return true;
 }
-
-
-*/
-
-
-
-

@@ -31,4 +31,7 @@
   bool validHalo( float  inpM ,  //Input halos mass
                   long  inpDS ); //Distinct/sub flag
 
+  //Locates the particle file, or generates one from PMSS
+  bool setPartFile( inputInfo userInfo ) ; //All the user input
+
 #endif

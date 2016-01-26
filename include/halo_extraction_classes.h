@@ -14,6 +14,7 @@ class inputInfo{
     void setReadFile    ( std::string inpS ) { readFile        = inpS; }
     void setInputCatalog( std::string inpS ) { inputCatalog    = inpS; }
     void setInputPart   ( std::string inpS ) { inputPartFiles  = inpS; }
+    void setInputHead   ( std::string inpS ) { inputHeadFiles  = inpS; }
     void setParticleDir ( std::string inpS ) { particleDir     = inpS; }
     void setHeaderDir   ( std::string inpS ) {   headerDir     = inpS; }
     void setCatType     ( std::string inpS ) {   catType       = inpS; }
@@ -26,6 +27,7 @@ class inputInfo{
     std::string getReadFile      () { return readFile         ; }
     std::string getInputCatalog  () { return inputCatalog     ; }
     std::string getInputPart     () { return inputPartFiles   ; }
+    std::string getInputHead     () { return inputHeadFiles   ; }
     std::string getParticleDir   () { return particleDir      ; }
     std::string getHeaderDir     () { return   headerDir      ; }
     std::string getPartFileStart () { return partFileStart    ; }
@@ -68,6 +70,7 @@ class inputInfo{
     //Data in input file, as to what files to use
     std::string inputCatalog  ;// = "";
     std::string inputPartFiles;// = "";
+    std::string inputHeadFiles;
 
     std::string  partFileStart;
 
@@ -100,6 +103,7 @@ inputInfo::inputInfo( ){
   readFile       = "extractInfo.dat";
   inputCatalog   = "";
   inputPartFiles = "";
+  inputHeadFiles = "";
   partFileStart  = "";
   particleDir    = "";
     headerDir    = "";
@@ -169,6 +173,6 @@ class haloInfo {
 };
 
 
-extern "C" void readfiles_( int *jstep, char *filestart, int *filestartlength );
+extern "C" unsigned long readpmss_( int *jstep, char *filestart, int *filestartlength );
 
 #endif // HE_CLASSES

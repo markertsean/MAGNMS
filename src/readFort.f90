@@ -7,7 +7,7 @@
 !jstep is snapshot number
 !filestart is something like ../data/Part. and is used to write out files
 !filestartlength is the length of filestart, needed to get the format for the name variable right. Was having issues opening without this
-function readfiles( jstep, filestart, filestartlength )
+function readpmss( jstep, filestart, filestartlength )
 
   integer*4,    intent(in) :: jstep, filestartlength
   character*60, intent(in) :: filestart
@@ -42,7 +42,7 @@ call srand(1165313)
   do k0=1,nz
   do j0=1,ny
   do i0=1,nx
-            totparticles = totparticles + readpmss(i0,j0,k0,nx,ny,nz,jstep,totparticles,filestart,filestartlength-5)
+            totparticles = totparticles + readfile(i0,j0,k0,nx,ny,nz,jstep,totparticles,filestart,filestartlength-5)
   enddo ! k
   enddo ! j
   enddo ! i
@@ -56,14 +56,14 @@ call srand(1165313)
   write(*,'(2a)') 'Wrote file: ',name3
 
 
-  readfiles = totparticles
+  readpmss = totparticles
   return
 
-end function readfiles
+end function readpmss
 
 !---------------------------------------------------------
 !                                        read particles
-function readpmss(i0,j0,k0,nx,ny,nz,jstep,totparticles,dirpath,dirpathlength)
+function readfile(i0,j0,k0,nx,ny,nz,jstep,totparticles,dirpath,dirpathlength)
 !--------------------------------------------------------------
 
   integer*4,    intent(in) :: i0, j0, k0, jstep, totparticles, dirpathlength
@@ -168,7 +168,7 @@ if(inside.and.(rand()<0.00001))then
 
   endif
 
-  readpmss = icount
+  readfile = icount
   return
 
-end function readpmss
+end function readfile
