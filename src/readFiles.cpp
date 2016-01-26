@@ -352,7 +352,7 @@ bool validHalo( float inpM, long inpDS ){
 
 
 //Locates the particle file, or generates one from PMSS
-unsigned long setPartFile( inputInfo userInput ) { //All the user input
+unsigned long setPartFile( inputInfo &userInput ) { //All the user input
 
 
   unsigned long numParticles = 0;
@@ -468,7 +468,27 @@ unsigned long setPartFile( inputInfo userInput ) { //All the user input
 
 
 
-bool readParticle(){
+bool readParticle( inputInfo userInfo, particlePosition particles[] ){
+
+
+
+  std::ifstream inputParticleFile( ( userInfo.getInputPart() ).c_str() );
+
+  if ( inputParticleFile.good() ){
+    for ( int i = 0; i < userInfo.getNumParticles() ; ++i ){
+
+      inputParticleFile >> particles[i].x_pos;
+      inputParticleFile >> particles[i].y_pos;
+      inputParticleFile >> particles[i].z_pos;
+
+    }
+  }
+  else {
+
+    printf(" Error opening particle file: %s\n\n", ( userInfo.getInputPart() ).c_str() );
+    exit(1);
+
+  }
 
   return true;
 }

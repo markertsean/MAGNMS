@@ -11,32 +11,35 @@ class inputInfo{
     inline inputInfo();
 
     //Functions to change files the user may input
-    void setReadFile    ( std::string inpS ) { readFile        = inpS; }
-    void setInputCatalog( std::string inpS ) { inputCatalog    = inpS; }
-    void setInputPart   ( std::string inpS ) { inputPartFiles  = inpS; }
-    void setInputHead   ( std::string inpS ) { inputHeadFiles  = inpS; }
-    void setParticleDir ( std::string inpS ) { particleDir     = inpS; }
-    void setHeaderDir   ( std::string inpS ) {   headerDir     = inpS; }
-    void setCatType     ( std::string inpS ) {   catType       = inpS; }
-    void setMinMass     ( double      inpD ) {   minMass       = inpD; }
-    void setMaxMass     ( double      inpD ) {   maxMass       = inpD; }
-    void setRadiusMult  ( double      inpD ) {radiusMultiplier = inpD; }
-    void setShortCat    ( short       inpI ) {  useShortCat    = inpI; }
-    void setSnapNum     ( short       inpI ) {  snapshotNum    = inpI; }
+    void setReadFile    ( std::string   inpS ) { readFile        = inpS; }
+    void setInputCatalog( std::string   inpS ) { inputCatalog    = inpS; }
+    void setInputPart   ( std::string   inpS ) { inputPartFiles  = inpS; }
+    void setInputHead   ( std::string   inpS ) { inputHeadFiles  = inpS; }
+    void setParticleDir ( std::string   inpS ) { particleDir     = inpS; }
+    void setHeaderDir   ( std::string   inpS ) {   headerDir     = inpS; }
+    void setCatType     ( std::string   inpS ) {   catType       = inpS; }
+    void setMinMass     ( double        inpD ) {   minMass       = inpD; }
+    void setMaxMass     ( double        inpD ) {   maxMass       = inpD; }
+    void setRadiusMult  ( double        inpD ) {radiusMultiplier = inpD; }
+    void setShortCat    ( short         inpI ) {  useShortCat    = inpI; }
+    void setSnapNum     ( short         inpI ) {  snapshotNum    = inpI; }
+    void setNumParticles( unsigned long inpI ) {  numParticles   = inpI; }
 
-    std::string getReadFile      () { return readFile         ; }
-    std::string getInputCatalog  () { return inputCatalog     ; }
-    std::string getInputPart     () { return inputPartFiles   ; }
-    std::string getInputHead     () { return inputHeadFiles   ; }
-    std::string getParticleDir   () { return particleDir      ; }
-    std::string getHeaderDir     () { return   headerDir      ; }
-    std::string getPartFileStart () { return partFileStart    ; }
-    std::string getCatType       () { return   catType        ; }
-    double      getMinMass       () { return   minMass        ; }
-    double      getMaxMass       () { return   maxMass        ; }
-    double      getRadiusMult    () { return radiusMultiplier ; }
-    short       getShortCat      () { return   useShortCat    ; }
-    short       getSnapNum       () { return   snapshotNum    ; }
+
+    std::string   getReadFile      () { return readFile         ; }
+    std::string   getInputCatalog  () { return inputCatalog     ; }
+    std::string   getInputPart     () { return inputPartFiles   ; }
+    std::string   getInputHead     () { return inputHeadFiles   ; }
+    std::string   getParticleDir   () { return particleDir      ; }
+    std::string   getHeaderDir     () { return   headerDir      ; }
+    std::string   getPartFileStart () { return partFileStart    ; }
+    std::string   getCatType       () { return   catType        ; }
+    double        getMinMass       () { return   minMass        ; }
+    double        getMaxMass       () { return   maxMass        ; }
+    double        getRadiusMult    () { return radiusMultiplier ; }
+    short         getShortCat      () { return   useShortCat    ; }
+    short         getSnapNum       () { return   snapshotNum    ; }
+    unsigned long getNumParticles  () { return   numParticles   ; }
 
 
     void setDirectory(){
@@ -95,6 +98,8 @@ class inputInfo{
     short          useShortCat ;//=  1   ;
 
     short          snapshotNum ;
+
+    unsigned long numParticles ;
 
 };
 
@@ -171,6 +176,16 @@ class haloInfo {
     float ca_rat  ;//= -1.0;  // Ratio of axis c to a
 
 };
+
+
+class particlePosition{
+
+public:
+    float x_pos, y_pos, z_pos;
+
+
+};
+
 
 
 extern "C" unsigned long readpmss_( int *jstep, char *filestart, int *filestartlength );

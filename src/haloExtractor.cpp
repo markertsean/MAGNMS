@@ -131,14 +131,13 @@ int main( int arg, char ** argv ){
     exit(1);
 
   }
+  userInput.setNumParticles( numParticles );
 
   //Once particles are confirmed, read into this C side
+  particlePosition particle[numParticles];
 
+  readParticle( userInput, particle );
 
-
-
-
-exit(0);
 
   /////////////////////////////////////////
   //////////Write header files/////////////
