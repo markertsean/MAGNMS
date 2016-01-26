@@ -32,6 +32,9 @@
                   long  inpDS ); //Distinct/sub flag
 
   //Locates the particle file, or generates one from PMSS
-  bool setPartFile( inputInfo userInfo ) ; //All the user input
+  unsigned long setPartFile( inputInfo userInfo ) ; //All the user input
+
+  //Reads the particle file
+  bool readParticle();
 
 #endif

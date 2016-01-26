@@ -116,13 +116,29 @@ int main( int arg, char ** argv ){
   //setPartFile will locate the particle files
   // if the file exists, or create the file
   // based on the PMSS file it thinks we should use
-  //If the function has issues, will execute this if
-  if ( !setPartFile( userInput ) ){
+  //If the read in fails, will return a 0 for num particles
 
-    printf(" Error reading particle file:%s\n Specify the file using the variable \"partFile\", using the variable \"snapNum\", and making sure you are in the proper directory"
-            , (userInput.getInputPart()).c_str() );
+  unsigned long numParticles = 0;
+
+  numParticles = setPartFile( userInput );
+
+  printf("\n");
+
+  if ( numParticles == 0 ){
+
+    printf(" Error reading particle file:%s\n", (userInput.getInputPart()).c_str() );
+    printf("Specify the file using the variable \"partFile\", using the variable \"snapNum\", and making sure you are in the proper directory\n\n");
+    exit(1);
 
   }
+
+  //Once particles are confirmed, read into this C side
+
+
+
+
+
+exit(0);
 
   /////////////////////////////////////////
   //////////Write header files/////////////
