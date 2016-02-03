@@ -1,3 +1,5 @@
+#include <math.h>
+
 
 #include "halo_extraction_classes.h"
 #include "link_halos.h"
@@ -5,10 +7,10 @@
 
 //Sets the min/max values of the particle positions
 void setMinMaxParticles( particlePosition particle[],  //Particles to find min/max of
-                         inputInfo       &userInput ) //Number of particles in the array
+                         inputInfo       &userInput ){ //Number of particles in the array
 
-
-  float minX( particle[0].x_pos )
+  //min and max values for each coordinate
+  float minX( particle[0].x_pos );
   float maxX( particle[0].x_pos );
   float minY( particle[0].y_pos );
   float maxY( particle[0].y_pos );
@@ -25,12 +27,13 @@ void setMinMaxParticles( particlePosition particle[],  //Particles to find min/m
     maxZ = ( maxZ > particle[i].z_pos  ? maxZ : particle[i].z_pos);
   }
 
-  userinput.getXmin(   floor( minX ) );
-  userinput.getYmin(   floor( minY ) );
-  userinput.getZmin(   floor( minZ ) );
-  userinput.getXmax( ceiling( maxX ) );
-  userinput.getYmax( ceiling( maxY ) );
-  userinput.getZmax( ceiling( maxZ ) );
+  //save the values
+  userInput.setXmin( floor( minX ) );
+  userInput.setYmin( floor( minY ) );
+  userInput.setZmin( floor( minZ ) );
+  userInput.setXmax(  ceil( maxX ) );
+  userInput.setYmax(  ceil( maxY ) );
+  userInput.setZmax(  ceil( maxZ ) );
 
 }
 

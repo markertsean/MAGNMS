@@ -6,6 +6,7 @@
 
 #include "halo_extraction_classes.h"
 #include "read_files.h"
+#include "link_halos.h"
 
 //Read halo catalog
 //Select halos within criterion
@@ -56,6 +57,7 @@ int main( int arg, char ** argv ){
   ///////////////////////////////////////////
 
 
+
   //Read the number of valid halos, for allocation
   unsigned long N_halos =0;
   {
@@ -64,7 +66,9 @@ int main( int arg, char ** argv ){
     printf(" Number of halos read: %lu\n",N_halos);
   }
 
-  haloInfo myHalos[N_halos];
+//  haloInfo myHalos[N_halos];
+  haloInfo *myHalos = new haloInfo[N_halos];
+
   {
     unsigned long old_N_halos = N_halos;
     N_halos = readCatalog( myHalos, userInput, N_halos );
@@ -73,6 +77,8 @@ int main( int arg, char ** argv ){
       exit(1);
     }
   }
+  userInput.setNumHalos( N_halos );
+
 
   printf("\n Catalog read in complete\n\n");
 
@@ -136,7 +142,77 @@ int main( int arg, char ** argv ){
   //Once particles are confirmed, read into this C side
   particlePosition particle[numParticles];
 
+
   readParticle( userInput, particle );
+
+  setMinMaxParticles( particle, userInput );
+
+
+  /////////////////////////////////////////
+  ////////Write Halo Particle Files////////
+  /////////////////////////////////////////
+
+//Shitton of particles
+//Loop over halos, need some sort of flag to mark as used/unused
+//Check particles for boundaries in x, y, z, will vary on read in
+//  reduce halos list to those within boundary
+//float particlePosition::x_min=0;
+
+  haloInfo *halos;
+  {
+    //Array to track how many halos are valid within the box
+    short inBox[ userInput.getNumHalos() ];
+    unsigned long sum(0);
+std::cout <<"166"<<std::endl;
+
+    //Cycle through halos to determine if in our box
+    for ( int i  = 0 ; i < userInput.getNumHalos(); ++i ){
+        inBox[i] = 0;
+
+      //If the halo is within the coordinates we have, and the FOV doesn't leave the box, save it
+      if ( ( userInput.getXmin() < myHalos[i].getX() - userInput.getFOV() ) && ( myHalos[i].getX() + userInput.getFOV() < userInput.getXmax() ) &&
+           ( userInput.getYmin() < myHalos[i].getY() - userInput.getFOV() ) && ( myHalos[i].getY() + userInput.getFOV() < userInput.getYmax() ) &&
+           ( userInput.getZmin() < myHalos[i].getZ() - userInput.getFOV() ) && ( myHalos[i].getZ() + userInput.getFOV() < userInput.getZmax() )   ){
+
+        inBox[i] = 1;
+      }
+
+      //Sum is the number of halos in the box
+      sum += inBox[i];
+    }
+std::cout <<"183"<<std::endl;
+
+    //Allocate the new halo list
+    halos = new haloInfo[  sum ];
+
+    //Go through and copy over the halos in the box to the new halo list
+    unsigned long counter(0);
+    for ( int i = 0 ; i < userInput.getNumHalos(); ++i ){
+      if ( inBox[i] == 1 ){
+        halos[ counter ] = myHalos[ i ];
+        ++counter;
+std::cout << myHalos[i].getX() << std::endl;
+      }
+    }
+std::cout <<"197"<<sum<<std::endl;
+
+    userInput.setNumHalos( sum );
+  }
+
+  delete [] myHalos;
+
+for ( int i = 0; i < userInput.getNumHalos(); ++i ){
+std::cout << halos[i].getX() << std::endl;
+}
+
+
+
+//Make link list
+int blah = 8;
+  unsigned long LinkList[ userInput.getNumParticles() ];
+//  int label[cellnum,cellnum,cellnum]
+
+
 
 
   /////////////////////////////////////////
@@ -168,5 +244,5 @@ int main( int arg, char ** argv ){
 
 
 
-
+  delete [] halos;
 }

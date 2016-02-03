@@ -23,7 +23,16 @@ class inputInfo{
     void setRadiusMult  ( double        inpD ) {radiusMultiplier = inpD; }
     void setShortCat    ( short         inpI ) {  useShortCat    = inpI; }
     void setSnapNum     ( short         inpI ) {  snapshotNum    = inpI; }
+    void setNumHalos    ( unsigned long inpI ) {  numHalos       = inpI; }
     void setNumParticles( unsigned long inpI ) {  numParticles   = inpI; }
+    void setFOV         ( float         inpF ) {   boxFOV        = inpF; }
+    void setXmin        ( float         inpF ) {   x_min         = inpF; }
+    void setXmax        ( float         inpF ) {   x_max         = inpF; }
+    void setYmin        ( float         inpF ) {   y_min         = inpF; }
+    void setYmax        ( float         inpF ) {   y_max         = inpF; }
+    void setZmin        ( float         inpF ) {   z_min         = inpF; }
+    void setZmax        ( float         inpF ) {   z_max         = inpF; }
+
 
 
     std::string   getReadFile      () { return readFile         ; }
@@ -37,9 +46,17 @@ class inputInfo{
     double        getMinMass       () { return   minMass        ; }
     double        getMaxMass       () { return   maxMass        ; }
     double        getRadiusMult    () { return radiusMultiplier ; }
+    double        getFOV           () { return   boxFOV         ; }
     short         getShortCat      () { return   useShortCat    ; }
     short         getSnapNum       () { return   snapshotNum    ; }
+    unsigned long getNumHalos      () { return   numHalos       ; }
     unsigned long getNumParticles  () { return   numParticles   ; }
+    float         getXmin          () { return   x_min          ; }
+    float         getXmax          () { return   x_max          ; }
+    float         getYmin          () { return   y_min          ; }
+    float         getYmax          () { return   y_max          ; }
+    float         getZmin          () { return   z_min          ; }
+    float         getZmax          () { return   z_max          ; }
 
 
     void setDirectory(){
@@ -99,7 +116,10 @@ class inputInfo{
 
     short          snapshotNum ;
 
+    unsigned long numHalos     ;
     unsigned long numParticles ;
+
+    float x_min, x_max, y_min, y_max, z_min, z_max;
 
 };
 
@@ -125,6 +145,16 @@ inputInfo::inputInfo( ){
       losLength1  =  50.0;
       losLength2  = 250.0;
       losLength3  = 500.0;
+
+     numHalos     = 0;
+     numParticles = 0;
+
+            x_min = 0;
+            x_max = 0;
+            y_min = 0;
+            y_max = 0;
+            z_min = 0;
+            z_max = 0;
 }
 
 
@@ -181,11 +211,18 @@ class haloInfo {
 class particlePosition{
 
 public:
-    float x_pos, y_pos, z_pos;
 
+    inline particlePosition();
+
+    float x_pos, y_pos, z_pos;
 
 };
 
+particlePosition::particlePosition(){
+  x_pos = 0;
+  y_pos = 0;
+  z_pos = 0;
+}
 
 
 extern "C" unsigned long readpmss_( int *jstep, char *filestart, int *filestartlength );
