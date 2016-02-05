@@ -158,53 +158,16 @@ int main( int arg, char ** argv ){
 //  reduce halos list to those within boundary
 //float particlePosition::x_min=0;
 
-  haloInfo *halos;
-  {
-    //Array to track how many halos are valid within the box
-    short inBox[ userInput.getNumHalos() ];
-    unsigned long sum(0);
-std::cout <<"166"<<std::endl;
+  //Dummy array, useless
+  haloInfo duhalos[2];
 
-    //Cycle through halos to determine if in our box
-    for ( int i  = 0 ; i < userInput.getNumHalos(); ++i ){
-        inBox[i] = 0;
+  N_halos = findBoxHalos( userInput, myHalos, duhalos, 0 ); //Returns the number of halos in the box
 
-      //If the halo is within the coordinates we have, and the FOV doesn't leave the box, save it
-      if ( ( userInput.getXmin() < myHalos[i].getX() - userInput.getFOV() ) && ( myHalos[i].getX() + userInput.getFOV() < userInput.getXmax() ) &&
-           ( userInput.getYmin() < myHalos[i].getY() - userInput.getFOV() ) && ( myHalos[i].getY() + userInput.getFOV() < userInput.getYmax() ) &&
-           ( userInput.getZmin() < myHalos[i].getZ() - userInput.getFOV() ) && ( myHalos[i].getZ() + userInput.getFOV() < userInput.getZmax() )   ){
+  haloInfo halos[N_halos];                                  //Allocates our new halo array
 
-        inBox[i] = 1;
-      }
+  N_halos = findBoxHalos( userInput, myHalos,   halos, 1 ); //Fills in our new halo array
 
-      //Sum is the number of halos in the box
-      sum += inBox[i];
-    }
-std::cout <<"183"<<std::endl;
-
-    //Allocate the new halo list
-    halos = new haloInfo[  sum ];
-
-    //Go through and copy over the halos in the box to the new halo list
-    unsigned long counter(0);
-    for ( int i = 0 ; i < userInput.getNumHalos(); ++i ){
-      if ( inBox[i] == 1 ){
-        halos[ counter ] = myHalos[ i ];
-        ++counter;
-std::cout << myHalos[i].getX() << std::endl;
-      }
-    }
-std::cout <<"197"<<sum<<std::endl;
-
-    userInput.setNumHalos( sum );
-  }
-
-  delete [] myHalos;
-
-for ( int i = 0; i < userInput.getNumHalos(); ++i ){
-std::cout << halos[i].getX() << std::endl;
-}
-
+  delete [] myHalos;                                        //Deletes old halo array
 
 
 //Make link list
@@ -244,5 +207,4 @@ int blah = 8;
 
 
 
-  delete [] halos;
 }
