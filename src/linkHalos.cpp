@@ -37,11 +37,6 @@ void setMinMaxParticles( particlePosition particle[],  //Particles to find min/m
 
 }
 
-void makeLinkList( particlePosition particle ){
-
-
-}
-
 
 
 
@@ -102,3 +97,97 @@ unsigned long findBoxHalos( inputInfo &userInput  ,
     return counter;
   }
 }
+
+
+
+//Make the link list of nearby particles
+void makeLinkList( inputInfo        userInfo   ,   //Contains the global info needed
+                   particlePosition particle[] ,   //Array of the particles
+                   unsigned long    myList  [] ,   //List pointing to next neighbor particle
+                   unsigned long    myLabel [] ){  //Label points to the last particle in list for index
+
+  double cell = 25;
+
+//Can we leave it as is, or need to account for offsets?
+
+  int Nlx = (                      userInfo.getXmin() ) / cell ; //Minimum box numbers
+  int Nly = (                      userInfo.getYmin() ) / cell ;
+  int Nlz = (                      userInfo.getZmin() ) / cell ;
+  int Nrx = ( userInfo.getXmax() - userInfo.getXmin() ) / cell ; //Maximum box numbers
+  int Nry = ( userInfo.getYmax() - userInfo.getYmin() ) / cell ;
+  int Nrz = ( userInfo.getZmax() - userInfo.getZmin() ) / cell ;
+
+
+  //Fortran has -1, check if this matters, we are using unsigned long however
+  for ( unsigned long i = 0 ; i < userInfo.getNumParticles() ; ++i ){
+    myList[i] = 0;
+  }
+
+  for ( int i = 0; i < Nrx ; ++i ){  //x
+  for ( int j = 0; j < Nry ; ++j ){  //y
+  for ( int k = 0; k < Nrz ; ++k ){  //z
+    myLabel[ i + j * Nrx + k * Nrx * Nry ] = 0;
+  }
+  }
+  }
+
+  //Loop over each particle, generating the link list
+  for ( unsigned long i = 0; i < userInfo.getNumParticles() ; ++i ){
+
+    //Find which box the particle is in, make sure we stay in the box
+    int xIndex = std::min( std::max( Nlx, int( ( particle[i].x_pos - userInfo.getXmin() ) / cell ) ), Nrx );
+    int yIndex = std::min( std::max( Nly, int( ( particle[i].y_pos - userInfo.getYmin() ) / cell ) ), Nry );
+    int zIndex = std::min( std::max( Nlz, int( ( particle[i].z_pos - userInfo.getZmin() ) / cell ) ), Nrz );
+
+
+    unsigned long lI = xIndex + yIndex * Nrx + zIndex * Nrx * Nry; //Label index
+
+
+    myList[  i  ] = myLabel[ lI ]; //List previous particle in the same box
+    myLabel[ lI ] = i;             //label stores last particle recorded in the box
+  }
+
+}
+
+/*
+!--------------------------------------------------------------
+!               Make linker lists of particles in each cell
+      SUBROUTINE List
+!--------------------------------------------------------------
+      Cell = rmax
+         Nmx         = xl/Cell - 1
+         Nmy         = yl/Cell - 1
+         Nmz         = zl/Cell - 1
+         Nbx         = xr/Cell + 1
+         Nby         = yr/Cell + 1
+         Nbz         = zr/Cell + 1
+         Allocate(Lst(Ntot))
+         Allocate(Label(Nmx:Nbx,Nmy:Nby,Nmz:Nbz))
+         CALL OMP_SET_NUM_THREADS(num_threads)
+!$OMP PARALLEL DO DEFAULT(SHARED) &
+!$OMP PRIVATE (i)
+             Do i=1,Ntot
+                Lst(i)=-1
+             EndDo
+         CALL OMP_SET_NUM_THREADS(num_threads)
+!$OMP PARALLEL DO DEFAULT(SHARED) &
+!$OMP PRIVATE (i,j,k)
+             Do k=Nmz,Nbz
+             Do j=Nmy,Nby
+             Do i=Nmx,Nbx
+                Label(i,j,k)=0
+             EndDo
+             EndDo
+             EndDo
+      Do jp=1,Ntot
+         i=Ceiling(Xp(jp)/Cell)-1
+         j=Ceiling(Yp(jp)/Cell)-1
+         k=Ceiling(Zp(jp)/Cell)-1
+         i=MIN(MAX(Nmx,i),Nbx)
+         j=MIN(MAX(Nmy,j),Nby)
+         k=MIN(MAX(Nmz,k),Nbz)
+         Lst(jp)      =Label(i,j,k)
+         Label(i,j,k) =jp
+      EndDo
+    end SUBROUTINE List
+*/

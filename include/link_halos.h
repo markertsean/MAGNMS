@@ -5,8 +5,6 @@
 #define LINK_HALOS
 
 
-//Make the link list of nearby particles
-void makeLinkList( particlePosition particle );
 
 //Sets the min/max values of the particle positions
 void setMinMaxParticles( particlePosition particle[],  //Particles to find min/max of
@@ -17,5 +15,11 @@ unsigned long findBoxHalos( inputInfo &userInfo   ,
                              haloInfo  allHalos[] ,
                              haloInfo  boxHalos[] ,
                                 short  runNum     );
+
+//Make the link list of nearby particles
+void makeLinkList( inputInfo        userInfo   ,   //Contains the global info needed
+                   particlePosition particle[] ,   //Array of the particles
+                   unsigned long    myList  [] ,   //List pointing to next neighbor particle
+                   unsigned long    myLabel [] );  //Label points to the last particle in list for index
 
 #endif // LINK_HALOS

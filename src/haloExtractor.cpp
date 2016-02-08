@@ -170,9 +170,12 @@ int main( int arg, char ** argv ){
   delete [] myHalos;                                        //Deletes old halo array
 
 
-//Make link list
+//Make link list, edit some shit later
 int blah = 8;
-  unsigned long LinkList[ userInput.getNumParticles() ];
+  unsigned long  linkList[ userInput.getNumParticles() ];
+  unsigned long labelList[ blah*blah*blah ];
+
+  makeLinkList( userInput, particle, linkList, labelList );
 //  int label[cellnum,cellnum,cellnum]
 
 
