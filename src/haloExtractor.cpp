@@ -158,28 +158,32 @@ int main( int arg, char ** argv ){
 //  reduce halos list to those within boundary
 //float particlePosition::x_min=0;
 
+  {
   //Dummy array, useless
   haloInfo duhalos[2];
 
   N_halos = findBoxHalos( userInput, myHalos, duhalos, 0 ); //Returns the number of halos in the box
+  }
 
   haloInfo halos[N_halos];                                  //Allocates our new halo array
-
   N_halos = findBoxHalos( userInput, myHalos,   halos, 1 ); //Fills in our new halo array
-
   delete [] myHalos;                                        //Deletes old halo array
 
 
 //Make link list, edit some shit later
-int blah = 8;
+  if ( !userInput.setBox( userInput.getFOV() / 2.0 ) ){
+    std::cout << " Error setting boxes " << std::endl;
+    exit(1);
+  }
+
+
   unsigned long  linkList[ userInput.getNumParticles() ];
-  unsigned long labelList[ blah*blah*blah ];
+  unsigned long labelList[ userInput.getNtotCell()     ];
 
   makeLinkList( userInput, particle, linkList, labelList );
-//  int label[cellnum,cellnum,cellnum]
 
 
-
+//Use link list to find particles in range of halos
 
   /////////////////////////////////////////
   //////////Write header files/////////////

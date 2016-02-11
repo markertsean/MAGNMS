@@ -106,16 +106,14 @@ void makeLinkList( inputInfo        userInfo   ,   //Contains the global info ne
                    unsigned long    myList  [] ,   //List pointing to next neighbor particle
                    unsigned long    myLabel [] ){  //Label points to the last particle in list for index
 
-  double cell = 25;
+  double cell = userInfo.getCell();
 
-//Can we leave it as is, or need to account for offsets?
-
-  int Nlx = (                      userInfo.getXmin() ) / cell ; //Minimum box numbers
-  int Nly = (                      userInfo.getYmin() ) / cell ;
-  int Nlz = (                      userInfo.getZmin() ) / cell ;
-  int Nrx = ( userInfo.getXmax() - userInfo.getXmin() ) / cell ; //Maximum box numbers
-  int Nry = ( userInfo.getYmax() - userInfo.getYmin() ) / cell ;
-  int Nrz = ( userInfo.getZmax() - userInfo.getZmin() ) / cell ;
+  int Nlx = userInfo.getNlx(); //Minimum box numbers (should be 0)
+  int Nly = userInfo.getNly();
+  int Nlz = userInfo.getNlz();
+  int Nrx = userInfo.getNrx(); //Maximum box numbers
+  int Nry = userInfo.getNry();
+  int Nrz = userInfo.getNrz();
 
 
   //Fortran has -1, check if this matters, we are using unsigned long however
@@ -123,9 +121,9 @@ void makeLinkList( inputInfo        userInfo   ,   //Contains the global info ne
     myList[i] = 0;
   }
 
-  for ( int i = 0; i < Nrx ; ++i ){  //x
-  for ( int j = 0; j < Nry ; ++j ){  //y
-  for ( int k = 0; k < Nrz ; ++k ){  //z
+  for ( int i = Nlx; i < Nrx ; ++i ){  //x
+  for ( int j = Nly; j < Nry ; ++j ){  //y
+  for ( int k = Nlz; k < Nrz ; ++k ){  //z
     myLabel[ i + j * Nrx + k * Nrx * Nry ] = 0;
   }
   }
@@ -149,45 +147,3 @@ void makeLinkList( inputInfo        userInfo   ,   //Contains the global info ne
 
 }
 
-/*
-!--------------------------------------------------------------
-!               Make linker lists of particles in each cell
-      SUBROUTINE List
-!--------------------------------------------------------------
-      Cell = rmax
-         Nmx         = xl/Cell - 1
-         Nmy         = yl/Cell - 1
-         Nmz         = zl/Cell - 1
-         Nbx         = xr/Cell + 1
-         Nby         = yr/Cell + 1
-         Nbz         = zr/Cell + 1
-         Allocate(Lst(Ntot))
-         Allocate(Label(Nmx:Nbx,Nmy:Nby,Nmz:Nbz))
-         CALL OMP_SET_NUM_THREADS(num_threads)
-!$OMP PARALLEL DO DEFAULT(SHARED) &
-!$OMP PRIVATE (i)
-             Do i=1,Ntot
-                Lst(i)=-1
-             EndDo
-         CALL OMP_SET_NUM_THREADS(num_threads)
-!$OMP PARALLEL DO DEFAULT(SHARED) &
-!$OMP PRIVATE (i,j,k)
-             Do k=Nmz,Nbz
-             Do j=Nmy,Nby
-             Do i=Nmx,Nbx
-                Label(i,j,k)=0
-             EndDo
-             EndDo
-             EndDo
-      Do jp=1,Ntot
-         i=Ceiling(Xp(jp)/Cell)-1
-         j=Ceiling(Yp(jp)/Cell)-1
-         k=Ceiling(Zp(jp)/Cell)-1
-         i=MIN(MAX(Nmx,i),Nbx)
-         j=MIN(MAX(Nmy,j),Nby)
-         k=MIN(MAX(Nmz,k),Nbz)
-         Lst(jp)      =Label(i,j,k)
-         Label(i,j,k) =jp
-      EndDo
-    end SUBROUTINE List
-*/

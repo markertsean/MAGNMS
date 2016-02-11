@@ -43,21 +43,32 @@ class inputInfo{
     std::string   getHeaderDir     () { return   headerDir      ; }
     std::string   getPartFileStart () { return partFileStart    ; }
     std::string   getCatType       () { return   catType        ; }
+
     double        getMinMass       () { return   minMass        ; }
     double        getMaxMass       () { return   maxMass        ; }
     double        getRadiusMult    () { return radiusMultiplier ; }
     double        getFOV           () { return   boxFOV         ; }
     short         getShortCat      () { return   useShortCat    ; }
     short         getSnapNum       () { return   snapshotNum    ; }
+
     unsigned long getNumHalos      () { return   numHalos       ; }
     unsigned long getNumParticles  () { return   numParticles   ; }
+
     float         getXmin          () { return   x_min          ; }
     float         getXmax          () { return   x_max          ; }
     float         getYmin          () { return   y_min          ; }
     float         getYmax          () { return   y_max          ; }
     float         getZmin          () { return   z_min          ; }
     float         getZmax          () { return   z_max          ; }
+    float         getCell          () { return   cell           ; }
 
+    int           getNlx           () { return   Nlx            ; }
+    int           getNly           () { return   Nly            ; }
+    int           getNlz           () { return   Nlz            ; }
+    int           getNrx           () { return   Nrx            ; }
+    int           getNry           () { return   Nry            ; }
+    int           getNrz           () { return   Nrz            ; }
+    int           getNtotCell      () { return   NtotCell       ; }
 
     void setDirectory(){
 
@@ -81,6 +92,29 @@ class inputInfo{
 
       partFileStart = catDir + "Part." ;//+ std::to_string( snapshotNum ) + ""
 
+    }
+
+    bool setBox( float inpCell ) {
+
+      //If particle range hasn't been set, can't set the boxes
+      if ( x_max == 0 || y_max == 0 || z_max == 0 ){
+        return false;
+      }
+
+      cell = inpCell;
+
+      Nlx = 0;
+      Nly = 0;
+      Nlz = 0;
+
+      Nrx = ( x_max - x_min ) / cell ;     //Maximum box numbers
+      Nry = ( y_max - y_min ) / cell ;
+      Nrz = ( z_max - z_min ) / cell ;
+
+
+      NtotCell = Nrx * Nry * Nrz;
+
+      return true;
     }
 
   private:
@@ -121,6 +155,10 @@ class inputInfo{
 
     float x_min, x_max, y_min, y_max, z_min, z_max;
 
+    float cell;
+
+    int Nlx, Nly, Nlz, Nrx, Nry, Nrz, NtotCell;
+
 };
 
 //Default values initialized on construction
@@ -155,6 +193,17 @@ inputInfo::inputInfo( ){
             y_max = 0;
             z_min = 0;
             z_max = 0;
+
+            cell  = -1;
+
+            Nlx   = -1;
+            Nly   = -1;
+            Nlz   = -1;
+            Nrx   = -1;
+            Nry   = -1;
+            Nrz   = -1;
+         NtotCell = -1;
+
 }
 
 
