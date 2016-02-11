@@ -145,19 +145,16 @@ int main( int arg, char ** argv ){
 
   readParticle( userInput, particle );
 
+
+  /////////////////////////////////////////
+  ////////Generate link lists//////////////
+  /////////////////////////////////////////
+
+
+  //Determines range of diff coordinates
   setMinMaxParticles( particle, userInput );
 
-
-  /////////////////////////////////////////
-  ////////Write Halo Particle Files////////
-  /////////////////////////////////////////
-
-//Shitton of particles
-//Loop over halos, need some sort of flag to mark as used/unused
-//Check particles for boundaries in x, y, z, will vary on read in
-//  reduce halos list to those within boundary
-//float particlePosition::x_min=0;
-
+  //Find the halos who's FOV is entirely inside the box
   {
   //Dummy array, useless
   haloInfo duhalos[2];
@@ -170,20 +167,18 @@ int main( int arg, char ** argv ){
   delete [] myHalos;                                        //Deletes old halo array
 
 
-//Make link list, edit some shit later
   if ( !userInput.setBox( userInput.getFOV() / 2.0 ) ){
     std::cout << " Error setting boxes " << std::endl;
     exit(1);
   }
 
 
+  //Make link list between particles
   unsigned long  linkList[ userInput.getNumParticles() ];
   unsigned long labelList[ userInput.getNtotCell()     ];
 
   makeLinkList( userInput, particle, linkList, labelList );
 
-
-//Use link list to find particles in range of halos
 
   /////////////////////////////////////////
   //////////Write header files/////////////
