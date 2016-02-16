@@ -19,7 +19,7 @@ unsigned long findBoxHalos( inputInfo &userInfo   ,
 //Make the link list of nearby particles
 void makeLinkList( inputInfo        userInfo   ,   //Contains the global info needed
                    particlePosition particle[] ,   //Array of the particles
-                   unsigned long    myList  [] ,   //List pointing to next neighbor particle
-                   unsigned long    myLabel [] );  //Label points to the last particle in list for index
+                   long long        myList  [] ,   //List pointing to next neighbor particle
+                   long long        myLabel [] );  //Label points to the last particle in list for index
 
 #endif // LINK_HALOS

@@ -15,7 +15,8 @@ function readpmss( jstep, filestart, filestartlength )
   integer*4 :: nx = 8
   integer*4 :: ny = 8
   integer*4 :: nz = 8
-  integer*4 :: i0,j0, k0, totparticles
+  integer*4 :: i0,j0, k0
+  integer*8 :: totparticles
 
   character*80:: name3, name2
   character*20 :: formatstr
@@ -66,7 +67,8 @@ end function readpmss
 function readfile(i0,j0,k0,nx,ny,nz,jstep,totparticles,dirpath,dirpathlength)
 !--------------------------------------------------------------
 
-  integer*4,    intent(in) :: i0, j0, k0, jstep, totparticles, dirpathlength
+  integer*4,    intent(in) :: i0, j0, k0, jstep, dirpathlength
+  integer*8,    intent(in) :: totparticles
   integer*4,    intent(in) :: nx, ny, nz
   character*60, intent(in) :: dirpath
 
@@ -155,7 +157,7 @@ function readfile(i0,j0,k0,nx,ny,nz,jstep,totparticles,dirpath,dirpathlength)
                       (yyl <= ypp(i)) .and. (ypp(i)<yyr) .and. ( 1e-8 < ypp(i) ) .and. &
                       (zzl <= zpp(i)) .and. (zpp(i)<zzr) .and. ( 1e-8 < zpp(i) )
 
-if(inside.and.(rand()<0.00001))then
+if(inside.and.(rand()<0.001))then
                    icount = icount +1
                    write(2,'(3f12.6)') xpp(i),ypp(i),zpp(i)
               endif ! inside

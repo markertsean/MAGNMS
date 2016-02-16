@@ -103,8 +103,8 @@ unsigned long findBoxHalos( inputInfo &userInput  ,
 //Make the link list of nearby particles
 void makeLinkList( inputInfo        userInfo   ,   //Contains the global info needed
                    particlePosition particle[] ,   //Array of the particles
-                   unsigned long    myList  [] ,   //List pointing to next neighbor particle
-                   unsigned long    myLabel [] ){  //Label points to the last particle in list for index
+                   long long        myList  [] ,   //List pointing to next neighbor particle
+                   long long        myLabel [] ){  //Label points to the last particle in list for index
 
   double cell = userInfo.getCell();
 
@@ -117,20 +117,20 @@ void makeLinkList( inputInfo        userInfo   ,   //Contains the global info ne
 
 
   //Fortran has -1, check if this matters, we are using unsigned long however
-  for ( unsigned long i = 0 ; i < userInfo.getNumParticles() ; ++i ){
-    myList[i] = 0;
+  for ( long i = 0 ; i < userInfo.getNumParticles() ; ++i ){
+    myList[i] = -1;
   }
 
   for ( int i = Nlx; i < Nrx ; ++i ){  //x
   for ( int j = Nly; j < Nry ; ++j ){  //y
   for ( int k = Nlz; k < Nrz ; ++k ){  //z
-    myLabel[ i + j * Nrx + k * Nrx * Nry ] = 0;
+    myLabel[ i + j * Nrx + k * Nrx * Nry ] = -1;
   }
   }
   }
 
   //Loop over each particle, generating the link list
-  for ( unsigned long i = 0; i < userInfo.getNumParticles() ; ++i ){
+  for ( long i = 0; i < 100;++i){//userInfo.getNumParticles() ; ++i ){
 
     //Find which box the particle is in, make sure we stay in the box
     int xIndex = std::min( std::max( Nlx, int( ( particle[i].x_pos - userInfo.getXmin() ) / cell ) ), Nrx );
@@ -138,11 +138,13 @@ void makeLinkList( inputInfo        userInfo   ,   //Contains the global info ne
     int zIndex = std::min( std::max( Nlz, int( ( particle[i].z_pos - userInfo.getZmin() ) / cell ) ), Nrz );
 
 
-    unsigned long lI = xIndex + yIndex * Nrx + zIndex * Nrx * Nry; //Label index
+    long lI = xIndex + yIndex * Nrx + zIndex * Nrx * Nry; //Label index
 
 
     myList[  i  ] = myLabel[ lI ]; //List previous particle in the same box
     myLabel[ lI ] = i;             //label stores last particle recorded in the box
+//printf("%5li %5li %5li %5li\n",i,lI,myList[i],myLabel[lI]);
+
   }
 
 }

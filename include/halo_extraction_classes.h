@@ -24,7 +24,7 @@ class inputInfo{
     void setShortCat    ( short         inpI ) {  useShortCat    = inpI; }
     void setSnapNum     ( short         inpI ) {  snapshotNum    = inpI; }
     void setNumHalos    ( unsigned long inpI ) {  numHalos       = inpI; }
-    void setNumParticles( unsigned long inpI ) {  numParticles   = inpI; }
+    void setNumParticles( long     long inpI ) {  numParticles   = inpI; }
     void setFOV         ( float         inpF ) {   boxFOV        = inpF; }
     void setXmin        ( float         inpF ) {   x_min         = inpF; }
     void setXmax        ( float         inpF ) {   x_max         = inpF; }
@@ -52,7 +52,7 @@ class inputInfo{
     short         getSnapNum       () { return   snapshotNum    ; }
 
     unsigned long getNumHalos      () { return   numHalos       ; }
-    unsigned long getNumParticles  () { return   numParticles   ; }
+    long     long getNumParticles  () { return   numParticles   ; }
 
     float         getXmin          () { return   x_min          ; }
     float         getXmax          () { return   x_max          ; }
@@ -151,7 +151,7 @@ class inputInfo{
     short          snapshotNum ;
 
     unsigned long numHalos     ;
-    unsigned long numParticles ;
+    long     long numParticles ;
 
     float x_min, x_max, y_min, y_max, z_min, z_max;
 

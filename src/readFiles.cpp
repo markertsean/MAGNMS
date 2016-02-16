@@ -352,10 +352,10 @@ bool validHalo( float inpM, long inpDS ){
 
 
 //Locates the particle file, or generates one from PMSS
-unsigned long setPartFile( inputInfo &userInput ) { //All the user input
+long long setPartFile( inputInfo &userInput ) { //All the user input
 
 
-  unsigned long numParticles = 0;
+  long long numParticles = 0;
 
 
   //If the user specified a file, use it
