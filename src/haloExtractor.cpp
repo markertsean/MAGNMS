@@ -203,7 +203,8 @@ int main( int arg, char ** argv ){
 //For now do arrays, figure out the fits writing later
 
 //32 boxes
-
+  linkHaloParticles( userInput, halos, particle, labelList, linkList );
+/*
 int Nlx = userInput.getNlx(); //Minimum box numbers (should be 0)
 int Nly = userInput.getNly();
 int Nlz = userInput.getNlz();
@@ -355,7 +356,7 @@ N_box = 0;
   }
 }
 
-
+//*/
 
 
 

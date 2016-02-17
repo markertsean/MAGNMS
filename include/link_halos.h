@@ -22,4 +22,12 @@ void makeLinkList( inputInfo        userInfo   ,   //Contains the global info ne
                    long long        myList  [] ,   //List pointing to next neighbor particle
                    long long        myLabel [] );  //Label points to the last particle in list for index
 
+
+void linkHaloParticles( inputInfo userInput   ,
+                         haloInfo     halos[] ,
+                 particlePosition particles[] ,
+                       long long  labelList[] ,
+                       long long   linkList[] );
+
+
 #endif // LINK_HALOS

@@ -1,5 +1,6 @@
 #include <math.h>
 
+#include <CCfits/CCfits>
 
 #include "halo_extraction_classes.h"
 #include "link_halos.h"
@@ -149,3 +150,192 @@ void makeLinkList( inputInfo        userInfo   ,   //Contains the global info ne
 
 }
 
+
+
+//Matches halos with particles, and calls write functions
+void linkHaloParticles( inputInfo userInput   ,
+                         haloInfo     halos[] ,
+                 particlePosition particles[] ,
+                       long long  labelList[] ,
+                       long long   linkList[] ){
+
+
+
+
+  int Nlx = userInput.getNlx(); //Minimum box numbers (should be 0)
+  int Nly = userInput.getNly();
+  int Nlz = userInput.getNlz();
+  int Nrx = userInput.getNrx(); //Maximum box numbers
+  int Nry = userInput.getNry();
+  int Nrz = userInput.getNrz();
+
+  float xMin = userInput.getXmin();
+  float yMin = userInput.getYmin();
+  float zMin = userInput.getZmin();
+  float cell = userInput.getCell();
+  float FOV  = userInput.getFOV() ;
+
+
+
+
+  for ( int i = 0; i < userInput.getNumHalos(); ++i ){
+
+
+
+
+    float x = halos[i].getX();
+    float y = halos[i].getY();
+    float z = halos[i].getZ();
+
+
+    //Box to the left and right of the box the center of the halo is located in
+    int xLeft  = std::min( std::max( Nlx, int( ( halos[i].getX() - xMin ) / cell - 1 ) ), Nrx );
+    int yLeft  = std::min( std::max( Nly, int( ( halos[i].getY() - yMin ) / cell - 1 ) ), Nry );
+    int zLeft  = std::min( std::max( Nlz, int( ( halos[i].getZ() - zMin ) / cell - 1 ) ), Nrz );
+    int xRight = std::min( std::max( Nlx, int( ( halos[i].getX() - xMin ) / cell + 1 ) ), Nrx );
+    int yRight = std::min( std::max( Nly, int( ( halos[i].getY() - yMin ) / cell + 1 ) ), Nry );
+    int zRight = std::min( std::max( Nlz, int( ( halos[i].getZ() - zMin ) / cell + 1 ) ), Nrz );
+
+
+    //Number of particles in each set
+    unsigned long N_sphere(0);
+    unsigned long N_box   (0);
+    unsigned long N_i1    (0);
+    unsigned long N_i2    (0);
+    unsigned long N_i3    (0);
+
+
+
+
+
+
+
+    //Loop over cells possibly containing particles of our halo, and count
+    // the number that belong in each particle set
+    for ( int xIndex = xLeft; xIndex <= xRight; ++xIndex ){
+    for ( int yIndex = yLeft; yIndex <= yRight; ++yIndex ){
+    for ( int zIndex = zLeft; zIndex <= zRight; ++zIndex ){
+
+
+
+      long cellIndex = xIndex +                          //Index for the cell for labellist
+                       yIndex * Nrx +
+                       zIndex * Nrx * Nry;
+
+      long long particleIndex = labelList[ cellIndex ];  //The index for the first particle in the link list
+
+
+
+      //Loop over link list
+      while ( particleIndex != -1 ){
+
+
+        float partX = particles[ particleIndex ].x_pos;
+        float partY = particles[ particleIndex ].y_pos;
+        float partZ = particles[ particleIndex ].z_pos;
+
+
+        //Check if in sphere, Rm > sqrt( ( x_h-x_p )^2 + ...
+        if ( ( halos[i].getRm() * halos[i].getRm() ) > ( ( halos[i].getX() - partX ) * ( halos[i].getX() - partX ) +
+                                                         ( halos[i].getY() - partY ) * ( halos[i].getY() - partY ) +
+                                                         ( halos[i].getZ() - partZ ) * ( halos[i].getZ() - partZ ) ) ){
+          ++N_sphere;
+        }
+
+        //Particle in the box frame
+        else if ( ( (halos[i].getX()-FOV) < partX ) && ( partX < (halos[i].getX()+FOV) ) &&
+                  ( (halos[i].getY()-FOV) < partY ) && ( partY < (halos[i].getY()+FOV) ) &&
+                  ( (halos[i].getZ()-FOV) < partZ ) && ( partZ < (halos[i].getZ()+FOV) ) ){
+          ++N_box;
+        }
+//Integration length, needs modification of z index
+
+
+
+        particleIndex = linkList[ particleIndex ];
+      } //while
+    }
+    }   //Box loop
+    }
+
+
+
+N_box = 1;
+    //Only continue if we found particles for our halo
+    if ( ( N_sphere > 0 ) && ( N_box > 0 ) ){
+N_box = 0;
+
+
+
+      //Need to allocate for indexes
+      long long *sphereIndexes = new long long [ N_sphere ];
+      long long *   boxIndexes = new long long [ N_box    ];
+      long long *    i1Indexes;
+      long long *    i2Indexes;
+      long long *    i3Indexes;
+
+      //If we were able to complete any integration, use it
+      if ( N_i1 > 0 ) i1Indexes = new long long [ N_i1 ];
+      if ( N_i2 > 0 ) i2Indexes = new long long [ N_i2 ];
+      if ( N_i3 > 0 ) i3Indexes = new long long [ N_i3 ];
+
+      //Counter for the index of each
+      long long  sCounter(0);
+      long long  bCounter(0);
+      long long i1Counter(0);
+      long long i2Counter(0);
+      long long i3Counter(0);
+
+
+
+      //Loop over cells again to find indexes of particles
+      for ( int xIndex = xLeft; xIndex <= xRight; ++xIndex ){
+      for ( int yIndex = yLeft; yIndex <= yRight; ++yIndex ){
+      for ( int zIndex = zLeft; zIndex <= zRight; ++zIndex ){
+
+
+
+        long cellIndex = xIndex +                          //Index for the cell for labellist
+                         yIndex * Nrx +
+                         zIndex * Nrx * Nry;
+
+        long long particleIndex = labelList[ cellIndex ];  //The index for the first particle in the link list
+
+
+
+        //Loop over link list
+        while ( particleIndex != -1 ){
+
+
+          float partX = particles[ particleIndex ].x_pos;
+          float partY = particles[ particleIndex ].y_pos;
+          float partZ = particles[ particleIndex ].z_pos;
+
+
+          //Check if in sphere, Rm > sqrt( ( x_h-x_p )^2 + ...
+          if ( ( halos[i].getRm() * halos[i].getRm() ) > ( ( halos[i].getX() - partX ) * ( halos[i].getX() - partX ) +
+                                                           ( halos[i].getY() - partY ) * ( halos[i].getY() - partY ) +
+                                                           ( halos[i].getZ() - partZ ) * ( halos[i].getZ() - partZ ) ) ){
+            sphereIndexes[ sCounter ] = particleIndex;
+            ++sCounter;
+          }
+
+          //Particle in the box frame
+          else if ( ( (halos[i].getX()-FOV) < partX ) && ( partX < (halos[i].getX()+FOV) ) &&
+                    ( (halos[i].getY()-FOV) < partY ) && ( partY < (halos[i].getY()+FOV) ) &&
+                    ( (halos[i].getZ()-FOV) < partZ ) && ( partZ < (halos[i].getZ()+FOV) ) ){
+            boxIndexes[ bCounter ] = particleIndex;
+            ++bCounter;
+          }
+
+
+          particleIndex = linkList[ particleIndex ];
+        } //while
+      }
+      }   //Box loops
+      }
+
+    }     //If we found particles
+  }       //Halo loop
+
+}
