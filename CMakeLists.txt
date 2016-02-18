@@ -20,15 +20,15 @@ include_directories(include)
 # sources
 ####
 
-#set(SOURCES lensingCalculator.cpp myUtilities.cpp inputFunctions.cpp lensFitter.cpp pixelmapFunctions.cpp)
-file(GLOB SOURCES "src/*")#.cpp" "src/*.f90")
+file(GLOB SOURCES "src/*")
 
 ####
 # dependencies
 ####
 
-#find_package(GLAMER NO_MODULE REQUIRED)
-#include_directories(${GLAMER_INCLUDE_DIRS})
+#include_directories("/usr/local/")
+#find_package(CCfits REQUIRED)
+#link_directories("/usr/local/lib/")
 
 ####
 # omp
@@ -43,9 +43,12 @@ file(GLOB SOURCES "src/*")#.cpp" "src/*.f90")
 ####
 # build
 ####
-add_definitions(-std=gnu++0x)
+#add_definitions(-std=gnu++0x -L/usr/local/lib/CCfits/.libs -lCCfits -lcfitsio)
+set (CMAKE_CXX_FLAGS "-std=gnu++0x -lCCfits -lcfitsio")
 
 
 add_executable(halo_extractor ${SOURCES})
+
+target_link_libraries(halo_extractor "/usr/local/lib/libCCfits.so")
 
 #target_link_libraries(ulator ${GLAMER_LIBRARIES})

@@ -3,6 +3,8 @@
 #include <cstring>
 #include <sys/stat.h>
 
+#include <CCfits/CCfits>
+#include <cmath>
 
 #include "halo_extraction_classes.h"
 #include "read_files.h"
@@ -203,163 +205,113 @@ int main( int arg, char ** argv ){
 //For now do arrays, figure out the fits writing later
 
 //32 boxes
-  linkHaloParticles( userInput, halos, particle, labelList, linkList );
-/*
-int Nlx = userInput.getNlx(); //Minimum box numbers (should be 0)
-int Nly = userInput.getNly();
-int Nlz = userInput.getNlz();
-int Nrx = userInput.getNrx(); //Maximum box numbers
-int Nry = userInput.getNry();
-int Nrz = userInput.getNrz();
-
-float xMin = userInput.getXmin();
-float yMin = userInput.getYmin();
-float zMin = userInput.getZmin();
-float cell = userInput.getCell();
-float FOV  = userInput.getFOV() ;
-
-for ( int i = 0; i < userInput.getNumHalos(); ++i ){
-
-  float x = halos[i].getX();
-  float y = halos[i].getY();
-  float z = halos[i].getZ();
-
-  //Box to the left and right of the box the center of the halo is located in
-  int xLeft  = std::min( std::max( Nlx, int( ( halos[i].getX() - xMin ) / cell - 1 ) ), Nrx );
-  int yLeft  = std::min( std::max( Nly, int( ( halos[i].getY() - yMin ) / cell - 1 ) ), Nry );
-  int zLeft  = std::min( std::max( Nlz, int( ( halos[i].getZ() - zMin ) / cell - 1 ) ), Nrz );
-  int xRight = std::min( std::max( Nlx, int( ( halos[i].getX() - xMin ) / cell + 1 ) ), Nrx );
-  int yRight = std::min( std::max( Nly, int( ( halos[i].getY() - yMin ) / cell + 1 ) ), Nry );
-  int zRight = std::min( std::max( Nlz, int( ( halos[i].getZ() - zMin ) / cell + 1 ) ), Nrz );
-
-
-  //Number of particles in each set
-  unsigned long N_sphere(0);
-  unsigned long N_box   (0);
-  unsigned long N_i1    (0);
-  unsigned long N_i2    (0);
-  unsigned long N_i3    (0);
-
-
-  //Loop over cells possibly containing particles of our halo, and count
-  // the number that belong in each particle set
-  for ( int xIndex = xLeft; xIndex <= xRight; ++xIndex ){
-  for ( int yIndex = yLeft; yIndex <= yRight; ++yIndex ){
-  for ( int zIndex = zLeft; zIndex <= zRight; ++zIndex ){
-
-    long cellIndex = xIndex +                          //Index for the cell for labellist
-                     yIndex * Nrx +
-                     zIndex * Nrx * Nry;
-
-    long long particleIndex = labelList[ cellIndex ];  //The index for the first particle in the link list
-
-    //Loop over link list
-    while ( particleIndex != -1 ){
-
-      float partX = particle[ particleIndex ].x_pos;
-      float partY = particle[ particleIndex ].y_pos;
-      float partZ = particle[ particleIndex ].z_pos;
-
-      //Check if in sphere, Rm > sqrt( ( x_h-x_p )^2 + ...
-      if ( ( halos[i].getRm() * halos[i].getRm() ) > ( ( halos[i].getX() - partX ) * ( halos[i].getX() - partX ) +
-                                                       ( halos[i].getY() - partY ) * ( halos[i].getY() - partY ) +
-                                                       ( halos[i].getZ() - partZ ) * ( halos[i].getZ() - partZ ) ) ){
-        ++N_sphere;
-      }
-
-      //Particle in the box frame
-      else if ( ( (halos[i].getX()-FOV) < partX ) && ( partX < (halos[i].getX()+FOV) ) &&
-                ( (halos[i].getY()-FOV) < partY ) && ( partY < (halos[i].getY()+FOV) ) &&
-                ( (halos[i].getZ()-FOV) < partZ ) && ( partZ < (halos[i].getZ()+FOV) ) ){
-        ++N_box;
-      }
-//Check if in box
-//Integration length, needs modification of z index
-
-
-      particleIndex = linkList[ particleIndex ];
-    }
-  }
-  }
-  }
-N_box = 1;
-
-
-  //Only continue if we found particles for our halo
-  if ( ( N_sphere > 0 ) && ( N_box > 0 ) ){
-
-
-N_box = 0;
-    //Need to allocate for indexes
-    long long *sphereIndexes = new long long [ N_sphere ];
-    long long *   boxIndexes = new long long [ N_box    ];
-    long long *    i1Indexes;
-    long long *    i2Indexes;
-    long long *    i3Indexes;
-
-    //If we were able to complete any integration, use it
-    if ( N_i1 > 0 ) i1Indexes = new long long [ N_i1 ];
-    if ( N_i2 > 0 ) i2Indexes = new long long [ N_i2 ];
-    if ( N_i3 > 0 ) i3Indexes = new long long [ N_i3 ];
-
-    long long  sCounter(0);
-    long long  bCounter(0);
-    long long i1Counter(0);
-    long long i2Counter(0);
-    long long i3Counter(0);
-
-    //Loop over cells again to find indexes of particles
-    for ( int xIndex = xLeft; xIndex <= xRight; ++xIndex ){
-    for ( int yIndex = yLeft; yIndex <= yRight; ++yIndex ){
-    for ( int zIndex = zLeft; zIndex <= zRight; ++zIndex ){
-
-      long cellIndex = xIndex +                          //Index for the cell for labellist
-                       yIndex * Nrx +
-                       zIndex * Nrx * Nry;
-
-      long long particleIndex = labelList[ cellIndex ];  //The index for the first particle in the link list
-
-      //Loop over link list
-      while ( particleIndex != -1 ){
-
-        float partX = particle[ particleIndex ].x_pos;
-        float partY = particle[ particleIndex ].y_pos;
-        float partZ = particle[ particleIndex ].z_pos;
-
-        //Check if in sphere, Rm > sqrt( ( x_h-x_p )^2 + ...
-        if ( ( halos[i].getRm() * halos[i].getRm() ) > ( ( halos[i].getX() - partX ) * ( halos[i].getX() - partX ) +
-                                                         ( halos[i].getY() - partY ) * ( halos[i].getY() - partY ) +
-                                                         ( halos[i].getZ() - partZ ) * ( halos[i].getZ() - partZ ) ) ){
-          sphereIndexes[ sCounter ] = particleIndex;
-          ++sCounter;
-        }
-
-        //Particle in the box frame
-        else if ( ( (halos[i].getX()-FOV) < partX ) && ( partX < (halos[i].getX()+FOV) ) &&
-                  ( (halos[i].getY()-FOV) < partY ) && ( partY < (halos[i].getY()+FOV) ) &&
-                  ( (halos[i].getZ()-FOV) < partZ ) && ( partZ < (halos[i].getZ()+FOV) ) ){
-          boxIndexes[ bCounter ] = particleIndex;
-          ++bCounter;
-        }
-
-
-      particleIndex = linkList[ particleIndex ];
-    }
-
-    }
-    }
-    }
+//  linkHaloParticles( userInput, halos, particle, labelList, linkList );
 
 
 
 
-  }
+
+using namespace CCfits;
+
+// Create a FITS primary array containing a 2-D image declare axis arrays.
+long naxis = 2;
+long naxes[2] = { 300, 200 };
+
+// declare auto-pointer to FITS at function scope. Ensures no resources leaked if something fails in dynamic allocation.
+std::auto_ptr<FITS> pFits(0);
+
+// Create new image
+try
+{
+  // overwrite existing file if the file already exists.
+  const std::string fileName("!atestfil.fit");
+  // Create a new FITS object, specifying the data type and axes for the primary
+  // image. Simultaneously create the corresponding file.
+  // this image is unsigned short data, demonstrating the cfitsio
+  // extension to the FITS standard.
+  pFits.reset( new FITS(fileName , USHORT_IMG , naxis , naxes ) );
+}
+catch (FITS::CantCreate)
+{
+  // ... or not, as the case may be.
+  return -1;
 }
 
-//*/
+// references for clarity.
+long& vectorLength = naxes[0];
+long& numberOfRows = naxes[1];
+long  nelements              ;
+// Find the total size of the array.
+// this is a little fancier than necessary ( It’s only calculating naxes[0]*naxes[1]) but it demonstrates use of the C++ standard library accumulate algorithm.
+nelements = std::accumulate(&naxes[0],&naxes[naxis],1,std::multiplies<long>());
 
 
+// Creates 300x300 array
+std::vector<long> extAx(2,300);
+// Create image header?
+std::string newName ("NEW-EXTENSION");
+ExtHDU* imageExt = pFits->addImage(newName,FLOAT_IMG,extAx);
 
+
+//Gen values
+// create a dummy row with a ramp. Create an array and copy the row to
+// row-sized slices. [also demonstrates the use of valarray slices].
+// also demonstrate implicit type conversion when writing to the image:
+// input array will be of type float.
+std::valarray<int> row(vectorLength);
+std::valarray<int> array(nelements);
+for (long j = 0; j < vectorLength; ++j) row[j] = j; //Number of columns
+for (int  i = 0; i < numberOfRows; ++i)
+{
+array[
+std::slice(vectorLength*static_cast<int>(i),vectorLength,1)
+] = row + i;
+}
+// create some data for the image extension.
+                                  //     range to do, initial val, multiply them, just the number of elements
+long extElements = std::accumulate( extAx.begin(), extAx.end(), 1, std::multiplies<long>());
+//Gen values
+// Array of floats
+std::valarray<float> ranData(extElements);
+const float PIBY (M_PI/150.);
+//Generate cos values across rows
+for ( int jj = 0 ; jj < extElements ; ++jj)
+{
+float arg = PIBY*jj;
+ranData[jj] = std::cos(arg);
+}
+
+
+long fpixel(1);
+
+
+//pfits the fits file thing
+//ExtHDU * imageExt = pFIts->addImage(<name?>,<data type?>,<array?>)
+//array and ranData hold data
+//wrote ranData to imageExt
+//wrote stuff to header
+//wrote data to image
+
+
+// write the image extension data: also demonstrates switching between
+// HDUs.
+imageExt->write(fpixel,extElements,ranData);
+//add two keys to the primary header, one long, one complex.
+long exposure(1500);
+std::complex<float> omega(std::cos(2*M_PI/3.),std::sin(2*M_PI/3));
+
+pFits->pHDU().addKey("EXPOSURE", exposure,     "Total Exposure Time");
+pFits->pHDU().addKey("OMEGA"   ,    omega," Complex cube root of 1 ");
+
+// The function PHDU& FITS::pHDU() returns a reference to the object representing
+// the primary HDU; PHDU::write( <args> ) is then used to write the data.
+pFits->pHDU().write( fpixel, nelements, array);
+
+// PHDU’s friend ostream operator. Doesn’t print the entire array, just the
+// required & user keywords, and is provided largely for testing purposes
+// [see readImage() for an example of how to output the image array to a stream].
+std::cout << pFits->pHDU() << std::endl;
+return 0;
 
 
 
