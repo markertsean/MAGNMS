@@ -57,6 +57,12 @@ bool readUserInput( std::string fileName, inputInfo &myInput ){
       else if ( strcmp( inpC1, "snapNum" ) == 0 ){
         myInput.setSnapNum     ( std::stoi( inpS )  );
       }
+      else if ( strcmp( inpC1, "N_pixels_h" ) == 0 ){
+        myInput.setNPixelsH    ( std::stoi( inpS )  );
+      }
+      else if ( strcmp( inpC1, "N_pixels_v" ) == 0 ){
+        myInput.setNPixelsV    ( std::stoi( inpS )  );
+      }
 
     }
   }
@@ -322,7 +328,7 @@ bool         writeShortCat ( std::ofstream &inpFile   ,
     ca = halos[ i ].getCA();
     ds = halos[ i ].getDistinct();
 
-    sprintf(writeLine,"%12.4lf%12.4lf%12.4lf%12.4e%12.4lf%12lu%12.4lf%12.2lf%14lu%11.4lf%11.4lf\n",x,y,z,M,R,id,C,N,ds,ba,ca);
+    sprintf(writeLine,"%12.4lf%12.4lf%12.4lf%12.4e%12.4e%12lu%12.4lf%12.2lf%14lu%11.4lf%11.4lf\n",x,y,z,M,R,id,C,N,ds,ba,ca);
 
     inpFile << writeLine;
   }

@@ -32,6 +32,8 @@ class inputInfo{
     void setYmax        ( float         inpF ) {   y_max         = inpF; }
     void setZmin        ( float         inpF ) {   z_min         = inpF; }
     void setZmax        ( float         inpF ) {   z_max         = inpF; }
+    void setNPixelsH    ( int           inpI ) {   N_pixels_h    = inpI; }
+    void setNPixelsV    ( int           inpI ) {   N_pixels_v    = inpI; }
 
 
 
@@ -69,6 +71,10 @@ class inputInfo{
     int           getNry           () { return   Nry            ; }
     int           getNrz           () { return   Nrz            ; }
     int           getNtotCell      () { return   NtotCell       ; }
+
+    int           getNPixlesH      () { return   N_pixels_h     ; }
+    int           getNPixelsV      () { return   N_pixels_v     ; }
+
 
     void setDirectory(){
 
@@ -159,6 +165,8 @@ class inputInfo{
 
     int Nlx, Nly, Nlz, Nrx, Nry, Nrz, NtotCell;
 
+    int N_pixels_h, N_pixels_v;
+
 };
 
 //Default values initialized on construction
@@ -204,6 +212,9 @@ inputInfo::inputInfo( ){
             Nrz   = -1;
          NtotCell = -1;
 
+       N_pixels_h = 1024;
+       N_pixels_v = 1024;
+
 }
 
 
@@ -218,10 +229,13 @@ class haloInfo {
     void setC ( float inpF ) {     C = inpF; }
     void setM ( float inpF ) {     M = inpF; }
     void setN ( float inpI ) {     N = inpI; }
-    void setRm( float inpF ) { R_max = inpF; }
     void setID( long  inpL ) {    id = inpL; }
     void setBA( float inpF ) { ba_rat= inpF; }
     void setCA( float inpF ) { ca_rat= inpF; }
+
+    void setRm( float inpF ) { float conversion = 1e-3; //kpc to Mpc, radius in kpc but all other coordinates Mpc
+                                          R_max = inpF * conversion; }
+
     void setDistinct( long inpL ) { distinct = inpL; }
 
 
