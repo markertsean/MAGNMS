@@ -160,8 +160,6 @@ void linkHaloParticles( inputInfo userInput   ,
                        long long   linkList[] ){
 
 
-
-
   int Nlx = userInput.getNlx(); //Minimum box numbers (should be 0)
   int Nly = userInput.getNly();
   int Nlz = userInput.getNlz();
@@ -327,7 +325,7 @@ void linkHaloParticles( inputInfo userInput   ,
       }
 
       //Write the fits file for this halo
-      writeFits( userInput ,
+      writeImage(userInput ,
                   halos[i] ,
                  particles ,
                   N_sphere ,
@@ -340,8 +338,6 @@ void linkHaloParticles( inputInfo userInput   ,
                  i1Indexes ,
                  i2Indexes ,
                  i3Indexes );
-//*/
-exit(0);
 
     }     //If we found particles
   }       //Halo loop
@@ -351,38 +347,22 @@ exit(0);
 
 
 
-void writeFits( inputInfo          userInput, //All the user info
-                 haloInfo               halo, //The halo we are considering
-                particlePosition particles[], //The full array of particles
-                long long           N_sphere,
-                long long           N_box   , //Number of particles in sphere set, box set, and integration length sets
-                long long           N_i1    ,
-                long long           N_i2    ,
-                long long           N_i3    ,
-                long long     *sphereIndexes, //Particle indexes in each set
-                long long     *   boxIndexes,
-                long long     *    i1Indexes,
-                long long     *    i2Indexes,
-                long long     *    i3Indexes){
+void writeImage( inputInfo          userInput, //All the user info
+                  haloInfo               halo, //The halo we are considering
+                 particlePosition particles[], //The full array of particles
+                 long long           N_sphere,
+                 long long           N_box   , //Number of particles in sphere set, box set, and integration length sets
+                 long long           N_i1    ,
+                 long long           N_i2    ,
+                 long long           N_i3    ,
+                 long long     *sphereIndexes, //Particle indexes in each set
+                 long long     *   boxIndexes,
+                 long long     *    i1Indexes,
+                 long long     *    i2Indexes,
+                 long long     *    i3Indexes){
 
 
-
-  //Generate file names
-  char temp[100];
-  sprintf( temp,              "%sHalo%s_%li.FITS", (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), halo.getID() );
-  const std::string sphereFileName = temp;
-  sprintf( temp,        "%sBox%s_%li_%04.1f.FITS", (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), halo.getID(), userInput.getFOV() );
-  const std::string    boxFileName = temp;
-
-//  sprintf( temp, "%sBox%s_%li_%04.1f_i%06.1.FITS", (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), halo.getID(), userInput.getFOV() );
-  const std::string     i1FileName = temp;
-//  sprintf( temp, "%sBox%s_%li_%04.1f_i%06.1.FITS", (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), halo.getID(), userInput.getFOV() );
-  const std::string     i2FileName = temp;
-//  sprintf( temp, "%sBox%s_%li_%04.1f_i%06.1.FITS", (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), halo.getID(), userInput.getFOV() );
-  const std::string     i3FileName = temp;
-
-
-
+/*
 //  sprintf( temp, "Box_%s_%s_%4.1f_i%5.1f.FITS", halo.getID(), userInput.getCatType(), userInput.getFOV() );
 std::cout << sphereFileName << std::endl;
 std::cout <<    boxFileName << std::endl;
@@ -399,9 +379,9 @@ printf("Halo: %li\nCenter: %6.2f %6.2f %6.2f\n", halo.getID(), halo.getX(), halo
 for( int i = 0; i < N_sphere; ++i ){
   long long index = sphereIndexes[i];
   float         r = halo.getRm();
-  float         x = particles[index].x_pos ;//- halo.getX();
-  float         y = particles[index].y_pos ;//- halo.getY();
-  float         z = particles[index].z_pos ;//- halo.getZ();
+  float         x = particles[index].x_pos ;
+  float         y = particles[index].y_pos ;
+  float         z = particles[index].z_pos ;
   printf("        %6.2f %6.2f %6.2f\n", x, y, z);
 }
 printf("Box:\n");
@@ -412,7 +392,7 @@ for( int i = 0; i < N_box; ++i ){
   float         z = particles[index].z_pos - halo.getZ();
   printf("        %5.1f %5.1f %5.1f\n", x, y, z);
 }
-
+*/
 
 
   //Number of elements in each direction, and total number of pixels
@@ -433,112 +413,146 @@ for( int i = 0; i < N_box; ++i ){
 //afterwards deallocate?
 //then do LOS things
 
+  //Generate file names
+  char temp[100];
+
+
+  // Write the halo file name
+  sprintf( temp,              "%sHalo%s_%li.FITS", (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), halo.getID() );
+  const std::string sphereFileName = temp;
+
+  // Attempt to write the file, if it fails abort
+  if (  writeFits( sphereFileName ,
+                      N_pixels    ,
+                      N_elements  ,
+                               SD ,
+                      N_sphere    ,
+                    sphereIndexes ,
+                        particles ,
+                             halo ,
+                        userInput ) == -1 ){
+
+    std::cout<<"Failed to write file: "<<sphereFileName<<std::endl;
+    exit(1);
+  }
+    std::cout<<"    Wrote file: "      <<sphereFileName<<std::endl;
+
+
+  // Write the box file name
+  sprintf( temp,        "%sBox%s_%li_%04.1f.FITS", (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), halo.getID(), userInput.getFOV() );
+  const std::string    boxFileName = temp;
+
+  // Attempt to write the file, if it fails abort
+  if (  writeFits(    boxFileName ,
+                      N_pixels    ,
+                      N_elements  ,
+                               SD ,
+                      N_box       ,
+                       boxIndexes ,
+                        particles ,
+                             halo ,
+                        userInput ) == -1 ){
+
+    std::cout<<"Failed to write file: "<<   boxFileName<<std::endl;
+    exit(1);
+  }
+    std::cout<<"    Wrote file: "      <<   boxFileName<<std::endl;
+
+
+//if no integration lengths, return
+
+
+
+
+//  sprintf( temp, "%sBox%s_%li_%04.1f_i%06.1.FITS", (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), halo.getID(), userInput.getFOV() );
+  const std::string     i1FileName = temp;
+//  sprintf( temp, "%sBox%s_%li_%04.1f_i%06.1.FITS", (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), halo.getID(), userInput.getFOV() );
+  const std::string     i2FileName = temp;
+//  sprintf( temp, "%sBox%s_%li_%04.1f_i%06.1.FITS", (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), halo.getID(), userInput.getFOV() );
+  const std::string     i3FileName = temp;
+
+
+
+
+
+
+}
+
+
+int  writeFits( const std::string     fileName    ,  // File name to write
+                int                   N_pixels[]  ,  // N_pixels in each direction
+                int                   N_pixelsTot ,  // Total number of pixels
+                std::valarray<double>        SD   ,  // SD array to use, passed because we will keep adding to the array
+                long long             N_indexes   ,  // Number of indexes in set to add
+                long long               indexes[] ,  // Indexes of the set
+                particlePosition      particles[] ,  // All the particles
+                haloInfo                   halo   ,  // Central halo
+                inputInfo             userInput   ){ // All the user information
+
+
+  // Needs to be long format for functions
+  long lN_pixels[2] = { N_pixels[0], N_pixels[1] };
+
+
+  // Furthest left locations on image in real space
   float x_start = halo.getX() - userInput.getFOV() / 2.0;
   float y_start = halo.getY() - userInput.getFOV() / 2.0;
 
+
+  // Scaling of pixels on image
   float x_scale = N_pixels[0] / userInput.getFOV() ;
   float y_scale = N_pixels[1] / userInput.getFOV() ;
 
 
-  for ( int i = 0; i < N_sphere; ++i ){
+  // Place our particles in the SD array
+  for ( int i = 0; i < N_indexes; ++i ){
 
-    long long index = sphereIndexes[i];
+    // Index of particle in the set
+    long long index = indexes[i];
 
+    // Location in the image, physical coordinates
     float x_pos = particles[index].x_pos - x_start;
     float y_pos = particles[index].y_pos - y_start;
 
+    // Which pixel it's in
     int  hIndex = std::min( std::max(  int( x_pos * x_scale ) , 0 ), N_pixels[0] );
     int  vIndex = std::min( std::max(  int( y_pos * y_scale ) , 0 ), N_pixels[1] );
 
+    //Place it
     SD[ vIndex * N_pixels[0] + hIndex ] += 1;
   }
 
-//Consider particle mass
-
-  //Fits stuff:
-
-  {
-    //Pointer to sphere Fits file
-    std::auto_ptr<CCfits::FITS> pFits(0);
-
-    //Create new FITS object
-    pFits.reset( new CCfits::FITS( sphereFileName, DOUBLE_IMG, 2, lN_pixels) );
-
-//    ( *pFits ).pHDU().addKey("OBJ",val,"DESC.");
-    ( *pFits ).pHDU().write( 1, N_elements, SD);
-  }
 
 
-  //BOX, maybe we can make this a function?
-
-
-
-  for ( int i = 0; i < N_sphere; ++i ){
-
-    long long index =    boxIndexes[i];
-
-    float x_pos = particles[index].x_pos - x_start;
-    float y_pos = particles[index].y_pos - y_start;
-
-    int  hIndex = std::min( std::max(  int( x_pos * x_scale ) , 0 ), N_pixels[0] );
-    int  vIndex = std::min( std::max(  int( y_pos * y_scale ) , 0 ), N_pixels[1] );
-
-    SD[ vIndex * N_pixels[0] + hIndex ] += 1;
-  }
-
-//Consider particle mass
-
-  //Fits stuff:
-
-  {
-    //Pointer to sphere Fits file
-    std::auto_ptr<CCfits::FITS> pFits(0);
-
-    //Create new FITS object
-    pFits.reset( new CCfits::FITS(    boxFileName, DOUBLE_IMG, 2, lN_pixels) );
-
-//    ( *pFits ).pHDU().addKey("OBJ",val,"DESC.");
-    ( *pFits ).pHDU().write( 1, N_elements, SD);
+  // Adjust SD array to hold mass, not just number of particles
+  for ( int i = 0; i < N_pixelsTot; ++i ){
+    SD[i] *= userInput.getParticleMass();
   }
 
 
 
-
-
-
-/*
-  //Pointer to the fits object
-  std::auto_ptr<CCfits::FITS> pFits(0);
+  using namespace CCfits;
+  std::auto_ptr<FITS> pFits(0);
 
   try
   {
-//    const std::string fileName("!atestfil.fit");
-//    pFits.reset( new FITS(fileName , USHORT_IMG , naxis , naxes ) );
+    const std::string afileName( "!"+fileName );
+    pFits.reset( new FITS( afileName, DOUBLE_IMG, 2, lN_pixels) );
   }
-  catch (FITS::CantCreate)
-  {
-    return -1;
-  }
+  catch (FITS::CantCreate){  return -1; }
 
-  //Change this?
-  long fpixel(1);
-  //  pFits->pHDU().addKey("EXPOSURE", exposure,     "Total Exposure Time");
-  //  pFits->pHDU().write( fpixel, nelements, array);
-
-*/
+//  ( *pFits ).pHDU().addKey("OBJ",val,"DESC.");
+  ( *pFits ).pHDU().write( 1, N_pixelsTot, SD);
 
 
-/*
-  for (int i = 0; i < naxes[0]; ++i){
-  for (int j = 0; j < naxes[1]; ++j){
-    array[ i    + j * naxes[0] ] = 1000 * std::sin( ( float(i) / naxes[0] ) * M_PI / 2 ) * std::cos( ( float(j) / naxes[1] ) * M_PI / 2 ) ;
-  }
+
+  // Return array to number of particles
+  for ( int i = 0; i < N_pixelsTot; ++i ){
+    SD[i] /= userInput.getParticleMass();
   }
 
 
-here
-i horizontal, j vertical
-both start bottom right in gimp viewer
-*/
 
+
+  return 0;
 }

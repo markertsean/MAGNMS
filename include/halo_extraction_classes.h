@@ -17,7 +17,8 @@ class inputInfo{
     void setInputHead   ( std::string   inpS ) { inputHeadFiles  = inpS; }
     void setParticleDir ( std::string   inpS ) { particleDir     = inpS; }
     void setHeaderDir   ( std::string   inpS ) {   headerDir     = inpS; }
-    void setCatType     ( std::string   inpS ) {   catType       = inpS; }
+    void setCatType     ( std::string   inpS ) {   catType       = inpS;
+                                                  setPartMass();         }
     void setMinMass     ( double        inpD ) {   minMass       = inpD; }
     void setMaxMass     ( double        inpD ) {   maxMass       = inpD; }
     void setRadiusMult  ( double        inpD ) {radiusMultiplier = inpD; }
@@ -46,8 +47,9 @@ class inputInfo{
     std::string   getPartFileStart () { return partFileStart    ; }
     std::string   getCatType       () { return   catType        ; }
 
-    double        getMinMass       () { return   minMass        ; }
-    double        getMaxMass       () { return   maxMass        ; }
+    double        getParticleMass  () { return   particleMass   ; }
+    double        getMinMass       () { return        minMass   ; }
+    double        getMaxMass       () { return        maxMass   ; }
     double        getRadiusMult    () { return radiusMultiplier ; }
     double        getFOV           () { return   boxFOV         ; }
     short         getShortCat      () { return   useShortCat    ; }
@@ -89,7 +91,7 @@ class inputInfo{
       //If directories for header and particle files
       // haven't been set, use catalog directory
       if ( particleDir=="" ){
-        particleDir = catDir + catName.substr( 0, lastDot ) + "_Particles/";
+        particleDir = catDir + catName.substr( 0, lastDot ) + "_MassMaps/";
       }
 
       if (   headerDir=="" ){
@@ -122,6 +124,23 @@ class inputInfo{
 
       return true;
     }
+
+
+    void setPartMass( ){
+
+      if ( catType.compare( "BMDP"  ) == 0 ){ particleMass = 2.4e10; } else
+      if ( catType.compare( "BMD"   ) == 0 ){ particleMass = 2.1e10; } else
+      if ( catType.compare( "MDP"   ) == 0 ){ particleMass = 1.5e9 ; } else
+      if ( catType.compare( "MD"    ) == 0 ){ particleMass = 8.7e9 ; } else
+      if ( catType.compare( "BP"    ) == 0 ){ particleMass = 1.5e8 ; } else
+      if ( catType.compare( "B"     ) == 0 ){ particleMass = 1.3e8 ; } else
+      if ( catType.compare( "short" ) == 0 ){ /* No change needed */ } else
+      {
+        std::cout<<"Unrecognized catalog: "<<catType<<std::endl;
+        exit(1);
+      }
+    }
+
 
   private:
     //User end input file
@@ -158,6 +177,8 @@ class inputInfo{
 
     unsigned long numHalos     ;
     long     long numParticles ;
+
+    double        particleMass ;
 
     float x_min, x_max, y_min, y_max, z_min, z_max;
 
@@ -214,6 +235,10 @@ inputInfo::inputInfo( ){
 
        N_pixels_h = 1024;
        N_pixels_v = 1024;
+
+     particleMass = 0.0;
+
+          setPartMass();
 
 }
 

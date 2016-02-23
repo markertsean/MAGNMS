@@ -30,18 +30,30 @@ void linkHaloParticles( inputInfo userInput   ,
                        long long   linkList[] );
 
 
-void writeFits( inputInfo          userInput, //All the user info
-                 haloInfo               halo, //The halo we are considering
-                particlePosition particles[], //The full array of particles
-                long long           N_sphere,
-                long long           N_box   , //Number of particles in sphere set, box set, and integration length sets
-                long long           N_i1    ,
-                long long           N_i2    ,
-                long long           N_i3    ,
-                long long     *sphereIndexes, //Particle indexes in each set
-                long long     *   boxIndexes,
-                long long     *    i1Indexes,
-                long long     *    i2Indexes,
-                long long     *    i3Indexes);
+void writeImage( inputInfo          userInput, //All the user info
+                  haloInfo               halo, //The halo we are considering
+                 particlePosition particles[], //The full array of particles
+                 long long           N_sphere,
+                 long long           N_box   , //Number of particles in sphere set, box set, and integration length sets
+                 long long           N_i1    ,
+                 long long           N_i2    ,
+                 long long           N_i3    ,
+                 long long     *sphereIndexes, //Particle indexes in each set
+                 long long     *   boxIndexes,
+                 long long     *    i1Indexes,
+                 long long     *    i2Indexes,
+                 long long     *    i3Indexes);
+
+
+int  writeFits( const std::string     fileName    ,  // File name to write
+                int                   N_pixels[]  ,  // N_pixels in each direction
+                int                   N_pixelsTot ,  // Total number of pixels
+                std::valarray<double>        SD   ,  // SD array to use, passed because we will keep adding to the array
+                long long             N_indexes   ,  // Number of indexes in set to add
+                long long               indexes[] ,  // Indexes of the set
+                particlePosition      particles[] ,  // All the particles
+                haloInfo                   halo   ,  // Central halo
+                inputInfo             userInput   ); // All the user information
+
 
 #endif // LINK_HALOS

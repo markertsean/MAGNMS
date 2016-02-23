@@ -8,6 +8,9 @@ enable_language(Fortran)
 set(sample_VERSION_MAJOR 1)
 set(sample_VERSION_MINOR 0)
 
+#SET(GCC_COVERAGE_LINK_FLAGS    "-I/usr/local/include -L/usr/local/lib -lcfitsio")
+#SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
+
 #set(CMAKE_Fortran_COMPILER "gfortran") 
 #set(MY_FFLAGS_DOUBLE $ENV{FFLAGS_DOUBLE})
 get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
