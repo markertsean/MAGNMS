@@ -35,6 +35,8 @@ class inputInfo{
     void setZmax        ( float         inpF ) {   z_max         = inpF; }
     void setNPixelsH    ( int           inpI ) {   N_pixels_h    = inpI; }
     void setNPixelsV    ( int           inpI ) {   N_pixels_v    = inpI; }
+    void setIntegLength ( double        inpF ) {  maxIntegLength = inpF; }
+    void setIntegStep   ( double        inpF ) {     integStep   = inpF; }
 
 
 
@@ -76,6 +78,10 @@ class inputInfo{
 
     int           getNPixlesH      () { return   N_pixels_h     ; }
     int           getNPixelsV      () { return   N_pixels_v     ; }
+
+    double        getMaxIntegLength() { return   maxIntegLength ; }
+    double        getIntegStep     () { return      integStep   ; }
+
 
 
     void setDirectory(){
@@ -188,6 +194,9 @@ class inputInfo{
 
     int N_pixels_h, N_pixels_v;
 
+
+    double maxIntegLength, integStep;
+
 };
 
 //Default values initialized on construction
@@ -240,6 +249,8 @@ inputInfo::inputInfo( ){
 
           setPartMass();
 
+   maxIntegLength = 400.0;
+      integStep   = 0.2;
 }
 
 

@@ -210,6 +210,23 @@ int main( int arg, char ** argv ){
   std::cout << " Done."     << std::endl  << std::endl;
 
 
+
+/*
+B&K go up to 400 Mpch
+6, 15, 30, 60, 120, 240, 400, that is +/- 200 max from cluster
+3, 7.5, 15, 30, 60, 120, 200
+
+Can generate by stepping in dex with 0.2
+16, 25.4, 40.2, 63.7, 101.0, 160, 253.6
+ 8  , 12.6, 20.1, 31.8,  50.5,  80, 126.8, 200
+
+currently does:
+ 6.5, 10.6, 17.3, 28.3, 46.1, 75.2, 122.6, 200
+*/
+
+
+
+
   //Catalog
   //ID number
   //Halo position

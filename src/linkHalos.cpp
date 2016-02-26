@@ -1,4 +1,5 @@
 #include <math.h>
+#include <vector>
 
 #include <CCfits/CCfits>
 
@@ -160,54 +161,92 @@ void linkHaloParticles( inputInfo userInput   ,
                        long long   linkList[] ){
 
 
-  int Nlx = userInput.getNlx(); //Minimum box numbers (should be 0)
-  int Nly = userInput.getNly();
-  int Nlz = userInput.getNlz();
-  int Nrx = userInput.getNrx(); //Maximum box numbers
-  int Nry = userInput.getNry();
-  int Nrz = userInput.getNrz();
+  int    Nlx = userInput.getNlx();  // Minimum box numbers (should be 0)
+  int    Nly = userInput.getNly();
+  int    Nlz = userInput.getNlz();
+  int    Nrx = userInput.getNrx();  // Maximum box numbers
+  int    Nry = userInput.getNry();
+  int    Nrz = userInput.getNrz();
 
-  float xMin = userInput.getXmin();
+  float xMin = userInput.getXmin(); // Simplifying user values
   float yMin = userInput.getYmin();
   float zMin = userInput.getZmin();
   float cell = userInput.getCell();
   float FOV  = userInput.getFOV() ;
 
 
+  double maxInteg        = userInput.getMaxIntegLength() / 2.0;                                     // Max distance to go on one side
+  double    integStart   = userInput.getFOV() / 2.0;                                                // Starting value to integrate from, FOV/2
+  int     N_integSteps   = ( log10( maxInteg ) - log10( integStart ) ) / userInput.getIntegStep() ; // Number of steps given our integration step size
+  double    integStep    = ( log10( maxInteg ) - log10( integStart ) ) / N_integSteps;              // Refine the integration step size
+  double   *integLengths = new double[ N_integSteps ];                                              // Array to fill with the different integration lengths
 
 
+  // Populate the array with the integration lengths
+  for ( int i = 0 ; i < N_integSteps ; ++i ){
+    integLengths[i] = pow( 10, (i+1) * integStep  +  log10(integStart) );
+  }
+
+  // Cycle through each halo, trying to locate the needed particles
   for ( int i = 0; i < userInput.getNumHalos(); ++i ){
 
 
-
-
+    // Simplify coordinates
     float x = halos[i].getX();
     float y = halos[i].getY();
     float z = halos[i].getZ();
 
-
-    //Box to the left and right of the box the center of the halo is located in
-    int xLeft  = std::min( std::max( Nlx, int( ( halos[i].getX() - xMin ) / cell - 1 ) ), Nrx );
-    int yLeft  = std::min( std::max( Nly, int( ( halos[i].getY() - yMin ) / cell - 1 ) ), Nry );
-    int zLeft  = std::min( std::max( Nlz, int( ( halos[i].getZ() - zMin ) / cell - 1 ) ), Nrz );
-    int xRight = std::min( std::max( Nlx, int( ( halos[i].getX() - xMin ) / cell + 1 ) ), Nrx );
-    int yRight = std::min( std::max( Nly, int( ( halos[i].getY() - yMin ) / cell + 1 ) ), Nry );
-    int zRight = std::min( std::max( Nlz, int( ( halos[i].getZ() - zMin ) / cell + 1 ) ), Nrz );
-
-
-    //Number of particles in each set
-    unsigned long N_sphere(0);
-    unsigned long N_box   (0);
-    unsigned long N_i1    (0);
-    unsigned long N_i2    (0);
-    unsigned long N_i3    (0);
+    // Left and rightmost coordinates in the FOV
+    float xLeft  = x - FOV / 2.0;
+    float yLeft  = y - FOV / 2.0;
+    float zLeft  = z - FOV / 2.0;
+    float xRight = x + FOV / 2.0;
+    float yRight = y + FOV / 2.0;
+    float zRight = z + FOV / 2.0;
 
 
-    //Loop over cells possibly containing particles of our halo, and count
-    // the number that belong in each particle set
-    for ( int xIndex = xLeft; xIndex <= xRight; ++xIndex ){
-    for ( int yIndex = yLeft; yIndex <= yRight; ++yIndex ){
-    for ( int zIndex = zLeft; zIndex <= zRight; ++zIndex ){
+    // Box to the left and right of the box the center of the halo is located in
+    int xLeftN  = std::min( std::max( Nlx, int( ( x - xMin            ) / cell - 1 ) ), Nrx );
+    int yLeftN  = std::min( std::max( Nly, int( ( y - yMin            ) / cell - 1 ) ), Nry );
+    int zLeftN  = std::min( std::max( Nlz, int( ( z - zMin - maxInteg ) / cell - 1 ) ), Nrz ); // z's need to include the integration lengths
+    int xRightN = std::min( std::max( Nlx, int( ( x - xMin            ) / cell + 1 ) ), Nrx );
+    int yRightN = std::min( std::max( Nly, int( ( y - yMin            ) / cell + 1 ) ), Nry );
+    int zRightN = std::min( std::max( Nlz, int( ( z - zMin + maxInteg ) / cell + 1 ) ), Nrz );
+
+
+    // Number of particles in each set
+    long long    N_sphere(0);
+    long long    N_box   (0);
+    long long   *N_integ  =  new long long [ N_integSteps ]; // N_integ will contain the number in each integration set
+    long long maxN_integ  = 0;
+
+
+    // Maximum possible integration length for our halo
+    double haloMaxInteg      = maxInteg;
+    int    haloMaxIntegIndex = N_integSteps;
+
+
+    // Find if there is an integ length that goes outside the box, keep looping until it's in
+    for ( int j = N_integSteps-1; j >= 0 ; --j ){
+      N_integ[j] = 0;
+
+      if ( ( z + integLengths[j] ) > userInput.getZmax() || // If an integration length is outside the box
+           ( z - integLengths[j] ) < userInput.getZmin() ){
+        if ( j > 0 ){
+          haloMaxInteg      = integLengths[j-1];
+          haloMaxIntegIndex = j-1;
+        } else {
+          haloMaxInteg      = integStart;
+          haloMaxIntegIndex = -1;
+        }
+      }
+    }
+
+    // Loop over cells possibly containing particles of our halo, and count
+    //  the number that belong in each particle set
+    for ( int xIndex = xLeftN; xIndex <= xRightN; ++xIndex ){
+    for ( int yIndex = yLeftN; yIndex <= yRightN; ++yIndex ){
+    for ( int zIndex = zLeftN; zIndex <= zRightN; ++zIndex ){
 
 
 
@@ -228,22 +267,35 @@ void linkHaloParticles( inputInfo userInput   ,
         float partZ = particles[ particleIndex ].z_pos;
 
 
-        //Check if in sphere, Rm > sqrt( ( x_h-x_p )^2 + ...
-        if ( ( halos[i].getRm() * halos[i].getRm() ) > ( ( halos[i].getX() - partX ) * ( halos[i].getX() - partX ) +
-                                                         ( halos[i].getY() - partY ) * ( halos[i].getY() - partY ) +
-                                                         ( halos[i].getZ() - partZ ) * ( halos[i].getZ() - partZ ) ) ){
-          ++N_sphere;
+        // Check if particle is in a set
+
+        if ( (  xLeft              < partX) && (partX < ( xRight           )) &&
+             (  yLeft              < partY) && (partY < ( yRight           )) &&
+             (( z - haloMaxInteg ) < partZ) && (partZ < ( z + haloMaxInteg )) ){
+
+
+          // Check if in sphere, Rm > sqrt( ( x_h-x_p )^2 + ...
+          if ( ( halos[i].getRm() * halos[i].getRm() ) >= ( ( x - partX ) * ( x - partX ) +
+                                                            ( y - partY ) * ( y - partY ) +
+                                                            ( z - partZ ) * ( z - partZ ) ) ){
+            ++N_sphere;
+          }
+
+          // Particle in the FOV frame
+          else if ( ( zLeft < partZ ) && ( partZ < zRight ) ) {
+            ++N_box;
+          }
+
+          // Find the integration length it is in
+          else {
+            int integIndex = std::min( std::max(    int( ( log10( abs(z - partZ) ) - log10(integStart) ) / integStep )     , 0 ) , N_integSteps - 1 );
+            N_integ[ integIndex ] += 1;
+
+            if ( N_integ[integIndex] > maxN_integ ){
+              maxN_integ = N_integ[ integIndex ];
+            }
+          }
         }
-
-        //Particle in the box frame
-        else if ( ( (halos[i].getX()-FOV) < partX ) && ( partX < (halos[i].getX()+FOV) ) &&
-                  ( (halos[i].getY()-FOV) < partY ) && ( partY < (halos[i].getY()+FOV) ) &&
-                  ( (halos[i].getZ()-FOV) < partZ ) && ( partZ < (halos[i].getZ()+FOV) ) ){
-          ++N_box;
-        }
-//Integration length, needs modification of z index
-
-
 
         particleIndex = linkList[ particleIndex ];
       } //while
@@ -252,36 +304,29 @@ void linkHaloParticles( inputInfo userInput   ,
     }
 
 
-//N_box = 1;
-    //Only continue if we found particles for our halo
+    // Only continue if we found particles for our halo
     if ( ( N_sphere > 0 ) && ( N_box > 0 ) ){
-//N_box = 0;
 
-
-      //Need to allocate for indexes
+      // Need to allocate for storing indexes
       long long *sphereIndexes = new long long [ N_sphere ];
       long long *   boxIndexes = new long long [ N_box    ];
-      long long *    i1Indexes;
-      long long *    i2Indexes;
-      long long *    i3Indexes;
+      long long * integIndexes = new long long [ N_integSteps * maxN_integ ];
 
-      //If we were able to complete any integration, use it
-      if ( N_i1 > 0 ) i1Indexes = new long long [ N_i1 ];
-      if ( N_i2 > 0 ) i2Indexes = new long long [ N_i2 ];
-      if ( N_i3 > 0 ) i3Indexes = new long long [ N_i3 ];
 
       //Counter for the index of each
-      long long  sCounter(0);
-      long long  bCounter(0);
-      long long i1Counter(0);
-      long long i2Counter(0);
-      long long i3Counter(0);
+      long long      sCounter(0);
+      long long      bCounter(0);
+      long long *integCounter = new long long [ N_integSteps ]; // N_integ just contains the number in each integration set
 
+
+      for ( int foo = 0; foo < N_integSteps; ++foo ){
+        integCounter[foo] = 0;
+      }
 
       //Loop over cells again to find indexes of particles
-      for ( int xIndex = xLeft; xIndex <= xRight; ++xIndex ){
-      for ( int yIndex = yLeft; yIndex <= yRight; ++yIndex ){
-      for ( int zIndex = zLeft; zIndex <= zRight; ++zIndex ){
+      for ( int xIndex = xLeftN; xIndex <= xRightN; ++xIndex ){
+      for ( int yIndex = yLeftN; yIndex <= yRightN; ++yIndex ){
+      for ( int zIndex = zLeftN; zIndex <= zRightN; ++zIndex ){
 
 
 
@@ -300,30 +345,43 @@ void linkHaloParticles( inputInfo userInput   ,
           float partY = particles[ particleIndex ].y_pos;
           float partZ = particles[ particleIndex ].z_pos;
 
+          if ( (( xLeft            ) < partX) && (partX < ( xRight           )) &&
+               (( yLeft            ) < partY) && (partY < ( yRight           )) &&
+               (( z - haloMaxInteg ) < partZ) && (partZ < ( z + haloMaxInteg )) ){
 
-          //Check if in sphere, Rm > sqrt( ( x_h-x_p )^2 + ...
-          if ( ( halos[i].getRm() * halos[i].getRm() ) > ( ( halos[i].getX() - partX ) * ( halos[i].getX() - partX ) +
-                                                           ( halos[i].getY() - partY ) * ( halos[i].getY() - partY ) +
-                                                           ( halos[i].getZ() - partZ ) * ( halos[i].getZ() - partZ ) ) ){
-            sphereIndexes[ sCounter ] = particleIndex;
-            ++sCounter;
+
+            // Check if in sphere, Rm > sqrt( ( x_h-x_p )^2 + ...
+            if ( ( halos[i].getRm() * halos[i].getRm() ) >= ( ( x - partX ) * ( x - partX ) +
+                                                              ( y - partY ) * ( y - partY ) +
+                                                              ( z - partZ ) * ( z - partZ ) ) ){
+              sphereIndexes[ sCounter ] = particleIndex;
+              ++sCounter;
+            }
+
+            // Particle in the FOV frame
+            else if ( ( zLeft < partZ ) && ( partZ < zRight ) ) {
+
+              boxIndexes[ bCounter ] = particleIndex;
+              ++bCounter;
+            }
+
+            // Find the integration length it is in
+            else {
+
+              int integIndex = std::min( std::max(    int( ( log10( abs(z - partZ) ) - log10(integStart) ) / integStep )     , 0 ) , N_integSteps - 1 );
+
+              integCounter[ integIndex ] += 1;
+
+              integIndexes[ integCounter[ integIndex ] + integIndex * maxN_integ ];
+
+            }
           }
-
-          //Particle in the box frame
-          else if ( ( (halos[i].getX()-FOV) < partX ) && ( partX < (halos[i].getX()+FOV) ) &&
-                    ( (halos[i].getY()-FOV) < partY ) && ( partY < (halos[i].getY()+FOV) ) &&
-                    ( (halos[i].getZ()-FOV) < partZ ) && ( partZ < (halos[i].getZ()+FOV) ) ){
-            boxIndexes[ bCounter ] = particleIndex;
-            ++bCounter;
-          }
-
-
           particleIndex = linkList[ particleIndex ];
         } //while
       }
       }   //Box loops
       }
-
+/*
       //Write the fits file for this halo
       writeImage(userInput ,
                   halos[i] ,
@@ -338,10 +396,15 @@ void linkHaloParticles( inputInfo userInput   ,
                  i1Indexes ,
                  i2Indexes ,
                  i3Indexes );
+*/
 
+    delete[] sphereIndexes, boxIndexes, integIndexes, integCounter;
     }     //If we found particles
+    delete [] N_integ;
   }       //Halo loop
 
+  delete [] integLengths;
+exit(0);
 }
 
 
@@ -408,12 +471,8 @@ for( int i = 0; i < N_box; ++i ){
     SD[i] = 0;
   }
 
-//find indexes based on x and y position indexes, don't even need z
-//first do sphere, then box, then any integration lengths
-//afterwards deallocate?
-//then do LOS things
 
-  //Generate file names
+  //Generate file names, require temp for the sprintf
   char temp[100];
 
 
@@ -471,11 +530,6 @@ for( int i = 0; i < N_box; ++i ){
 //  sprintf( temp, "%sBox%s_%li_%04.1f_i%06.1.FITS", (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), halo.getID(), userInput.getFOV() );
   const std::string     i3FileName = temp;
 
-
-
-
-
-
 }
 
 
@@ -519,14 +573,7 @@ int  writeFits( const std::string     fileName    ,  // File name to write
     int  vIndex = std::min( std::max(  int( y_pos * y_scale ) , 0 ), N_pixels[1] );
 
     //Place it
-    SD[ vIndex * N_pixels[0] + hIndex ] += 1;
-  }
-
-
-
-  // Adjust SD array to hold mass, not just number of particles
-  for ( int i = 0; i < N_pixelsTot; ++i ){
-    SD[i] *= userInput.getParticleMass();
+    SD[ vIndex * N_pixels[0] + hIndex ] += userInput.getParticleMass();
   }
 
 
@@ -543,14 +590,6 @@ int  writeFits( const std::string     fileName    ,  // File name to write
 
 //  ( *pFits ).pHDU().addKey("OBJ",val,"DESC.");
   ( *pFits ).pHDU().write( 1, N_pixelsTot, SD);
-
-
-
-  // Return array to number of particles
-  for ( int i = 0; i < N_pixelsTot; ++i ){
-    SD[i] /= userInput.getParticleMass();
-  }
-
 
 
 
