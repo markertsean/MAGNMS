@@ -85,7 +85,7 @@ class inputInfo{
     unsigned long getNumFiles      () { return        Num_files ; }
 
     void wroteFile(){
-      ++ Num_files;
+      ++Num_files;
     }
 
     void setDirectory(){

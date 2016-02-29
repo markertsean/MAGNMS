@@ -455,7 +455,7 @@ void writeImage( inputInfo          userInput  , // All the user info
   if (  writeFits( sphereFileName ,
                       N_pixels    ,
                       N_elements  ,
-                               SD ,
+                              &SD ,
                       N_sphere    ,
                     sphereIndexes ,
                         particles ,
@@ -476,7 +476,7 @@ void writeImage( inputInfo          userInput  , // All the user info
   if (  writeFits(    boxFileName ,
                       N_pixels    ,
                       N_elements  ,
-                               SD ,
+                              &SD ,
                       N_box       ,
                        boxIndexes ,
                         particles ,
@@ -510,7 +510,7 @@ void writeImage( inputInfo          userInput  , // All the user info
     if (  writeFits(      iFileName ,
                         N_pixels    ,
                         N_elements  ,
-                                 SD ,
+                                &SD ,
                         N_integ[i]  ,
                            iIndexes ,
                           particles ,
@@ -534,7 +534,7 @@ void writeImage( inputInfo          userInput  , // All the user info
 int  writeFits( const std::string     fileName    ,  // File name to write
                 int                   N_pixels[]  ,  // N_pixels in each direction
                 int                   N_pixelsTot ,  // Total number of pixels
-                std::valarray<double>        SD   ,  // SD array to use, passed because we will keep adding to the array
+                std::valarray<double>       *SD   ,  // SD array to use, passed because we will keep adding to the array
                 long long             N_indexes   ,  // Number of indexes in set to add
                 long long               indexes[] ,  // Indexes of the set
                 particlePosition      particles[] ,  // All the particles
@@ -571,7 +571,7 @@ int  writeFits( const std::string     fileName    ,  // File name to write
     int  vIndex = std::min( std::max(  int( y_pos * y_scale ) , 0 ), N_pixels[1] );
 
     //Place it
-    SD[ vIndex * N_pixels[0] + hIndex ] += userInput.getParticleMass();
+    (*SD)[ vIndex * N_pixels[0] + hIndex ] += userInput.getParticleMass();
   }
 
 
@@ -587,7 +587,7 @@ int  writeFits( const std::string     fileName    ,  // File name to write
   catch (FITS::CantCreate){  return -1; }
 
 //  ( *pFits ).pHDU().addKey("OBJ",val,"DESC.");
-  ( *pFits ).pHDU().write( 1, N_pixelsTot, SD);
+  ( *pFits ).pHDU().write( 1, N_pixelsTot, *SD);
 
 
   userInput.wroteFile();

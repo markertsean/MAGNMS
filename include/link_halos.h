@@ -47,7 +47,7 @@ void writeImage( inputInfo          userInput  , // All the user info
 int  writeFits( const std::string     fileName    ,  // File name to write
                 int                   N_pixels[]  ,  // N_pixels in each direction
                 int                   N_pixelsTot ,  // Total number of pixels
-                std::valarray<double>        SD   ,  // SD array to use, passed because we will keep adding to the array
+                std::valarray<double>       *SD   ,  // SD array to use, passed because we will keep adding to the array
                 long long             N_indexes   ,  // Number of indexes in set to add
                 long long               indexes[] ,  // Indexes of the set
                 particlePosition      particles[] ,  // All the particles
