@@ -145,8 +145,6 @@ void makeLinkList( inputInfo        userInfo   ,   //Contains the global info ne
 
     myList[  i  ] = myLabel[ lI ]; //List previous particle in the same box
     myLabel[ lI ] = i;             //label stores last particle recorded in the box
-//printf("%5li %5li %5li %5li\n",i,lI,myList[i],myLabel[lI]);
-
   }
 
 }
@@ -218,7 +216,7 @@ void linkHaloParticles( inputInfo userInput   ,
     long long    N_sphere(0);
     long long    N_box   (0);
     long long   *N_integ  =  new long long [ N_integSteps ]; // N_integ will contain the number in each integration set
-    long long maxN_integ  = 0;
+    long long maxN_integ  = 0;                               // maxN_integ will contain the max index
 
 
     // Maximum possible integration length for our halo
@@ -292,7 +290,7 @@ void linkHaloParticles( inputInfo userInput   ,
             N_integ[ integIndex ] += 1;
 
             if ( N_integ[integIndex] > maxN_integ ){
-              maxN_integ = N_integ[ integIndex ];
+              maxN_integ = N_integ[ integIndex ];       // Find the maximum amount of particles in any integ set
             }
           }
         }
@@ -311,6 +309,13 @@ void linkHaloParticles( inputInfo userInput   ,
       long long *sphereIndexes = new long long [ N_sphere ];
       long long *   boxIndexes = new long long [ N_box    ];
       long long * integIndexes = new long long [ N_integSteps * maxN_integ ];
+
+      for ( int kk = 0; kk < N_sphere                  ; ++kk )
+        sphereIndexes[kk] = 0;
+      for ( int kk = 0; kk < N_box                     ; ++kk )
+           boxIndexes[kk] = 0;
+      for ( int kk = 0; kk < N_integSteps * maxN_integ ; ++kk )
+         integIndexes[kk] = 0;
 
 
       //Counter for the index of each
@@ -370,10 +375,9 @@ void linkHaloParticles( inputInfo userInput   ,
 
               int integIndex = std::min( std::max(    int( ( log10( abs(z - partZ) ) - log10(integStart) ) / integStep )     , 0 ) , N_integSteps - 1 );
 
+              integIndexes[ integCounter[ integIndex ] + integIndex * maxN_integ ] = particleIndex;
+
               integCounter[ integIndex ] += 1;
-
-              integIndexes[ integCounter[ integIndex ] + integIndex * maxN_integ ];
-
             }
           }
           particleIndex = linkList[ particleIndex ];
@@ -381,22 +385,22 @@ void linkHaloParticles( inputInfo userInput   ,
       }
       }   //Box loops
       }
-/*
+
+
       //Write the fits file for this halo
-      writeImage(userInput ,
-                  halos[i] ,
-                 particles ,
-                  N_sphere ,
-                  N_box    ,
-                  N_i1     ,
-                  N_i2     ,
-                  N_i3     ,
-             sphereIndexes ,
-                boxIndexes ,
-                 i1Indexes ,
-                 i2Indexes ,
-                 i3Indexes );
-*/
+      writeImage( userInput       ,
+                   halos[i]       ,
+                  particles       ,
+                   N_sphere       ,
+                   N_box          ,
+                   N_integ        ,
+                maxN_integ        ,
+                   N_integSteps   ,
+                     integLengths ,
+                    sphereIndexes ,
+                       boxIndexes ,
+                     integIndexes );
+
 
     delete[] sphereIndexes, boxIndexes, integIndexes, integCounter;
     }     //If we found particles
@@ -404,75 +408,42 @@ void linkHaloParticles( inputInfo userInput   ,
   }       //Halo loop
 
   delete [] integLengths;
-exit(0);
+
 }
 
 
 
-
-void writeImage( inputInfo          userInput, //All the user info
-                  haloInfo               halo, //The halo we are considering
-                 particlePosition particles[], //The full array of particles
-                 long long           N_sphere,
-                 long long           N_box   , //Number of particles in sphere set, box set, and integration length sets
-                 long long           N_i1    ,
-                 long long           N_i2    ,
-                 long long           N_i3    ,
-                 long long     *sphereIndexes, //Particle indexes in each set
-                 long long     *   boxIndexes,
-                 long long     *    i1Indexes,
-                 long long     *    i2Indexes,
-                 long long     *    i3Indexes){
-
-
-/*
-//  sprintf( temp, "Box_%s_%s_%4.1f_i%5.1f.FITS", halo.getID(), userInput.getCatType(), userInput.getFOV() );
-std::cout << sphereFileName << std::endl;
-std::cout <<    boxFileName << std::endl;
-
-std::cout<<"N's "<<
-N_sphere<<" "<<
-N_box   <<" "<<
-N_i1    <<" "<<
-N_i2    <<" "<<
-N_i3    <<" "<<
-std::endl;
-
-printf("Halo: %li\nCenter: %6.2f %6.2f %6.2f\n", halo.getID(), halo.getX(), halo.getY(), halo.getZ());
-for( int i = 0; i < N_sphere; ++i ){
-  long long index = sphereIndexes[i];
-  float         r = halo.getRm();
-  float         x = particles[index].x_pos ;
-  float         y = particles[index].y_pos ;
-  float         z = particles[index].z_pos ;
-  printf("        %6.2f %6.2f %6.2f\n", x, y, z);
-}
-printf("Box:\n");
-for( int i = 0; i < N_box; ++i ){
-  long long index = boxIndexes[i];
-  float         x = particles[index].x_pos - halo.getX();
-  float         y = particles[index].y_pos - halo.getY();
-  float         z = particles[index].z_pos - halo.getZ();
-  printf("        %5.1f %5.1f %5.1f\n", x, y, z);
-}
-*/
+// Attempts to write the many images
+void writeImage( inputInfo          userInput  , // All the user info
+                  haloInfo               halo  , // The halo we are considering
+                 particlePosition particles[]  , // The full array of particles
+                 long long          N_sphere   ,
+                 long long          N_box      , // Number of particles in sphere set, box set, and integration length sets
+                 long long          N_integ[]  ,
+                 long long       maxN_integ    , // Maximum number on particles in any integIndexes bin
+                 long long          N_integBins, // Number of bins (steps) of integration
+                 double          integLengths[], // Contains the integration lengths
+                 long long     *sphereIndexes  , // Particle indexes in each set
+                 long long     *   boxIndexes  ,
+                 long long     * integIndexes  ){
 
 
-  //Number of elements in each direction, and total number of pixels
+
+  // Number of elements in each direction, and total number of pixels
   int   N_pixels[2] = { userInput.getNPixlesH(), userInput.getNPixelsV() };
   long lN_pixels[2] = { N_pixels[0], N_pixels[1] };
 
   int   N_elements  = std::accumulate(&N_pixels[0],&N_pixels[2],1,std::multiplies<int>());
 
 
-  //Our surface density array
+  // Our surface density array
   std::valarray<double> SD( N_elements );
   for ( int i = 0; i < N_elements; ++i ){
     SD[i] = 0;
   }
 
 
-  //Generate file names, require temp for the sprintf
+  // Generate file names, require temp for the sprintf
   char temp[100];
 
 
@@ -518,21 +489,48 @@ for( int i = 0; i < N_box; ++i ){
     std::cout<<"    Wrote file: "      <<   boxFileName<<std::endl;
 
 
-//if no integration lengths, return
+  // Loop over integration lengths, if there are particles in the bin, write that index file
+  if ( maxN_integ    > 0 ){
+  for ( int i = 0; i < N_integBins; ++i ){
+  if (    N_integ[i] > 0 ){
+
+    // Integration file names
+    sprintf( temp, "%sBox%s_%li_%04.1f_%06.1lf.FITS",
+        (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), halo.getID(), userInput.getFOV(), 2.0* integLengths[i] );
+    const std::string iFileName = temp;
 
 
+    // Need a 1d array for writefiles, so only take those indexes
+    long long iIndexes[ maxN_integ ];
+    for ( int j = 0; j < maxN_integ; ++j ){
+      iIndexes[j] = integIndexes[ j + maxN_integ * i ];
+    }
 
+    // Attempt to write the file, if it fails abort
+    if (  writeFits(      iFileName ,
+                        N_pixels    ,
+                        N_elements  ,
+                                 SD ,
+                        N_integ[i]  ,
+                           iIndexes ,
+                          particles ,
+                               halo ,
+                          userInput ) == -1 ){
 
-//  sprintf( temp, "%sBox%s_%li_%04.1f_i%06.1.FITS", (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), halo.getID(), userInput.getFOV() );
-  const std::string     i1FileName = temp;
-//  sprintf( temp, "%sBox%s_%li_%04.1f_i%06.1.FITS", (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), halo.getID(), userInput.getFOV() );
-  const std::string     i2FileName = temp;
-//  sprintf( temp, "%sBox%s_%li_%04.1f_i%06.1.FITS", (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), halo.getID(), userInput.getFOV() );
-  const std::string     i3FileName = temp;
+    std::cout<<"Failed to write file: "<<     iFileName<<std::endl;
+    exit(1);
+  }
+    std::cout<<"    Wrote file: "      <<     iFileName<<std::endl;
+
+  }
+  }
+  }
+    std::cout << std::endl;
 
 }
 
 
+// Write the fits image to file
 int  writeFits( const std::string     fileName    ,  // File name to write
                 int                   N_pixels[]  ,  // N_pixels in each direction
                 int                   N_pixelsTot ,  // Total number of pixels
@@ -592,6 +590,6 @@ int  writeFits( const std::string     fileName    ,  // File name to write
   ( *pFits ).pHDU().write( 1, N_pixelsTot, SD);
 
 
-
+  userInput.wroteFile();
   return 0;
 }

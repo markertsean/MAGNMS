@@ -82,7 +82,11 @@ class inputInfo{
     double        getMaxIntegLength() { return   maxIntegLength ; }
     double        getIntegStep     () { return      integStep   ; }
 
+    unsigned long getNumFiles      () { return        Num_files ; }
 
+    void wroteFile(){
+      ++ Num_files;
+    }
 
     void setDirectory(){
 
@@ -197,6 +201,8 @@ class inputInfo{
 
     double maxIntegLength, integStep;
 
+    unsigned long Num_files;
+
 };
 
 //Default values initialized on construction
@@ -251,6 +257,8 @@ inputInfo::inputInfo( ){
 
    maxIntegLength = 400.0;
       integStep   = 0.2;
+
+        Num_files = 0 ;
 }
 
 

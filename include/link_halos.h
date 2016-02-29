@@ -30,19 +30,18 @@ void linkHaloParticles( inputInfo userInput   ,
                        long long   linkList[] );
 
 
-void writeImage( inputInfo          userInput, //All the user info
-                  haloInfo               halo, //The halo we are considering
-                 particlePosition particles[], //The full array of particles
-                 long long           N_sphere,
-                 long long           N_box   , //Number of particles in sphere set, box set, and integration length sets
-                 long long           N_i1    ,
-                 long long           N_i2    ,
-                 long long           N_i3    ,
-                 long long     *sphereIndexes, //Particle indexes in each set
-                 long long     *   boxIndexes,
-                 long long     *    i1Indexes,
-                 long long     *    i2Indexes,
-                 long long     *    i3Indexes);
+void writeImage( inputInfo          userInput  , // All the user info
+                  haloInfo               halo  , // The halo we are considering
+                 particlePosition particles[]  , // The full array of particles
+                 long long          N_sphere   ,
+                 long long          N_box      , // Number of particles in sphere set, box set, and integration length sets
+                 long long          N_integ[]  ,
+                 long long       maxN_integ    , // Maximum number on particles in any integIndexes bin
+                 long long          N_integBins, // Number of bins (steps) of integration
+                 double          integLengths[], // Contains the integration lengths
+                 long long     *sphereIndexes  , // Particle indexes in each set
+                 long long     *   boxIndexes  ,
+                 long long     * integIndexes  );
 
 
 int  writeFits( const std::string     fileName    ,  // File name to write

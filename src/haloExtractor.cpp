@@ -205,11 +205,11 @@ int main( int arg, char ** argv ){
 //For now do arrays, figure out the fits writing later
 
 //32 boxes
-  std::cout << " Generating SD boxes..." << std::endl;
+  std::cout << " Generating FITS images..." << std::endl;
   linkHaloParticles( userInput, halos, particle, labelList, linkList );
   std::cout << " Done."     << std::endl  << std::endl;
 
-
+  std::cout << "Wrote " << userInput.getNumFiles() << " Files " << std::endl;
 
 /*
 B&K go up to 400 Mpch
