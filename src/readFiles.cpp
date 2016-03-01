@@ -33,28 +33,42 @@ bool readUserInput( std::string fileName, inputInfo &myInput ){
       else if ( strcmp( inpC1, "partFile" ) == 0 ){
         myInput.setInputPart   ( inpS  );
       }
-      else if ( strcmp( inpC1, "headDir"  ) == 0 ){
-        myInput.setParticleDir ( inpS  );
+      else if ( strcmp( inpC1, "headFile" ) == 0 ){
+        myInput.setInputHead   ( inpS  );
       }
       else if ( strcmp( inpC1, "partDir"  ) == 0 ){
+        myInput.setParticleDir ( inpS  );
+      }
+      else if ( strcmp( inpC1, "headDir"  ) == 0 ){
         myInput.setHeaderDir   ( inpS  );
       }
       else if ( strcmp( inpC1, "catType"  ) == 0 ){
-        myInput.setHeaderDir   ( inpS  );
+        myInput.setCatType     ( inpS  );
       }
-      else if ( strcmp( inpC1, "minMass"  ) == 0 ){
+
+      else if ( strcmp( inpC1, "minMass"     ) == 0 ){
         myInput.setMinMass     ( std::stod( inpS )  );
       }
-      else if ( strcmp( inpC1, "maxMass"  ) == 0 ){
+      else if ( strcmp( inpC1, "maxMass"     ) == 0 ){
         myInput.setMaxMass     ( std::stod( inpS )  );
       }
-      else if ( strcmp( inpC1, "rMult"    ) == 0 ){
+      else if ( strcmp( inpC1, "rMult"       ) == 0 ){
         myInput.setRadiusMult  ( std::stod( inpS )  );
       }
+      else if ( strcmp( inpC1, "FOV"         ) == 0 ){
+        myInput.setFOV         ( std::stod( inpS )  );
+      }
+      else if ( strcmp( inpC1, "integLength" ) == 0 ){
+        myInput.setIntegLength ( std::stod( inpS )  );
+      }
+      else if ( strcmp( inpC1, "integStep"   ) == 0 ){
+        myInput.setIntegStep   ( std::stod( inpS )  );
+      }
+
       else if ( strcmp( inpC1, "useShortCatalog" ) == 0 ){
         myInput.setShortCat    ( std::stoi( inpS )  );
       }
-      else if ( strcmp( inpC1, "snapNum" ) == 0 ){
+      else if ( strcmp( inpC1, "snapNum"    ) == 0 ){
         myInput.setSnapNum     ( std::stoi( inpS )  );
       }
       else if ( strcmp( inpC1, "N_pixels_h" ) == 0 ){

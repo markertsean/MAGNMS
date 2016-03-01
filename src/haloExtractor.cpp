@@ -1,3 +1,23 @@
+/***************************************************************************************
+
+This program takes an input file (extractInfo.dat or command line argument) for input
+parameters to write FITS mass maps from simulations. The process is:
+
+1. Read the user input
+2. Perform internal checks for directories
+3. Read the halo catalog, write a short file of valid halos for faster read in
+4. Read in the particles, save as array into memory
+5. Generate link list of particles
+6. Link particles and halos
+   -Particles go in Rvir, FOV box, or integration list sets
+   -Writes images with headers and FITS mass maps, no smoothing
+   -Currently does nothing with triaxiality
+
+The last step tries to avoid allocating as much memory as possible, due to the extreme number of particles.
+
+
+****************************************************************************************/
+
 #include <iostream>
 #include <fstream>
 #include <cstring>
@@ -10,18 +30,8 @@
 #include "read_files.h"
 #include "link_halos.h"
 
-//Read halo catalog
-//Select halos within criterion
-//Write useable catalog, if one doesn't exist
-//Create directories for infofile, particle positions
-//Go through particle catalog, extracting
 
-//Need read functions for particle file, halo catalog
-//Identify catalog/particle file type
-
-//Function to to create directories using file names
-
-
+unsigned long inputInfo::Num_files = 0;
 
 
 int main( int arg, char ** argv ){
@@ -42,7 +52,7 @@ int main( int arg, char ** argv ){
 
   //Attempts to read the input file, and displays the resultant info
   if ( readUserInput( userInput.getReadFile(), userInput ) ){
-    printf("  Halo Catalog       : %s\n  Particle File      : %s\n  Header Directory   : %s\n  Particle Directory : %s\n\n",
+    printf("  Halo Catalog       : %s\n  Particle File      : %s\n  Header File        : %s\n  Particle Directory : %s\n\n",
     (userInput.getInputCatalog()).c_str(),
     (userInput.getInputPart   ()).c_str(),
     (userInput.getHeaderDir   ()).c_str(),
@@ -53,36 +63,6 @@ int main( int arg, char ** argv ){
     exit(1);
   }
 
-
-  ///////////////////////////////////////////
-  ////////Read in the catalog file///////////
-  ///////////////////////////////////////////
-
-
-
-  //Read the number of valid halos, for allocation
-  unsigned long N_halos =0;
-  {
-    haloInfo myHalos[2];
-    N_halos = readCatalog( myHalos, userInput, N_halos );
-    printf(" Number of halos read: %lu\n",N_halos);
-  }
-
-//  haloInfo myHalos[N_halos];
-  haloInfo *myHalos = new haloInfo[N_halos];
-
-  {
-    unsigned long old_N_halos = N_halos;
-    N_halos = readCatalog( myHalos, userInput, N_halos );
-    if ( old_N_halos != N_halos ){
-      printf("\nError: Read mismatch\nN_halos allocated: %lu\nN_halos read in: %lu\n\n", old_N_halos, N_halos);
-      exit(1);
-    }
-  }
-  userInput.setNumHalos( N_halos );
-
-
-  printf("\n Catalog read in complete\n\n");
 
 
   /////////////////////////////////////////
@@ -117,6 +97,36 @@ int main( int arg, char ** argv ){
 
 
 
+  ///////////////////////////////////////////
+  ////////Read in the catalog file///////////
+  ///////////////////////////////////////////
+
+
+
+  //Read the number of valid halos, for allocation
+  unsigned long N_halos =0;
+  {
+    haloInfo myHalos[2];
+    N_halos = readCatalog( myHalos, userInput, N_halos );
+    printf(" Number of halos read: %lu\n",N_halos);
+  }
+
+  haloInfo *myHalos = new haloInfo[N_halos];
+
+  {
+    unsigned long old_N_halos = N_halos;
+    N_halos = readCatalog( myHalos, userInput, N_halos );
+    if ( old_N_halos != N_halos ){
+      printf("\nError: Read mismatch\nN_halos allocated: %lu\nN_halos read in: %lu\n\n", old_N_halos, N_halos);
+      exit(1);
+    }
+  }
+  userInput.setNumHalos( N_halos );
+
+
+  printf("\n Catalog read in complete\n\n");
+
+
   /////////////////////////////////////////
   ///////////Read in particles/////////////
   /////////////////////////////////////////
@@ -139,8 +149,7 @@ int main( int arg, char ** argv ){
 
   }
   userInput.setNumParticles( numParticles );
-  //Once particles are confirmed, read into this C side
-  //particlePosition particle[numParticles];                       //This method segfaults due to compiler limit
+
 
   particlePosition *particle = new particlePosition[numParticles]; //This does not segfault
 
@@ -192,64 +201,16 @@ int main( int arg, char ** argv ){
   ////////Link halos, write files//////////
   /////////////////////////////////////////
 
+  // Goes through link list, checking particles against halos
+  // Locates particles in halo's Rvir
+  //  box FOV x FOV x FOV
+  //  box FOV x FOV x integration lengths
+  // Writes image to FITS file
 
-//Loop over halos, find boxes to check with
-//Z axis should check against long integration lengths
-//Loop once to find, generate link lists for each set
-//sphere, box, integration lengths (if applicable)
-//Integration length images first, write file
-//Box, write file
-//Rotate sphere for different views, write file
-
-
-//For now do arrays, figure out the fits writing later
-
-//32 boxes
-  std::cout << " Generating FITS images..." << std::endl;
+  std::cout << " Generating FITS images..." << std::endl << std::endl;
   linkHaloParticles( userInput, halos, particle, labelList, linkList );
-  std::cout << " Done."     << std::endl  << std::endl;
+  std::cout << " Done."                     << std::endl << std::endl;
 
   std::cout << "Wrote " << userInput.getNumFiles() << " Files " << std::endl;
-
-/*
-B&K go up to 400 Mpch
-6, 15, 30, 60, 120, 240, 400, that is +/- 200 max from cluster
-3, 7.5, 15, 30, 60, 120, 200
-
-Can generate by stepping in dex with 0.2
-16, 25.4, 40.2, 63.7, 101.0, 160, 253.6
- 8  , 12.6, 20.1, 31.8,  50.5,  80, 126.8, 200
-
-currently does:
- 6.5, 10.6, 17.3, 28.3, 46.1, 75.2, 122.6, 200
-*/
-
-
-
-
-  //Catalog
-  //ID number
-  //Halo position
-  //Particle number from catalog
-  //Mass of particles
-  //Halo mass
-  //Rmax
-  //Concentration
-  //b/a ratio
-  //c/a ratio
-  //
-  //Rotation vector for along LOS
-  //Rotation vector for perp to LOS
-  //Number particles using
-  //Number particles in box
-  //Whether could create LOS cones
-  //Largest LOS cones
-
-  //Have input files and directories to write to.
-  //Need to:
-  //        Write overarching header file, with used halos
-  //        Read in particles, maybe use link list to speed up process?
-
-
 
 }

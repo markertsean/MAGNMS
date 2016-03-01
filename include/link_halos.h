@@ -52,7 +52,8 @@ int  writeFits( const std::string     fileName    ,  // File name to write
                 long long               indexes[] ,  // Indexes of the set
                 particlePosition      particles[] ,  // All the particles
                 haloInfo                   halo   ,  // Central halo
-                inputInfo             userInput   ); // All the user information
+                inputInfo             userInput   ,  // All the user information
+                float           integLength = -1.0); // Integration length, if applicable
 
 
 #endif // LINK_HALOS

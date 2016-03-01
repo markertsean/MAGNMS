@@ -9,6 +9,7 @@ class inputInfo{
   public:
 
     inline inputInfo();
+    static unsigned long Num_files;
 
     //Functions to change files the user may input
     void setReadFile    ( std::string   inpS ) { readFile        = inpS; }
@@ -84,6 +85,9 @@ class inputInfo{
 
     unsigned long getNumFiles      () { return        Num_files ; }
 
+
+
+    // Keep track of number of times we wrote a file
     void wroteFile(){
       ++Num_files;
     }
@@ -101,15 +105,14 @@ class inputInfo{
       //If directories for header and particle files
       // haven't been set, use catalog directory
       if ( particleDir=="" ){
-        particleDir = catDir + catName.substr( 0, lastDot ) + "_MassMaps/";
+          particleDir = catDir + catName.substr( 0, lastDot ) + "_MassMaps/";
       }
 
       if (   headerDir=="" ){
           headerDir = catDir + catName.substr( 0, lastDot ) + "_Headers/";
       }
 
-      partFileStart = catDir + "Part." ;//+ std::to_string( snapshotNum ) + ""
-
+      partFileStart = catDir + "Part." ;
     }
 
     bool setBox( float inpCell ) {
@@ -153,57 +156,65 @@ class inputInfo{
 
 
   private:
+
     //User end input file
-    std::string readFile      ;// = "extractInfo.dat";
+    std::string readFile      ; // Default extractInfo.dat, the file to read in user input, can be changed via command line argument
 
     //Data in input file, as to what files to use
-    std::string inputCatalog  ;// = "";
-    std::string inputPartFiles;// = "";
-    std::string inputHeadFiles;
+    std::string inputCatalog  ; // Editable, the catalog of halos to use
+    std::string inputPartFiles; // Editable, particle file to use
+    std::string inputHeadFiles; // Editable, set the header file to use
 
-    std::string  partFileStart;
+    std::string particleDir   ; // Editable, location of the particle file
+    std::string   headerDir   ; // Editable, location of particle header file
+    std::string     catType   ; // Editable, default "MD", simulation catalog type, B, BP, MD, MDP, BMD, BMDP
 
-    std::string particleDir   ;// = "";
-    std::string   headerDir   ;// = "";
+    std::string  partFileStart; // Determine the start of the particle file, for passing to the fortran file
+    std::string     catDir    ; // Directory of the halo catalog
+    std::string     catName   ; // Name of the halo catalog
 
-    std::string     catDir    ;// = "";
-    std::string     catName   ;// = "";
 
-    std::string     catType   ;// = "MD";
+    // Halo restrictions imposed by user
+    double          minMass    ; // Editable, minimum mass halo to use
+    double          maxMass    ; // Editable, maximum mass halo to use
+    double    radiusMultiplier ; // Editable, multiplier to radius to put in radius box, EDITEDITEDITEDITEDIT
+    double              boxFOV ; // Editable, field of view of the image box
 
-    //Halo restrictions imposed by user
-    double          minMass    ;//=  1e15;
-    double          maxMass    ;//= -1.0 ;
-    double    radiusMultiplier ;//=  1.0 ;
+    short          useShortCat ; // Editable, use a short catalog, will generate a new catalog easier to read in
+    short          snapshotNum ; // Editable, PMSS snapshot number to use
 
-    double              boxFOV ;
-    double          losLength1 ;
-    double          losLength2 ;
-    double          losLength3 ;
+    int             N_pixels_h ; // Editable, number of pixels in each direction
+    int             N_pixels_v ;
 
-    short          useShortCat ;//=  1   ;
+    double      maxIntegLength ; // Editable, maximum integration length in z, in Mpch
+    double           integStep ; // Editable, step size in dex to use
 
-    short          snapshotNum ;
 
+    // Stuff set by the program
     unsigned long numHalos     ;
     long     long numParticles ;
 
-    double        particleMass ;
+    double        particleMass ;  // Mass of a single particle, set by catalog type
 
-    float x_min, x_max, y_min, y_max, z_min, z_max;
+    float                x_min ;  // Min/Max particle locations, used to find range of particles
+    float                x_max ;
+    float                y_min ;
+    float                y_max ;
+    float                z_min ;
+    float                z_max ;
 
-    float cell;
+    float                 cell ; // Cell size in Mpc
 
-    int Nlx, Nly, Nlz, Nrx, Nry, Nrz, NtotCell;
-
-    int N_pixels_h, N_pixels_v;
-
-
-    double maxIntegLength, integStep;
-
-    unsigned long Num_files;
+    int                    Nlx ; // Number of cell boxes in each direction
+    int                    Nly ;
+    int                    Nlz ;
+    int                    Nrx ;
+    int                    Nry ;
+    int                    Nrz ;
+    int               NtotCell ;
 
 };
+
 
 //Default values initialized on construction
 inputInfo::inputInfo( ){
@@ -224,9 +235,6 @@ inputInfo::inputInfo( ){
       snapshotNum =  0   ;
 
       boxFOV      =   8.0;//All Mpc
-      losLength1  =  50.0;
-      losLength2  = 250.0;
-      losLength3  = 500.0;
 
      numHalos     = 0;
      numParticles = 0;
@@ -258,7 +266,6 @@ inputInfo::inputInfo( ){
    maxIntegLength = 400.0;
       integStep   = 0.2;
 
-        Num_files = 0 ;
 }
 
 

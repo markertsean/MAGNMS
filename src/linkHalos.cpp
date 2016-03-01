@@ -539,7 +539,8 @@ int  writeFits( const std::string     fileName    ,  // File name to write
                 long long               indexes[] ,  // Indexes of the set
                 particlePosition      particles[] ,  // All the particles
                 haloInfo                   halo   ,  // Central halo
-                inputInfo             userInput   ){ // All the user information
+                inputInfo             userInput   ,  // All the user information
+                float               integLength   ){ // Integration length, if applicable
 
 
   // Needs to be long format for functions
@@ -586,21 +587,25 @@ int  writeFits( const std::string     fileName    ,  // File name to write
   }
   catch (FITS::CantCreate){  return -1; }
 
-//  ( *pFits ).pHDU().addKey("OBJ",val,"DESC.");
-  ( *pFits ).pHDU().addKey("Cat" , userInput.getCatType(), "Simulation catalog");
-  ( *pFits ).pHDU().addKey("FOV" , userInput.getFOV()    , "Field of view, (h^{-1} Mpc)");
+  // Add a header
+  ( *pFits ).pHDU().addKey("Catalog" , userInput.getCatType(), "Simulation catalog");
+  ( *pFits ).pHDU().addKey("FOV"     , userInput.getFOV()    , "Field of view, (h^{-1} Mpc)");
 
-  ( *pFits ).pHDU().addKey("X"   , halo.getX()  , "X coordinate of the halo, center of image");
-  ( *pFits ).pHDU().addKey("Y"   , halo.getY()  , "Y coordinate of the halo, center of image");
-  ( *pFits ).pHDU().addKey("Z"   , halo.getZ()  , "Z coordinate of the halo, center of image");
-  ( *pFits ).pHDU().addKey("ID"  , halo.getID() ,          "ID number of the central halo");
-  ( *pFits ).pHDU().addKey("Mass", halo.getM()  ,               "Mass of the central halo (M_{\\odot})");
-  ( *pFits ).pHDU().addKey("Rvir", halo.getRm() ,      "Virial radius of the central halo (h^{-1}kpc)");
-  ( *pFits ).pHDU().addKey("C"   , halo.getC()  ,      "Virial radius of the central halo (h^{-1}kpc)");
-  ( *pFits ).pHDU().addKey("b/a" , halo.getBA() ,   "Ratio of b to a axis of central halo");
-  ( *pFits ).pHDU().addKey("c/a" , halo.getCA() ,   "Ratio of c to a axis of central halo");
+  ( *pFits ).pHDU().addKey("X"       , halo.getX()  , "X coordinate of the halo, center of image");
+  ( *pFits ).pHDU().addKey("Y"       , halo.getY()  , "Y coordinate of the halo, center of image");
+  ( *pFits ).pHDU().addKey("Z"       , halo.getZ()  , "Z coordinate of the halo, center of image");
+  ( *pFits ).pHDU().addKey("ID"      , halo.getID() ,          "ID number of the central halo");
+  ( *pFits ).pHDU().addKey("Mass"    , halo.getM()  ,               "Mass of the central halo (M_{\\odot})");
+  ( *pFits ).pHDU().addKey("Rvir"    , halo.getRm() ,      "Virial radius of the central halo (h^{-1}kpc)");
+  ( *pFits ).pHDU().addKey("C"       , halo.getC()  ,      "Virial radius of the central halo (h^{-1}kpc)");
+  ( *pFits ).pHDU().addKey("b/a"     , halo.getBA() ,   "Ratio of b to a axis of central halo");
+  ( *pFits ).pHDU().addKey("c/a"     , halo.getCA() ,   "Ratio of c to a axis of central halo");
 
+  // When doing this with an integration length, add to header
+  if ( integLength > 0 )
+  ( *pFits ).pHDU().addKey("Integ", integLength , "Integration length along LOS");
 
+  // Write the image
   ( *pFits ).pHDU().write( 1, N_pixelsTot, *SD);
 
 
