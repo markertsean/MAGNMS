@@ -24,6 +24,7 @@ class inputInfo{
     void setMaxMass     ( double        inpD ) {   maxMass       = inpD; }
     void setRadiusMult  ( double        inpD ) {radiusMultiplier = inpD; }
     void setShortCat    ( short         inpI ) {  useShortCat    = inpI; }
+    void setUseShort    ( short         inpI ) {  usingShort     = inpI; }
     void setSnapNum     ( short         inpI ) {  snapshotNum    = inpI; }
     void setNumHalos    ( unsigned long inpI ) {  numHalos       = inpI; }
     void setNumParticles( long     long inpI ) {  numParticles   = inpI; }
@@ -56,6 +57,7 @@ class inputInfo{
     double        getRadiusMult    () { return radiusMultiplier ; }
     double        getFOV           () { return   boxFOV         ; }
     short         getShortCat      () { return   useShortCat    ; }
+    short         getUsingShort    () { return   usingShort     ; }
     short         getSnapNum       () { return   snapshotNum    ; }
 
     unsigned long getNumHalos      () { return   numHalos       ; }
@@ -102,6 +104,10 @@ class inputInfo{
       //Finds the last occurance of '.', which gives first file name
       int lastDot = catName.find_last_of(".");
 
+      if ( catType.compare( "BMD") == 0 ){
+        lastDot = ( catName.substr( 0, lastDot ) ).find_last_of(".");
+      }
+
       //If directories for header and particle files
       // haven't been set, use catalog directory
       if ( particleDir=="" ){
@@ -109,7 +115,7 @@ class inputInfo{
       }
 
       if (   headerDir=="" ){
-          headerDir = catDir + catName.substr( 0, lastDot ) + "_Headers/";
+          headerDir   = catDir + catName.substr( 0, lastDot ) + "_Headers/";
       }
 
       partFileStart = catDir + "Part." ;
@@ -193,6 +199,7 @@ class inputInfo{
     // Stuff set by the program
     unsigned long numHalos     ;
     long     long numParticles ;
+    short         usingShort   ;
 
     double        particleMass ;  // Mass of a single particle, set by catalog type
 
@@ -233,6 +240,7 @@ inputInfo::inputInfo( ){
  radiusMultiplier =  1.0 ;
       useShortCat =  1   ;
       snapshotNum =  0   ;
+      usingShort  =  0   ;
 
       boxFOV      =   8.0;//All Mpc
 

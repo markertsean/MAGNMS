@@ -105,15 +105,15 @@ bool readUserInput( std::string fileName, inputInfo &myInput ){
 
 //Reads halo catalog, and saves in halos array
 unsigned long readCatalog( haloInfo      halos[] ,  //Stores data of halos
-                          inputInfo     userInfo ,  //Contains input data from user
+                          inputInfo    *userInfo ,  //Contains input data from user
                           unsigned long  N_halos ){ //0-just count valid halos, 1-store values
 
 
 
   //Generate short catalog name, based on input catalogs and flags
-  int lastDot = (userInfo.getInputCatalog()).find_last_of(".");
-  std::string shortCat = (userInfo.getInputCatalog()).substr( 0, lastDot + 1 );
-  if ( userInfo.getShortCat() == 1 ){
+  int lastDot = ((*userInfo).getInputCatalog()).find_last_of(".");
+  std::string shortCat = ((*userInfo).getInputCatalog()).substr( 0, lastDot + 1 );
+  if ( (*userInfo).getShortCat() == 1 ){
     //Sets name based on flags
     if ( GLOBAL_MASS_LOWER_LIM != -1 ){
       std::stringstream stream;
@@ -133,41 +133,47 @@ unsigned long readCatalog( haloInfo      halos[] ,  //Stores data of halos
   // if it exists, can read in first line to know size of halos
   // Otherwise, attempt to open normal file
   std::ifstream shortFile( shortCat );
-  std::ifstream myFile( userInfo.getInputCatalog() );
-  if ((              N_halos   == 0 ) &&  //First time read in
-      ( userInfo.getShortCat() == 1 ) &&  //Using short catalog
-      (       shortFile.good() == 1 ) ){  //Short file found
-    userInfo.setCatType( "short" );
-    std::cout << " Found short catalog: " << shortCat << std::endl;
+  std::ifstream myFile( (*userInfo).getInputCatalog() );
+  if ((                 N_halos   == 0 ) &&  //First time read in
+      ( (*userInfo).getShortCat() == 1 ) &&  //Using short catalog
+      (          shortFile.good() == 1 ) ){  //Short file found
+    (*userInfo).setUseShort( 1 );
+    std::cout << "  Found short catalog: " << shortCat << std::endl;
   }
   else if( !myFile.is_open() ){
-    std::cout << "\n Error opening halo catalog: " << userInfo.getInputCatalog() << std::endl;
+    std::cout << "\n Error opening halo catalog: " << (*userInfo).getInputCatalog() << std::endl;
     exit(1);
   }
 
   unsigned long N_read = 0;
 
   //Call read functions per function, to assign values, will use short if available
-  if ( (userInfo.getCatType()).compare( "short" ) == 0 ){
+  if (  (*userInfo).getUsingShort()                 != 0 ){
+    std::cout << "   Reading file: " << shortCat                   << std::endl;
     N_read = readShortCat ( shortFile, halos, N_halos );
   }
   else
-  if ( (userInfo.getCatType()).compare(    "MD" ) == 0 ){
+  if ( ((*userInfo).getCatType()).compare(    "MD" ) == 0 ){
+    std::cout << "   Reading file: " << (*userInfo).getInputCatalog() << std::endl;
     N_read = readMultiDark(    myFile, halos, N_halos );
   }
   else
+  if ( ((*userInfo).getCatType()).compare(   "BMD" ) == 0 ){
+    N_read = readBigMultiDark( (*userInfo).getInputCatalog(), halos, N_halos );
+  }
+  else
   {
-      std::cout << " Unrecognized catalog type: " << userInfo.getCatType() << std::endl;
+      std::cout << " Unrecognized catalog type: " << (*userInfo).getCatType() << std::endl;
       exit(1);
   }
 
   //Write short catalog if one doesn't exist, and second time through
-  if ( (userInfo.getShortCat() == 1) &&   //If using shortcat
-             !shortFile.good()       &&   //And couldn't find shortcat
-       (             N_halos   >  0 ) ) { //And second time through
+  if ( ((*userInfo).getShortCat() == 1) &&   //If using shortcat
+                !shortFile.good()       &&   //And couldn't find shortcat
+       (                N_halos   >  0 ) ) { //And second time through
     std::ofstream writeFile( shortCat );
     if ( writeShortCat( writeFile, halos, N_halos ) ){
-      std::cout << " Wrote short catalog: " << shortCat << std::endl;
+      std::cout << "  Wrote short catalog: " << shortCat << std::endl;
     }
     else {
       std::cout << " Failed to write short catalog: " << shortCat << std::endl;
@@ -312,6 +318,162 @@ unsigned long readMultiDark( std::ifstream &inpFile   ,
   return N_valid;
 
 }
+
+
+
+
+
+// Big multi dark catalogs are broken into many files
+unsigned long readBigMultiDark( std::string    inpFile   ,
+                               haloInfo          halos[] ,
+                               unsigned long   N_halos   ){
+
+
+
+  int         N_valid = 0;    // Number of lines read that we accept
+  bool      validFile = true; // Used to check if there are more files
+
+  std::string fileStart;      // Start to file, before number appendage
+  std::string   newFile;      // Stores the new file name
+  std::string     cFile;      // String form of initial file number
+
+  int     fileCounter(0);     // Keeps track of the file number
+  int     initCounter(0);     // Initial file number, should be 0 but might not be
+
+                                                                    // FILENAME.##.DAT
+  int   lastDot =  inpFile.                      find_last_of("."); // FILENAME.##. <- Locations
+  int secondDot = (inpFile.substr( 0, lastDot )).find_last_of("."); // FILENAME.    <-
+
+
+  fileStart     =  inpFile.substr( 0, secondDot + 1);     // FILENAME.
+  cFile         =  inpFile.substr(    secondDot + 1, 2 ); // ##
+
+  initCounter   = stoi( cFile ); // Value of the ##
+
+
+  // Open the ifstream
+  std::ifstream myFile;
+
+  myFile.open(inpFile,std::ifstream::in);
+
+  // Skip the header of file
+  int headerLength = 17;
+  {
+    std::string junk;
+    for (int i=0;i<headerLength;++i)
+      std::getline(myFile, junk);
+  }
+
+
+
+  do{
+
+    std::cout << "  Reading file: " << inpFile << std::endl;
+
+    std::string str;  //The read in line
+    std::string junk; //For stuff we don't need
+
+    float   x, y, z, M, R, C, N, ba, ca, xa, ya, za;
+    long   id;
+    long   ds;
+
+    while ( std::getline( myFile, str ) ){
+
+      std::stringstream line( str );
+      // x, y, z coordinate
+      line >>    x;    line >>    y;     line >>    z;    line >> junk;    line >> junk;     line >> junk;    line >> junk;
+
+      //M_tot, R_vir
+      line >>    M;    line >>    R;    line >> junk;    line >> junk;
+
+      // halo id number, Concentration, Number of halo, distinct/sub,
+      line >>   id;    line >>    C;    line >>    N;    line >>   ds;    line >> junk;    line >> junk;    line >> junk;    line >> junk;
+
+      // axis b/a ratio, c/a ratio, x axis, y axis, z axis
+      line >>   ba;    line >>   ca;    line >> junk;    line >> junk;    line >> junk;
+
+      //Test if halo is distinct and in mass range
+      if ( validHalo ( M, ds ) ){
+
+        //Can only occur on second run
+        //First run returns number of valid halos
+        //halos array then allocated
+        //Then run through and save those values
+        if ( N_halos > 0 ){
+          halos[ N_valid ].setX (  x );
+          halos[ N_valid ].setY (  y );
+          halos[ N_valid ].setZ (  z );
+          halos[ N_valid ].setC (  C );
+          halos[ N_valid ].setM (  M );
+          halos[ N_valid ].setN (  N );
+          halos[ N_valid ].setRm(  R );
+          halos[ N_valid ].setID( id );
+          halos[ N_valid ].setBA( ba );
+          halos[ N_valid ].setCA( ca );
+          halos[ N_valid ].setDistinct( ds );
+        }
+
+        ++N_valid;
+      }// Test validity
+
+    }  // File loop
+
+
+
+    myFile.close(); // Close previous file
+
+
+    // FILENAME.00.DAT - > FILENAME.01.DAT, just increment the number of the files
+
+    ++fileCounter;
+    char temp[100];
+    sprintf(temp, "%s%02i.DAT", fileStart.c_str(), fileCounter+initCounter);
+    inpFile = temp;
+
+
+    // Attempt to open the new file
+    myFile.open(inpFile,std::ifstream::in);
+
+
+    // If we can't open, leave the loop
+    if ( myFile.good() != 1 ){
+      validFile = false;
+    }
+
+
+  } while ( validFile );    // Loop over files
+
+  myFile.close();
+
+  return N_valid;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //Writes short catalog for easy reading
 bool         writeShortCat ( std::ofstream &inpFile   ,
