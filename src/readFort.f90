@@ -157,10 +157,10 @@ function readfile(i0,j0,k0,nx,ny,nz,jstep,totparticles,dirpath,dirpathlength)
                       (yyl <= ypp(i)) .and. (ypp(i)<yyr) .and. ( 1e-8 < ypp(i) ) .and. &
                       (zzl <= zpp(i)) .and. (zpp(i)<zzr) .and. ( 1e-8 < zpp(i) )
 
-if(inside.and.(rand()<0.001))then
+!if(inside.and.(rand()<0.001))then
                    icount = icount +1
                    write(2,'(3f12.6)') xpp(i),ypp(i),zpp(i)
-              endif ! inside
+!              endif ! inside
 
           enddo
      enddo

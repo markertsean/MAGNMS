@@ -109,6 +109,7 @@ unsigned long readCatalog( haloInfo      halos[] ,  //Stores data of halos
                           unsigned long  N_halos ){ //0-just count valid halos, 1-store values
 
 
+  unsigned long N_halosInit = N_halos;
 
   //Generate short catalog name, based on input catalogs and flags
   int lastDot = ((*userInfo).getInputCatalog()).find_last_of(".");
@@ -134,7 +135,7 @@ unsigned long readCatalog( haloInfo      halos[] ,  //Stores data of halos
   // Otherwise, attempt to open normal file
   std::ifstream shortFile( shortCat );
   std::ifstream myFile( (*userInfo).getInputCatalog() );
-  if ((                 N_halos   == 0 ) &&  //First time read in
+  if (//(                 N_halos   == 0 ) &&  //First time read in
       ( (*userInfo).getShortCat() == 1 ) &&  //Using short catalog
       (          shortFile.good() == 1 ) ){  //Short file found
     (*userInfo).setUseShort( 1 );
@@ -146,11 +147,13 @@ unsigned long readCatalog( haloInfo      halos[] ,  //Stores data of halos
   }
 
   unsigned long N_read = 0;
+  bool dontWriteShort = true;
 
   //Call read functions per function, to assign values, will use short if available
   if (  (*userInfo).getUsingShort()                 != 0 ){
     std::cout << "   Reading file: " << shortCat                   << std::endl;
     N_read = readShortCat ( shortFile, halos, N_halos );
+    dontWriteShort = false;
   }
   else
   if ( ((*userInfo).getCatType()).compare(    "MD" ) == 0 ){
@@ -167,10 +170,13 @@ unsigned long readCatalog( haloInfo      halos[] ,  //Stores data of halos
       exit(1);
   }
 
+
+
   //Write short catalog if one doesn't exist, and second time through
   if ( ((*userInfo).getShortCat() == 1) &&   //If using shortcat
-                !shortFile.good()       &&   //And couldn't find shortcat
-       (                N_halos   >  0 ) ) { //And second time through
+       (         shortFile.good() != 1) &&   //And couldn't find shortcat
+       (              N_halosInit >  0) &&   //And second time through
+       (               dontWriteShort ) ) { //Why do i need this?
     std::ofstream writeFile( shortCat );
     if ( writeShortCat( writeFile, halos, N_halos ) ){
       std::cout << "  Wrote short catalog: " << shortCat << std::endl;
@@ -318,8 +324,6 @@ unsigned long readMultiDark( std::ifstream &inpFile   ,
   return N_valid;
 
 }
-
-
 
 
 
