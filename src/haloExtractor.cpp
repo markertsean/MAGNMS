@@ -159,9 +159,7 @@ int main( int arg, char ** argv ){
   }
   userInput.setNumParticles( numParticles );
 
-
   particlePosition *particle = new particlePosition[numParticles]; //This does not segfault
-
 
   readParticle( userInput, particle );
 

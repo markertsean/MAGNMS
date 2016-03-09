@@ -347,6 +347,6 @@ particlePosition::particlePosition(){
 }
 
 
-extern "C" unsigned long readpmss_( int *jstep, char *filestart, int *filestartlength );
+extern "C" long long readpmss_( int *jstep, char *filestart, int *filestartlength );
 
 #endif // HE_CLASSES

@@ -7,7 +7,7 @@
 !jstep is snapshot number
 !filestart is something like ../data/Part. and is used to write out files
 !filestartlength is the length of filestart, needed to get the format for the name variable right. Was having issues opening without this
-function readpmss( jstep, filestart, filestartlength )
+integer*8 function readpmss( jstep, filestart, filestartlength )
 
   integer*4,    intent(in) :: jstep, filestartlength
   character*60, intent(in) :: filestart
@@ -16,7 +16,7 @@ function readpmss( jstep, filestart, filestartlength )
   integer*4 :: ny = 8
   integer*4 :: nz = 8
   integer*4 :: i0,j0, k0
-  integer*8 :: totparticles
+  integer*8 :: totparticles, partreturned
 
   character*80:: name3, name2
   character*20 :: formatstr
@@ -43,7 +43,11 @@ call srand(1165313)
   do k0=1,nz
   do j0=1,ny
   do i0=1,nx
-            totparticles = totparticles + readfile(i0,j0,k0,nx,ny,nz,jstep,totparticles,filestart,filestartlength-5)
+            partreturned = 0
+            partreturned = readfile(i0,j0,k0,nx,ny,nz,jstep,totparticles,filestart,filestartlength-5)
+            if ( partreturned>0) then
+            totparticles = totparticles + partreturned!readfile(i0,j0,k0,nx,ny,nz,jstep,totparticles,filestart,filestartlength-5)
+            endif
   enddo ! k
   enddo ! j
   enddo ! i
@@ -107,6 +111,7 @@ function readfile(i0,j0,k0,nx,ny,nz,jstep,totparticles,dirpath,dirpathlength)
   !File to attempt to open, if it exists, read data
   write(name,formatstr) dirpath,'PMss.snap_',jstep,'.',node,'.DAT'
 
+  icount = 0
   inquire(file=trim(name),exist =ext)
   if(ext)then
 
@@ -160,7 +165,7 @@ function readfile(i0,j0,k0,nx,ny,nz,jstep,totparticles,dirpath,dirpathlength)
 !if(inside.and.(rand()<0.001))then
                    icount = icount +1
                    write(2,'(3f12.6)') xpp(i),ypp(i),zpp(i)
-!              endif ! inside
+!endif ! inside
 
           enddo
      enddo

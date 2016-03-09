@@ -453,32 +453,6 @@ unsigned long readBigMultiDark( std::string    inpFile   ,
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //Writes short catalog for easy reading
 bool         writeShortCat ( std::ofstream &inpFile   ,
                              haloInfo         halos[] ,
@@ -582,7 +556,6 @@ long long setPartFile( inputInfo &userInput ) { //All the user input
   }
 
   //If nothing specified, or specified file not found
-
   int snapNum = userInput.getSnapNum();                     //Snapshot number
   std::string partFileStart = userInput.getPartFileStart(); //Beginning of particle file name
 
@@ -644,7 +617,7 @@ long long setPartFile( inputInfo &userInput ) { //All the user input
 
     userInput.setInputPart( testPartFile );
     userInput.setInputHead( testHeadFile );
-
+printf("NumParticles in redFiles: %lli",numParticles);
     return numParticles;
 
   }
