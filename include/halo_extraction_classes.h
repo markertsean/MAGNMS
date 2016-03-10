@@ -42,50 +42,50 @@ class inputInfo{
 
 
 
-    std::string   getReadFile      () { return readFile         ; }
-    std::string   getInputCatalog  () { return inputCatalog     ; }
-    std::string   getInputPart     () { return inputPartFiles   ; }
-    std::string   getInputHead     () { return inputHeadFiles   ; }
-    std::string   getParticleDir   () { return particleDir      ; }
-    std::string   getHeaderDir     () { return   headerDir      ; }
-    std::string   getPartFileStart () { return partFileStart    ; }
-    std::string   getCatType       () { return   catType        ; }
+    std::string   getReadFile      () const { return readFile         ; }
+    std::string   getInputCatalog  () const { return inputCatalog     ; }
+    std::string   getInputPart     () const { return inputPartFiles   ; }
+    std::string   getInputHead     () const { return inputHeadFiles   ; }
+    std::string   getParticleDir   () const { return particleDir      ; }
+    std::string   getHeaderDir     () const { return   headerDir      ; }
+    std::string   getPartFileStart () const { return partFileStart    ; }
+    std::string   getCatType       () const { return   catType        ; }
 
-    double        getParticleMass  () { return   particleMass   ; }
-    double        getMinMass       () { return        minMass   ; }
-    double        getMaxMass       () { return        maxMass   ; }
-    double        getRadiusMult    () { return radiusMultiplier ; }
-    double        getFOV           () { return   boxFOV         ; }
-    short         getShortCat      () { return   useShortCat    ; }
-    short         getUsingShort    () { return   usingShort     ; }
-    short         getSnapNum       () { return   snapshotNum    ; }
+    double        getParticleMass  () const { return   particleMass   ; }
+    double        getMinMass       () const { return        minMass   ; }
+    double        getMaxMass       () const { return        maxMass   ; }
+    double        getRadiusMult    () const { return radiusMultiplier ; }
+    double        getFOV           () const { return   boxFOV         ; }
+    short         getShortCat      () const { return   useShortCat    ; }
+    short         getUsingShort    () const { return   usingShort     ; }
+    short         getSnapNum       () const { return   snapshotNum    ; }
 
-    unsigned long getNumHalos      () { return   numHalos       ; }
-    long     long getNumParticles  () { return   numParticles   ; }
+    unsigned long getNumHalos      () const { return   numHalos       ; }
+    long     long getNumParticles  () const { return   numParticles   ; }
 
-    float         getXmin          () { return   x_min          ; }
-    float         getXmax          () { return   x_max          ; }
-    float         getYmin          () { return   y_min          ; }
-    float         getYmax          () { return   y_max          ; }
-    float         getZmin          () { return   z_min          ; }
-    float         getZmax          () { return   z_max          ; }
-    float         getCell          () { return   cell           ; }
+    float         getXmin          () const { return   x_min          ; }
+    float         getXmax          () const { return   x_max          ; }
+    float         getYmin          () const { return   y_min          ; }
+    float         getYmax          () const { return   y_max          ; }
+    float         getZmin          () const { return   z_min          ; }
+    float         getZmax          () const { return   z_max          ; }
+    float         getCell          () const { return   cell           ; }
 
-    int           getNlx           () { return   Nlx            ; }
-    int           getNly           () { return   Nly            ; }
-    int           getNlz           () { return   Nlz            ; }
-    int           getNrx           () { return   Nrx            ; }
-    int           getNry           () { return   Nry            ; }
-    int           getNrz           () { return   Nrz            ; }
-    int           getNtotCell      () { return   NtotCell       ; }
+    int           getNlx           () const { return   Nlx            ; }
+    int           getNly           () const { return   Nly            ; }
+    int           getNlz           () const { return   Nlz            ; }
+    int           getNrx           () const { return   Nrx            ; }
+    int           getNry           () const { return   Nry            ; }
+    int           getNrz           () const { return   Nrz            ; }
+    int           getNtotCell      () const { return   NtotCell       ; }
 
-    int           getNPixlesH      () { return   N_pixels_h     ; }
-    int           getNPixelsV      () { return   N_pixels_v     ; }
+    int           getNPixlesH      () const { return   N_pixels_h     ; }
+    int           getNPixelsV      () const { return   N_pixels_v     ; }
 
-    double        getMaxIntegLength() { return   maxIntegLength ; }
-    double        getIntegStep     () { return      integStep   ; }
+    double        getMaxIntegLength() const { return   maxIntegLength ; }
+    double        getIntegStep     () const { return      integStep   ; }
 
-    unsigned long getNumFiles      () { return        Num_files ; }
+    unsigned long getNumFiles      () const { return        Num_files ; }
 
 
 
@@ -134,12 +134,12 @@ class inputInfo{
       Nly = 0;
       Nlz = 0;
 
-      Nrx = ( x_max - x_min ) / cell ;     //Maximum box numbers
-      Nry = ( y_max - y_min ) / cell ;
-      Nrz = ( z_max - z_min ) / cell ;
+      Nrx = ( x_max - x_min ) / cell;     //Maximum box numbers
+      Nry = ( y_max - y_min ) / cell;
+      Nrz = ( z_max - z_min ) / cell;
 
 
-      NtotCell = Nrx * Nry * Nrz;
+      NtotCell = (Nrx+1) * (Nry+1) * (Nrz+1);
 
       return true;
     }
@@ -298,18 +298,18 @@ class haloInfo {
     void setDistinct( long inpL ) { distinct = inpL; }
 
 
-    float getX () { return  x     ; }
-    float getY () { return  y     ; }
-    float getZ () { return  z     ; }
-    float getC () { return  C     ; }
-    float getM () { return  M     ; }
-    float getN () { return  N     ; }
-    float getRm() { return  R_max ; }
-    long  getID() { return  id    ; }
-    float getBA() { return  ba_rat; }
-    float getCA() { return  ca_rat; }
+    float getX () const { return  x     ; }
+    float getY () const { return  y     ; }
+    float getZ () const { return  z     ; }
+    float getC () const { return  C     ; }
+    float getM () const { return  M     ; }
+    float getN () const { return  N     ; }
+    float getRm() const { return  R_max ; }
+    long  getID() const { return  id    ; }
+    float getBA() const { return  ba_rat; }
+    float getCA() const { return  ca_rat; }
 
-    long  getDistinct() { return  distinct; }
+    long  getDistinct() const { return  distinct; }
 
 
   private:

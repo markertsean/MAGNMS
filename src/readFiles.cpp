@@ -151,13 +151,13 @@ unsigned long readCatalog( haloInfo      halos[] ,  //Stores data of halos
 
   //Call read functions per function, to assign values, will use short if available
   if (  (*userInfo).getUsingShort()                 != 0 ){
-    std::cout << "   Reading file: " << shortCat                   << std::endl;
+    std::cout << "  Reading file:        " << shortCat                   << std::endl;
     N_read = readShortCat ( shortFile, halos, N_halos );
     dontWriteShort = false;
   }
   else
   if ( ((*userInfo).getCatType()).compare(    "MD" ) == 0 ){
-    std::cout << "   Reading file: " << (*userInfo).getInputCatalog() << std::endl;
+    std::cout << "  Reading file:        " << (*userInfo).getInputCatalog() << std::endl;
     N_read = readMultiDark(    myFile, halos, N_halos );
   }
   else
@@ -536,8 +536,8 @@ long long setPartFile( inputInfo &userInput ) { //All the user input
     //If we could open both files, that's all
     if ( (testPart.good() == 1) && (testHead.good() == 1) ){
 
-      printf( "%s%s\n", " Using particle file: ", ( userInput.getInputPart() ).c_str() );
-      printf( "%s%s\n", " Using   header file: ",                                tempS );
+      printf( "%s%s\n", "  Using particle file: ", ( userInput.getInputPart() ).c_str() );
+      printf( "%s%s\n", "  Using   header file: ",                                tempS );
 
       //Go through header file to determine number of particles for array allocation
       std::string   tempStr[8];
@@ -617,7 +617,6 @@ long long setPartFile( inputInfo &userInput ) { //All the user input
 
     userInput.setInputPart( testPartFile );
     userInput.setInputHead( testHeadFile );
-printf("NumParticles in redFiles: %lli",numParticles);
     return numParticles;
 
   }

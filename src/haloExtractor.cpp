@@ -117,10 +117,11 @@ int main( int arg, char ** argv ){
   {
     haloInfo myHalos[2];
     N_halos = readCatalog( myHalos, &userInput, N_halos );
-    printf("\n   Number of valid halos: %lu\n\n",N_halos);
+    printf("\n Number of valid halos: %lu\n",N_halos);
   }
 
   haloInfo *myHalos = new haloInfo[N_halos];
+    printf(" Allocated %lu halos\n",N_halos);
 
   {
     unsigned long old_N_halos = N_halos;
@@ -133,7 +134,7 @@ int main( int arg, char ** argv ){
   userInput.setNumHalos( N_halos );
 
 
-  printf("\n Catalog read in complete\n\n");
+  printf("\n Catalog read in complete\n\n\n");
 
 
   /////////////////////////////////////////
@@ -145,11 +146,12 @@ int main( int arg, char ** argv ){
   // based on the PMSS file it thinks we should use
   //If the read in fails, will return a 0 for num particles
 
+  std::cout << " Attempting to read particle file..." << std::endl;
+
   long long numParticles = 0;
 
   numParticles = setPartFile( userInput );
 
-  printf("\n");
   if ( numParticles == 0 ){
 
     printf(" Error reading particle file:%s\n", (userInput.getInputPart()).c_str() );
@@ -158,15 +160,23 @@ int main( int arg, char ** argv ){
 
   }
   userInput.setNumParticles( numParticles );
+  printf("\n Number of particles: %lli\n", userInput.getNumParticles() );
 
   particlePosition *particle = new particlePosition[numParticles]; //This does not segfault
 
+  printf(" Allocated %lli particles\n  Reading particle file...\n\n", numParticles );
+
   readParticle( userInput, particle );
 
+  std::cout << " Particle read in complete\n\n" <<std::endl;
+
+std::cout << "Halo memory: " << sizeof( haloInfo         ) * userInput.getNumHalos()     / (1e6) << " Mb" << std::endl;
+std::cout << "Part memory: " << sizeof( particlePosition ) * userInput.getNumParticles() / (1e9) << " Gb" << std::endl;
 
   /////////////////////////////////////////
   ////////Generate link lists//////////////
   /////////////////////////////////////////
+
 
   std::cout << " Setting up cells..." << std::endl;
 
@@ -178,12 +188,13 @@ int main( int arg, char ** argv ){
   //Dummy array, useless
   haloInfo duhalos[2];
 
-  N_halos = findBoxHalos( userInput, myHalos, duhalos, 0 ); //Returns the number of halos in the box
+  N_halos = findBoxHalos( userInput, myHalos, duhalos, 0 ); //Returns the number of halos in the box on the first run through
   }
 
-  haloInfo halos[N_halos];                                  //Allocates our new halo array
-  N_halos = findBoxHalos( userInput, myHalos,   halos, 1 ); //Fills in our new halo array
-  delete [] myHalos;                                        //Deletes old halo array
+
+  haloInfo halos[N_halos];                                  //  Allocates our new halo array
+  N_halos = findBoxHalos( userInput, myHalos,   halos, 1 ); //   Fills in our new halo array
+  delete [] myHalos;                                        //        Deletes old halo array
 
 
   if ( !userInput.setBox( userInput.getFOV() / 2.0 ) ){
@@ -192,18 +203,36 @@ int main( int arg, char ** argv ){
   }
 
   std::cout << " Done."     << std::endl  << std::endl;
+std::cout << "Halo memory: " << sizeof( haloInfo         ) * userInput.getNumHalos()     / (1e3) << " kb" << std::endl;
+std::cout << "Part memory: " << sizeof( particlePosition ) * userInput.getNumParticles() / (1e9) << " Gb" << std::endl;
 
 
   std::cout << " Generating link list..." << std::endl;
+
 
   //Make link list between particles
   long long  *linkList = new long long [ userInput.getNumParticles() ];
   long long *labelList = new long long [ userInput.getNtotCell()     ];
 
+  printf("  Allocated link  list of %lli elements\n", userInput.getNumParticles() );
+  printf("  Allocated label list of %i elements\n"  , userInput.getNtotCell()     );
+
+
   makeLinkList( userInput, particle, linkList, labelList );
   std::cout << " Done."     << std::endl  << std::endl;
+/*
+for (int i=0;i<userInput.getNumParticles();++i)
+{
+if( linkList[i] > userInput.getNumParticles() )
+{
 
+  printf("%5i %lli\n",i,linkList[i]);
 
+}
+}
+
+exit(0);
+*/
   /////////////////////////////////////////
   ////////Link halos, write files//////////
   /////////////////////////////////////////

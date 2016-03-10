@@ -7,20 +7,20 @@
 
 
 //Sets the min/max values of the particle positions
-void setMinMaxParticles( particlePosition particle[],  //Particles to find min/max of
-                         inputInfo       &userInput ); //Number of particles in the array
+void setMinMaxParticles( const particlePosition  *particle ,  //Particles to find min/max of
+                         inputInfo              &userInput ); //Number of particles in the array
 
 //Locates halos that could be in our box with a full FOV
-unsigned long findBoxHalos( inputInfo &userInfo   ,
-                             haloInfo  allHalos[] ,
-                             haloInfo  boxHalos[] ,
-                                short  runNum     );
+unsigned long findBoxHalos(      inputInfo  &userInfo  ,
+                            const haloInfo  *allHalos  ,
+                                  haloInfo  *boxHalos  ,
+                                     short   runNum    );
 
 //Make the link list of nearby particles
-void makeLinkList( inputInfo        userInfo   ,   //Contains the global info needed
-                   particlePosition particle[] ,   //Array of the particles
-                   long long        myList  [] ,   //List pointing to next neighbor particle
-                   long long        myLabel [] );  //Label points to the last particle in list for index
+void makeLinkList( const inputInfo          userInfo ,   //Contains the global info needed
+                   const particlePosition  *particle ,   //Array of the particles
+                         long long         *myList   ,   //List pointing to next neighbor particle
+                         long long         *myLabel  );  //Label points to the last particle in list for index
 
 
 void linkHaloParticles( inputInfo userInput   ,

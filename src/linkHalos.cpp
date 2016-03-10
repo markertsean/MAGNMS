@@ -8,8 +8,8 @@
 
 
 //Sets the min/max values of the particle positions
-void setMinMaxParticles( particlePosition particle[],  //Particles to find min/max of
-                         inputInfo       &userInput ){ //Number of particles in the array
+void setMinMaxParticles( const particlePosition   *particle,  //Particles to find min/max of
+                         inputInfo              &userInput ){ //Number of particles in the array
 
   //min and max values for each coordinate
   float minX( particle[0].x_pos );
@@ -40,13 +40,11 @@ void setMinMaxParticles( particlePosition particle[],  //Particles to find min/m
 }
 
 
-
-
 //Locates halos that could be in our box with a full FOV
-unsigned long findBoxHalos( inputInfo &userInput  ,
-                             haloInfo  allHalos[] ,
-                             haloInfo  boxHalos[] ,
-                               short   runNum     ){
+unsigned long findBoxHalos(       inputInfo  &userInput ,
+                            const  haloInfo   *allHalos ,
+                                   haloInfo   *boxHalos ,
+                                      short    runNum   ){
 
 
 
@@ -103,10 +101,10 @@ unsigned long findBoxHalos( inputInfo &userInput  ,
 
 
 //Make the link list of nearby particles
-void makeLinkList( inputInfo        userInfo   ,   //Contains the global info needed
-                   particlePosition particle[] ,   //Array of the particles
-                   long long        myList  [] ,   //List pointing to next neighbor particle
-                   long long        myLabel [] ){  //Label points to the last particle in list for index
+void makeLinkList( const inputInfo          userInfo ,   //Contains the global info needed
+                   const particlePosition  *particle ,   //Array of the particles
+                         long long         *myList   ,   //List pointing to next neighbor particle
+                         long long         *myLabel  ){  //Label points to the last particle in list for index
 
   double cell = userInfo.getCell();
 
@@ -118,21 +116,18 @@ void makeLinkList( inputInfo        userInfo   ,   //Contains the global info ne
   int Nrz = userInfo.getNrz();
 
 
-  //Fortran has -1, check if this matters, we are using unsigned long however
+ //Fortran has -1, check if this matters, we are using unsigned long however
   for ( long i = 0 ; i < userInfo.getNumParticles() ; ++i ){
     myList[i] = -1;
   }
 
-  for ( int i = Nlx; i < Nrx ; ++i ){  //x
-  for ( int j = Nly; j < Nry ; ++j ){  //y
-  for ( int k = Nlz; k < Nrz ; ++k ){  //z
-    myLabel[ i + j * Nrx + k * Nrx * Nry ] = -1;
-  }
-  }
+  for ( long i = 0 ; i < userInfo.getNtotCell() ; ++i ){
+    myLabel[i] = -1;
   }
 
+
   //Loop over each particle, generating the link list
-  for ( long i = 0; i < 100;++i){//userInfo.getNumParticles() ; ++i ){
+  for ( long i = 0; i < userInfo.getNumParticles() ; ++i ){
 
     //Find which box the particle is in, make sure we stay in the box
     int xIndex = std::min( std::max( Nlx, int( ( particle[i].x_pos - userInfo.getXmin() ) / cell ) ), Nrx );
@@ -145,6 +140,7 @@ void makeLinkList( inputInfo        userInfo   ,   //Contains the global info ne
 
     myList[  i  ] = myLabel[ lI ]; //List previous particle in the same box
     myLabel[ lI ] = i;             //label stores last particle recorded in the box
+
   }
 
 }
@@ -152,11 +148,11 @@ void makeLinkList( inputInfo        userInfo   ,   //Contains the global info ne
 
 
 //Matches halos with particles, and calls write functions
-void linkHaloParticles( inputInfo userInput   ,
-                         haloInfo     halos[] ,
-                 particlePosition particles[] ,
-                       long long  labelList[] ,
-                       long long   linkList[] ){
+void linkHaloParticles( inputInfo   userInput   ,
+                         haloInfo       halos[] ,
+                 particlePosition   particles[] ,
+                       long long    labelList[] ,
+                       long long     linkList[] ){
 
 
   int    Nlx = userInput.getNlx();  // Minimum box numbers (should be 0)
@@ -184,6 +180,7 @@ void linkHaloParticles( inputInfo userInput   ,
   for ( int i = 0 ; i < N_integSteps ; ++i ){
     integLengths[i] = pow( 10, (i+1) * integStep  +  log10(integStart) );
   }
+
 
   // Cycle through each halo, trying to locate the needed particles
   for ( int i = 0; i < userInput.getNumHalos(); ++i ){
@@ -259,7 +256,6 @@ void linkHaloParticles( inputInfo userInput   ,
       //Loop over link list
       while ( particleIndex != -1 ){
 
-
         float partX = particles[ particleIndex ].x_pos;
         float partY = particles[ particleIndex ].y_pos;
         float partZ = particles[ particleIndex ].z_pos;
@@ -296,14 +292,14 @@ void linkHaloParticles( inputInfo userInput   ,
         }
 
         particleIndex = linkList[ particleIndex ];
-      } //while
+      } //while over link list
     }
     }   //Box loop
     }
 
 
     // Only continue if we found particles for our halo
-    if ( ( N_sphere > 0 ) && ( N_box > 0 ) ){
+    if ( false){//( N_sphere > 0 ) && ( N_box > 0 ) ){
 
       // Need to allocate for storing indexes
       long long *sphereIndexes = new long long [ N_sphere ];
@@ -386,7 +382,7 @@ void linkHaloParticles( inputInfo userInput   ,
       }   //Box loops
       }
 
-
+/*
       //Write the fits file for this halo
       writeImage( userInput       ,
                    halos[i]       ,
@@ -400,7 +396,7 @@ void linkHaloParticles( inputInfo userInput   ,
                     sphereIndexes ,
                        boxIndexes ,
                      integIndexes );
-
+*/
 
     delete[] sphereIndexes, boxIndexes, integIndexes, integCounter;
     }     //If we found particles
