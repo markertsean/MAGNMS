@@ -220,19 +220,8 @@ std::cout << "Part memory: " << sizeof( particlePosition ) * userInput.getNumPar
 
   makeLinkList( userInput, particle, linkList, labelList );
   std::cout << " Done."     << std::endl  << std::endl;
-/*
-for (int i=0;i<userInput.getNumParticles();++i)
-{
-if( linkList[i] > userInput.getNumParticles() )
-{
 
-  printf("%5i %lli\n",i,linkList[i]);
 
-}
-}
-
-exit(0);
-*/
   /////////////////////////////////////////
   ////////Link halos, write files//////////
   /////////////////////////////////////////

@@ -23,34 +23,34 @@ void makeLinkList( const inputInfo          userInfo ,   //Contains the global i
                          long long         *myLabel  );  //Label points to the last particle in list for index
 
 
-void linkHaloParticles( inputInfo userInput   ,
-                         haloInfo     halos[] ,
-                 particlePosition particles[] ,
-                       long long  labelList[] ,
-                       long long   linkList[] );
+void linkHaloParticles(              inputInfo   userInput ,  // Info from the user
+                        const         haloInfo      *halos ,  // The halo information
+                        const particlePosition  *particles ,  // Position of the particles
+                        const        long long  *labelList ,  // Label points to the first particle in cell
+                        const        long long   *linkList ); // Points to nearby neighbor particles
 
 
 void writeImage( inputInfo          userInput  , // All the user info
                   haloInfo               halo  , // The halo we are considering
-                 particlePosition particles[]  , // The full array of particles
+                 particlePosition  *particles  , // The full array of particles
                  long long          N_sphere   ,
                  long long          N_box      , // Number of particles in sphere set, box set, and integration length sets
-                 long long          N_integ[]  ,
+                 long long         *N_integ    ,
                  long long       maxN_integ    , // Maximum number on particles in any integIndexes bin
                  long long          N_integBins, // Number of bins (steps) of integration
-                 double          integLengths[], // Contains the integration lengths
+                 double         *integLengths  , // Contains the integration lengths
                  long long     *sphereIndexes  , // Particle indexes in each set
                  long long     *   boxIndexes  ,
                  long long     * integIndexes  );
 
 
 int  writeFits( const std::string     fileName    ,  // File name to write
-                int                   N_pixels[]  ,  // N_pixels in each direction
+                int                  *N_pixels    ,  // N_pixels in each direction
                 int                   N_pixelsTot ,  // Total number of pixels
                 std::valarray<double>       *SD   ,  // SD array to use, passed because we will keep adding to the array
                 long long             N_indexes   ,  // Number of indexes in set to add
-                long long               indexes[] ,  // Indexes of the set
-                particlePosition      particles[] ,  // All the particles
+                long long              *indexes   ,  // Indexes of the set
+                particlePosition     *particles   ,  // All the particles
                 haloInfo                   halo   ,  // Central halo
                 inputInfo             userInput   ,  // All the user information
                 float           integLength = -1.0); // Integration length, if applicable
