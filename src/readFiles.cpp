@@ -626,19 +626,44 @@ long long setPartFile( inputInfo &userInput ) { //All the user input
 
 
 
-bool readParticle( inputInfo userInfo, particlePosition particles[] ){
+long long readParticle( inputInfo userInfo, particlePosition *particles ){
 
 
 
   std::ifstream inputParticleFile( ( userInfo.getInputPart() ).c_str() );
 
+  long long counter = 0;
+
+  float x, y, z, prevX, prevY, prevZ;
+
   if ( inputParticleFile.good() ){
-    for ( int i = 0; i < userInfo.getNumParticles() ; ++i ){
+    for ( int i = 0; i < 500004;++i){//userInfo.getNumParticles() ; ++i ){
+prevX = x;
+prevY = y;
+prevZ = z;
 
-      inputParticleFile >> particles[i].x_pos;
-      inputParticleFile >> particles[i].y_pos;
-      inputParticleFile >> particles[i].z_pos;
+      inputParticleFile >> x >> y >> z;
+/*
+      inputParticleFile >> x;//particles[i].x_pos;
+      inputParticleFile >> y;//particles[i].y_pos;
+      inputParticleFile >> z;//particles[i].z_pos;
+//*/
 
+if ( ( x == prevX ) &&
+     ( y == prevY ) &&
+     ( z == prevZ ) ) {
+  printf("%i %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f\n", i, x, y, z, prevX, prevY, prevZ);
+  exit(0);
+}
+//*/
+      particles[i].x_pos = x;
+      particles[i].y_pos = y;
+      particles[i].z_pos = z;
+//printf("%7.2f %7.2f %7.2f\n", x, y, z);
+if (i%100000==0)  printf("%7.2f %7.2f %7.2f\n", x, y, z);
+//if (i%10000000==0)  printf("%7.2f %7.2f %7.2f\n",particles[i].x_pos,particles[i].y_pos,particles[i].z_pos);
+
+      ++counter;
     }
   }
   else {
@@ -648,7 +673,7 @@ bool readParticle( inputInfo userInfo, particlePosition particles[] ){
 
   }
 
-  return true;
+  return counter;
 }
 
 

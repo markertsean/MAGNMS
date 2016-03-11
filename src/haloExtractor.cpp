@@ -165,8 +165,14 @@ int main( int arg, char ** argv ){
   particlePosition *particle = new particlePosition[numParticles];
 
   printf(" Allocated %lli particles\n  Reading particle file...\n\n", numParticles );
+exit(0);
+  numParticles = readParticle( userInput, particle );
 
-  readParticle( userInput, particle );
+  if ( numParticles != userInput.getNumParticles() ){
+    printf("Error: mismatch in particle read in\n Allocated: %lli\n Read in  : %lli\n", userInput.getNumParticles(), numParticles );
+    exit(1);
+  }
+
 
   std::cout << " Particle read in complete\n\n" << std::endl;
 
@@ -174,8 +180,11 @@ int main( int arg, char ** argv ){
   readHeader  ( userInput );
   std::cout << " Done."                         << std::endl << std::endl;
 
+for(int i=0;i<userInput.getNumParticles();++i){
+if (i%10000000==0)  printf("%7.2f %7.2f %7.2f\n",particle[i].x_pos,particle[i].y_pos,particle[i].z_pos);
+}
 
-
+exit(0);
   /////////////////////////////////////////
   ////////Generate link lists//////////////
   /////////////////////////////////////////
@@ -232,9 +241,6 @@ std::cout << "Total memory: " << (sizeof( long long        ) * userInput.getNtot
 
   std::cout << " Done."     << std::endl  << std::endl;
 
-for(int i=0;i<userInput.getNumParticles();++i){
-if (i%1000000==0)  printf("%7.2f %7.2f %7.2f\n",particle[i].x_pos,particle[i].y_pos,particle[i].z_pos);
-}
 std::cout << "Halo memory: " << sizeof( haloInfo         ) * userInput.getNumHalos()     / (1e3) << " Kb" << std::endl;
 std::cout << "Part memory: " << sizeof( particlePosition ) * userInput.getNumParticles() / (1e6) << " Mb" << std::endl;
 

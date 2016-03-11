@@ -199,7 +199,7 @@ function readfile(i0,j0,k0,nx,ny,nz, xl, xr, yl, yr, zl, zr, jstep,totparticles,
 
         nin = nin + nrecord
         read(1)     (xpp(i),ypp(i),zpp(i),i=1,nrecord)
-!        read(1)     (wxp(i),wyp(i),wzp(i),i=1,nrecord)
+        read(1)     (wxp(i),wyp(i),wzp(i),i=1,nrecord)
 
           do i=1,nrecord
 
@@ -207,7 +207,7 @@ function readfile(i0,j0,k0,nx,ny,nz, xl, xr, yl, yr, zl, zr, jstep,totparticles,
                       (yyl <= ypp(i)) .and. (ypp(i)<yyr) .and. ( 1e-8 < ypp(i) ) .and. &
                       (zzl <= zpp(i)) .and. (zpp(i)<zzr) .and. ( 1e-8 < zpp(i) )
 
-!if(inside.and.(rand()<0.1))then
+!if(inside.and.(rand()<0.001))then
                    icount = icount +1
                    write(2,'(3f12.6)') xpp(i),ypp(i),zpp(i)
 !endif ! inside
