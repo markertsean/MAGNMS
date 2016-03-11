@@ -40,6 +40,11 @@ class inputInfo{
     void setIntegLength ( double        inpF ) {  maxIntegLength = inpF; }
     void setIntegStep   ( double        inpF ) {     integStep   = inpF; }
 
+    void setAexpn       ( float         inpF ) {  aexpn          = inpF; }
+    void setHubble      ( float         inpF ) {  hubble         = inpF; }
+    void setOmega_m     ( float         inpF ) {  om_o           = inpF; }
+    void setOmega_l     ( float         inpF ) {  om_l           = inpF; }
+    void setParticleMass( double        inpF ) {  particleMass   = inpF; }
 
 
     std::string   getReadFile      () const { return readFile         ; }
@@ -87,6 +92,10 @@ class inputInfo{
 
     unsigned long getNumFiles      () const { return        Num_files ; }
 
+    float         getAexpn         () const { return   aexpn          ; }
+    float         getHubble        () const { return   hubble         ; }
+    float         getOmega_m       () const { return   om_o           ; }
+    float         getOmega_l       () const { return   om_l           ; }
 
 
     // Keep track of number of times we wrote a file
@@ -220,6 +229,13 @@ class inputInfo{
     int                    Nrz ;
     int               NtotCell ;
 
+    // Info from the simulation
+
+    float aexpn;
+    float om_o;
+    float om_l;
+    float hubble;
+
 };
 
 
@@ -274,6 +290,10 @@ inputInfo::inputInfo( ){
    maxIntegLength = 400.0;
       integStep   = 0.2;
 
+        aexpn = 0;
+       hubble = 0;
+         om_o = 0;
+         om_l = 0;
 }
 
 

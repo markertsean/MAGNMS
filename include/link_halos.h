@@ -30,30 +30,30 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
                         const        long long   *linkList ); // Points to nearby neighbor particles
 
 
-void writeImage( inputInfo          userInput  , // All the user info
-                  haloInfo               halo  , // The halo we are considering
-                 particlePosition  *particles  , // The full array of particles
-                 long long          N_sphere   ,
-                 long long          N_box      , // Number of particles in sphere set, box set, and integration length sets
-                 long long         *N_integ    ,
-                 long long       maxN_integ    , // Maximum number on particles in any integIndexes bin
-                 long long          N_integBins, // Number of bins (steps) of integration
-                 double         *integLengths  , // Contains the integration lengths
-                 long long     *sphereIndexes  , // Particle indexes in each set
-                 long long     *   boxIndexes  ,
-                 long long     * integIndexes  );
+void writeImage(              inputInfo    userInput  , // All the user info
+                 const         haloInfo         halo  , // The halo we are considering
+                 const particlePosition  *particles   , // The full array of particles
+                 const long long          N_sphere    ,
+                 const long long          N_box       , // Number of particles in sphere set, box set, and integration length sets
+                 const long long         *N_integ     ,
+                 const long long       maxN_integ     , // Maximum number on particles in any integIndexes bin
+                 const long long          N_integBins , // Number of bins (steps) of integration
+                 const    double      *integLengths   , // Contains the integration lengths
+                 const long long     *sphereIndexes   , // Particle indexes in each set
+                 const long long     *   boxIndexes   ,
+                 const long long     * integIndexes   );
 
-
-int  writeFits( const std::string     fileName    ,  // File name to write
-                int                  *N_pixels    ,  // N_pixels in each direction
-                int                   N_pixelsTot ,  // Total number of pixels
-                std::valarray<double>       *SD   ,  // SD array to use, passed because we will keep adding to the array
-                long long             N_indexes   ,  // Number of indexes in set to add
-                long long              *indexes   ,  // Indexes of the set
-                particlePosition     *particles   ,  // All the particles
-                haloInfo                   halo   ,  // Central halo
-                inputInfo             userInput   ,  // All the user information
-                float           integLength = -1.0); // Integration length, if applicable
+// Write the fits image to file
+int  writeFits( const std::string           fileName            ,  // File name to write
+                const int                  *N_pixels            ,  // N_pixels in each direction
+                const int                   N_pixelsTot         ,  // Total number of pixels
+                std::valarray<double>             *SD           ,  // SD array to use, passed because we will keep adding to the array
+                const long long             N_indexes           ,  // Number of indexes in set to add
+                const long long              *indexes           ,  // Indexes of the set
+                const particlePosition     *particles           ,  // All the particles
+                const         haloInfo           halo           ,  // Central halo
+                             inputInfo      userInput           ,  // All the user information
+                const float               integLength = -1.0    ); // Integration length, if applicable
 
 
 #endif // LINK_HALOS

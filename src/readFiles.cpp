@@ -650,3 +650,84 @@ bool readParticle( inputInfo userInfo, particlePosition particles[] ){
 
   return true;
 }
+
+
+//Reads the header associated with the file
+bool readHeader  ( inputInfo &userInfo ){
+
+  std::ifstream inputHeaderFile( ( userInfo.getInputHead() ).c_str() );
+  std::string   junk;
+  double        blah;
+  long long     blahL;
+
+  if ( inputHeaderFile.good() ){
+
+      inputHeaderFile >>   junk; // a (cosmo)
+      inputHeaderFile >>   blah;
+      userInfo.setAexpn(   blah );
+
+      inputHeaderFile >>   junk; // Omega_m
+      inputHeaderFile >>   blah;
+      userInfo.setOmega_m( blah );
+
+      inputHeaderFile >>   junk; // Omega_L
+      inputHeaderFile >>   blah;
+      userInfo.setOmega_l( blah );
+
+      inputHeaderFile >>   junk; // h
+      inputHeaderFile >>   blah;
+      userInfo.setHubble ( blah );
+
+      inputHeaderFile >>   junk; // Particle Mass
+      inputHeaderFile >>   blah;
+      userInfo.setParticleMass( blah );
+
+      inputHeaderFile >>   junk; // Node
+      inputHeaderFile >>   blah;
+
+      inputHeaderFile >>   junk; // dBuffer
+      inputHeaderFile >>   blah;
+
+      inputHeaderFile >>   junk; // Number of particles
+      inputHeaderFile >>   blahL;
+
+      if ( blahL != userInfo.getNumParticles() ){
+
+        printf("Error: particle mismatch\n Particle read in: %lli\n Header file: %lli\n",userInfo.getNumParticles(),blahL);
+        exit(1);
+      }
+
+      inputHeaderFile >>   junk; // Left x boundary
+      inputHeaderFile >>   blah;
+      userInfo.setXmin   ( blah );
+
+      inputHeaderFile >>   junk; // Right x boundary
+      inputHeaderFile >>   blah;
+      userInfo.setXmax   ( blah );
+
+      inputHeaderFile >>   junk; // Left y boundary
+      inputHeaderFile >>   blah;
+      userInfo.setYmin   ( blah );
+
+      inputHeaderFile >>   junk; // Right y boundary
+      inputHeaderFile >>   blah;
+      userInfo.setYmax   ( blah );
+
+      inputHeaderFile >>   junk; // Left z boundary
+      inputHeaderFile >>   blah;
+      userInfo.setZmin   ( blah );
+
+      inputHeaderFile >>   junk; // Right z boundary
+      inputHeaderFile >>   blah;
+      userInfo.setZmax   ( blah );
+
+  }
+  else {
+
+    printf(" Error opening header file: %s\n\n", ( userInfo.getInputHead() ).c_str() );
+    exit(1);
+
+  }
+
+  return true;
+}

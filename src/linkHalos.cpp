@@ -382,7 +382,7 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
       }   //Box loops
       }
 
-/*
+
       //Write the fits file for this halo
       writeImage( userInput       ,
                    halos[i]       ,
@@ -396,7 +396,7 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
                     sphereIndexes ,
                        boxIndexes ,
                      integIndexes );
-*/
+//*/
 
     delete[] sphereIndexes, boxIndexes, integIndexes, integCounter;
     }     //If we found particles
@@ -410,18 +410,18 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
 
 
 // Attempts to write the many images
-void writeImage( inputInfo          userInput  , // All the user info
-                  haloInfo               halo  , // The halo we are considering
-                 particlePosition  *particles  , // The full array of particles
-                 long long          N_sphere   ,
-                 long long          N_box      , // Number of particles in sphere set, box set, and integration length sets
-                 long long         *N_integ    ,
-                 long long       maxN_integ    , // Maximum number on particles in any integIndexes bin
-                 long long          N_integBins, // Number of bins (steps) of integration
-                 double         *integLengths  , // Contains the integration lengths
-                 long long     *sphereIndexes  , // Particle indexes in each set
-                 long long     *   boxIndexes  ,
-                 long long     * integIndexes  ){
+void writeImage(              inputInfo    userInput  , // All the user info
+                 const         haloInfo         halo  , // The halo we are considering
+                 const particlePosition  *particles   , // The full array of particles
+                 const long long          N_sphere    ,
+                 const long long          N_box       , // Number of particles in sphere set, box set, and integration length sets
+                 const long long         *N_integ     ,
+                 const long long       maxN_integ     , // Maximum number on particles in any integIndexes bin
+                 const long long          N_integBins , // Number of bins (steps) of integration
+                 const    double      *integLengths   , // Contains the integration lengths
+                 const long long     *sphereIndexes   , // Particle indexes in each set
+                 const long long     *   boxIndexes   ,
+                 const long long     * integIndexes   ){
 
 
 
@@ -527,16 +527,16 @@ void writeImage( inputInfo          userInput  , // All the user info
 
 
 // Write the fits image to file
-int  writeFits( const std::string     fileName    ,  // File name to write
-                int                  *N_pixels    ,  // N_pixels in each direction
-                int                   N_pixelsTot ,  // Total number of pixels
-                std::valarray<double>       *SD   ,  // SD array to use, passed because we will keep adding to the array
-                long long             N_indexes   ,  // Number of indexes in set to add
-                long long              *indexes   ,  // Indexes of the set
-                particlePosition     *particles   ,  // All the particles
-                haloInfo                   halo   ,  // Central halo
-                inputInfo             userInput   ,  // All the user information
-                float               integLength   ){ // Integration length, if applicable
+int  writeFits( const std::string           fileName    ,  // File name to write
+                const int                  *N_pixels    ,  // N_pixels in each direction
+                const int                   N_pixelsTot ,  // Total number of pixels
+                std::valarray<double>             *SD   ,  // SD array to use, passed because we will keep adding to the array
+                const long long             N_indexes   ,  // Number of indexes in set to add
+                const long long              *indexes   ,  // Indexes of the set
+                const particlePosition     *particles   ,  // All the particles
+                const         haloInfo           halo   ,  // Central halo
+                             inputInfo      userInput   ,  // All the user information
+                const float               integLength   ){ // Integration length, if applicable
 
 
   // Needs to be long format for functions

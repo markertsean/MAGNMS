@@ -43,4 +43,8 @@
   //Reads the particle file
   bool readParticle( inputInfo userInfo, particlePosition particles[] );
 
+  //Reads the header associated with the file
+  bool readHeader  ( inputInfo &userInfo );
+
+
 #endif
