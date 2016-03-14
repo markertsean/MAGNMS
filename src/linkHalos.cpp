@@ -105,7 +105,7 @@ void makeLinkList( const inputInfo          userInfo ,   //Contains the global i
                    const particlePosition  *particle ,   //Array of the particles
                          long long         *myList   ,   //List pointing to next neighbor particle
                          long long         *myLabel  ){  //Label points to the last particle in list for index
-
+/*
   double cell = userInfo.getCell();
 
   int Nlx = userInfo.getNlx(); //Minimum box numbers (should be 0)
@@ -142,7 +142,7 @@ void makeLinkList( const inputInfo          userInfo ,   //Contains the global i
     myLabel[ lI ] = i;             //label stores last particle recorded in the box
 
   }
-
+*/
 }
 
 
@@ -153,7 +153,7 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
                         const particlePosition  *particles ,  // Position of the particles
                         const        long long  *labelList ,  // Label points to the first particle in cell
                         const        long long   *linkList ){ // Points to nearby neighbor particles
-
+/*
 
   int    Nlx = userInput.getNlx();  // Minimum box numbers (should be 0)
   int    Nly = userInput.getNly();
@@ -396,7 +396,7 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
                     sphereIndexes ,
                        boxIndexes ,
                      integIndexes );
-//*/
+
 
     delete[] sphereIndexes, boxIndexes, integIndexes, integCounter;
     }     //If we found particles
@@ -404,7 +404,7 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
   }       //Halo loop
 
   delete [] integLengths;
-
+//*/
 }
 
 
@@ -422,7 +422,7 @@ void writeImage(              inputInfo    userInput  , // All the user info
                  const long long     *sphereIndexes   , // Particle indexes in each set
                  const long long     *   boxIndexes   ,
                  const long long     * integIndexes   ){
-
+/*
 
 
   // Number of elements in each direction, and total number of pixels
@@ -522,7 +522,7 @@ void writeImage(              inputInfo    userInput  , // All the user info
   }
   }
     std::cout << std::endl;
-
+*/
 }
 
 
@@ -537,7 +537,7 @@ int  writeFits( const std::string           fileName    ,  // File name to write
                 const         haloInfo           halo   ,  // Central halo
                              inputInfo      userInput   ,  // All the user information
                 const float               integLength   ){ // Integration length, if applicable
-
+/*
 
   // Needs to be long format for functions
   long lN_pixels[2] = { N_pixels[0], N_pixels[1] };
@@ -604,7 +604,7 @@ int  writeFits( const std::string           fileName    ,  // File name to write
   // Write the image
   ( *pFits ).pHDU().write( 1, N_pixelsTot, *SD);
 
-
+*/
   userInput.wroteFile();
   return 0;
 }

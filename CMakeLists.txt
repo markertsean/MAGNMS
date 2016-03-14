@@ -8,50 +8,51 @@ enable_language(Fortran)
 set(sample_VERSION_MAJOR 1)
 set(sample_VERSION_MINOR 0)
 
-#SET(GCC_COVERAGE_LINK_FLAGS    "-I/usr/local/include -L/usr/local/lib -lcfitsio")
-#SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
-
-#set(CMAKE_Fortran_COMPILER "gfortran") 
-#set(MY_FFLAGS_DOUBLE $ENV{FFLAGS_DOUBLE})
-get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 
 project(haloExtractor C CXX Fortran)
-#get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
-include_directories(include)
+
+get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
+get_filename_component (    CXX_COMPILER_NAME ${CMAKE_CXX_COMPILER}     NAME)
+
 
 ####
 # sources
 ####
 
+include_directories(include)
+
 file(GLOB SOURCES "src/*")
 
 ####
-# dependencies
+# set flags
 ####
 
-#include_directories("/usr/local/")
-#find_package(CCfits REQUIRED)
-#link_directories("/usr/local/lib/")
-
-####
-# omp
-####
-#find_package(OpenMP)
-#if (OPENMP_FOUND)
-#    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-#    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-#endif()
-
-#add_compile_options( "-mcmodel=medium" )
-####
-# build
-####
-#add_definitions(-std=gnu++0x -L/usr/local/lib/CCfits/.libs -lCCfits -lcfitsio)
+set (CMAKE_Fortran_COMPILER "/usr/bin/gfortran")
 set (CMAKE_CXX_FLAGS "-std=gnu++0x -lCCfits -lcfitsio")
 
+if (Fortran_COMPILER_NAME MATCHES "gfortran.*")
+  # gfortran
+  set (CMAKE_Fortran_FLAGS_RELEASE "-fconvert='big_endian'") #Or little_endian?
+  set (CMAKE_Fortran_FLAGS_DEBUG   "-fconvert='big_endian'")
+  message ("Using gfortran...")
+elseif (Fortran_COMPILER_NAME MATCHES "ifort.*")
+  # ifort (untested)
+  set (CMAKE_Fortran_FLAGS_RELEASE "-convert big_endian")
+  set (CMAKE_Fortran_FLAGS_DEBUG   "-convert big_endian")
+  message ("Using ifort...")
+else (Fortran_COMPILER_NAME MATCHES "gfortran.*")
+  set (CMAKE_Fortran_FLAGS_RELEASE "-fconvert='big_endian'") #Or little_endian?
+  set (CMAKE_Fortran_FLAGS_DEBUG   "-fconvert='big_endian'")
+  message ("Using wierd compiler...")
+endif (Fortran_COMPILER_NAME MATCHES "gfortran.*")
+
+message ("CMAKE CXX     COMPILER full path: " ${CMAKE_Fortran_COMPILER})
+message ("CMAKE Fortran COMPILER full path: " ${CMAKE_Fortran_COMPILER})
+
+####
+# Generate executable
+####
 
 add_executable(halo_extractor ${SOURCES})
 
 target_link_libraries(halo_extractor "/usr/local/lib/libCCfits.so")
-
-#target_link_libraries(ulator ${GLAMER_LIBRARIES})

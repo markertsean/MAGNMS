@@ -131,7 +131,7 @@ function readfile(i0,j0,k0,nx,ny,nz, xl, xr, yl, yr, zl, zr, jstep,totparticles,
     write(*,*) " Reading file: ",name
 
      !Reads header info from file
-     open(1,file=trim(Name),form='unformatted')
+     open(1,file=trim(Name),form='unformatted',convert='big_endian')
      read(1) aexpn,om0,oml0,hubble,box,massone
      read(1) node1,anx1,any1,anz1,dbuffer1,anbuffer1
      read(1) txl,txr,tyl,tyr,tzl,tzr
@@ -192,6 +192,7 @@ function readfile(i0,j0,k0,nx,ny,nz, xl, xr, yl, yr, zl, zr, jstep,totparticles,
      xxl = xl+db ; xxr = xr-db
      yyl = yl+db ; yyr = yr-db
      zzl = zl+db ; zzr = zr-db
+
 
      do
         read(1,iostat=ierr)nrecord         ! number of particles in this record
