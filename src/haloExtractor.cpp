@@ -21,6 +21,10 @@ The last step tries to avoid allocating as much memory as possible, due to the e
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include <cstdlib>
+#include <cstdio>
+
+#include <stdlib.h>
 #include <sys/stat.h>
 
 //#include <CCfits/CCfits>
@@ -165,7 +169,7 @@ int main( int arg, char ** argv ){
   particlePosition *particle = new particlePosition[numParticles];
 
   printf(" Allocated %lli particles\n  Reading particle file...\n\n", numParticles );
-exit(0);
+std::exit(0);
   numParticles = readParticle( userInput, particle );
 
   if ( numParticles != userInput.getNumParticles() ){
@@ -184,7 +188,7 @@ for(int i=0;i<userInput.getNumParticles();++i){
 if (i%10000000==0)  printf("%7.2f %7.2f %7.2f\n",particle[i].x_pos,particle[i].y_pos,particle[i].z_pos);
 }
 
-exit(0);
+std::exit(0);
   /////////////////////////////////////////
   ////////Generate link lists//////////////
   /////////////////////////////////////////
