@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 2.8)
 ####
 # project settings
 ####
+set (CMAKE_Fortran_COMPILER "/usr/bin/gfortran")
+
+
 enable_language(Fortran)
 
 set(sample_VERSION_MAJOR 1)
@@ -27,8 +30,8 @@ file(GLOB SOURCES "src/*")
 # set flags
 ####
 
-set (CMAKE_Fortran_COMPILER "/usr/bin/gfortran")
 set (CMAKE_CXX_FLAGS "-std=gnu++0x -lCCfits -lcfitsio")
+
 
 if (Fortran_COMPILER_NAME MATCHES "gfortran.*")
   # gfortran
@@ -46,8 +49,6 @@ else (Fortran_COMPILER_NAME MATCHES "gfortran.*")
   message ("Using wierd compiler...")
 endif (Fortran_COMPILER_NAME MATCHES "gfortran.*")
 
-message ("CMAKE CXX     COMPILER full path: " ${CMAKE_Fortran_COMPILER})
-message ("CMAKE Fortran COMPILER full path: " ${CMAKE_Fortran_COMPILER})
 
 ####
 # Generate executable

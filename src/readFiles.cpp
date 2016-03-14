@@ -713,14 +713,6 @@ bool readHeader  ( inputInfo &userInfo ){
       inputHeaderFile >>   junk; // dBuffer
       inputHeaderFile >>   blah;
 
-      inputHeaderFile >>   junk; // Number of particles
-      inputHeaderFile >>   blahL;
-
-      if ( blahL != userInfo.getNumParticles() ){
-
-        printf("Error: particle mismatch\n Particle read in: %lli\n Header file: %lli\n",userInfo.getNumParticles(),blahL);
-        exit(1);
-      }
 
       inputHeaderFile >>   junk; // Left x boundary
       inputHeaderFile >>   blah;
@@ -745,6 +737,16 @@ bool readHeader  ( inputInfo &userInfo ){
       inputHeaderFile >>   junk; // Right z boundary
       inputHeaderFile >>   blah;
       userInfo.setZmax   ( blah );
+
+
+      inputHeaderFile >>   junk; // Number of particles
+      inputHeaderFile >>   blahL;
+
+      if ( blahL != userInfo.getNumParticles() ){
+
+        printf("Error: particle mismatch\n Particle read in: %lli\n Header file: %lli\n",userInfo.getNumParticles(),blahL);
+        exit(1);
+      }
 
   }
   else {
