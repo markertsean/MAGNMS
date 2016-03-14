@@ -1,7 +1,7 @@
 #include <math.h>
 #include <vector>
 
-#include <CCfits/CCfits>
+//#include <CCfits/CCfits>
 
 #include "halo_extraction_classes.h"
 #include "link_halos.h"
@@ -525,7 +525,7 @@ void writeImage(              inputInfo    userInput  , // All the user info
 */
 }
 
-
+/*
 // Write the fits image to file
 int  writeFits( const std::string           fileName    ,  // File name to write
                 const int                  *N_pixels    ,  // N_pixels in each direction
@@ -537,7 +537,7 @@ int  writeFits( const std::string           fileName    ,  // File name to write
                 const         haloInfo           halo   ,  // Central halo
                              inputInfo      userInput   ,  // All the user information
                 const float               integLength   ){ // Integration length, if applicable
-/*
+
 
   // Needs to be long format for functions
   long lN_pixels[2] = { N_pixels[0], N_pixels[1] };
@@ -604,7 +604,8 @@ int  writeFits( const std::string           fileName    ,  // File name to write
   // Write the image
   ( *pFits ).pHDU().write( 1, N_pixelsTot, *SD);
 
-*/
+
   userInput.wroteFile();
   return 0;
 }
+*/

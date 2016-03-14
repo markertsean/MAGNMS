@@ -23,7 +23,7 @@ The last step tries to avoid allocating as much memory as possible, due to the e
 #include <cstring>
 #include <sys/stat.h>
 
-#include <CCfits/CCfits>
+//#include <CCfits/CCfits>
 #include <cmath>
 
 #include "halo_extraction_classes.h"

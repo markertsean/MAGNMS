@@ -42,7 +42,7 @@ void writeImage(              inputInfo    userInput  , // All the user info
                  const long long     *sphereIndexes   , // Particle indexes in each set
                  const long long     *   boxIndexes   ,
                  const long long     * integIndexes   );
-
+/*
 // Write the fits image to file
 int  writeFits( const std::string           fileName            ,  // File name to write
                 const int                  *N_pixels            ,  // N_pixels in each direction
@@ -54,6 +54,6 @@ int  writeFits( const std::string           fileName            ,  // File name 
                 const         haloInfo           halo           ,  // Central halo
                              inputInfo      userInput           ,  // All the user information
                 const float               integLength = -1.0    ); // Integration length, if applicable
-
+*/
 
 #endif // LINK_HALOS
