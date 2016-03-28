@@ -1,7 +1,7 @@
 #include <math.h>
 #include <vector>
 
-//#include <CCfits/CCfits>
+#include <CCfits/CCfits>
 
 #include "halo_extraction_classes.h"
 #include "link_halos.h"
@@ -105,7 +105,7 @@ void makeLinkList( const inputInfo          userInfo ,   //Contains the global i
                    const particlePosition  *particle ,   //Array of the particles
                          long long         *myList   ,   //List pointing to next neighbor particle
                          long long         *myLabel  ){  //Label points to the last particle in list for index
-/*
+
   double cell = userInfo.getCell();
 
   int Nlx = userInfo.getNlx(); //Minimum box numbers (should be 0)
@@ -142,7 +142,7 @@ void makeLinkList( const inputInfo          userInfo ,   //Contains the global i
     myLabel[ lI ] = i;             //label stores last particle recorded in the box
 
   }
-*/
+
 }
 
 
@@ -153,7 +153,7 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
                         const particlePosition  *particles ,  // Position of the particles
                         const        long long  *labelList ,  // Label points to the first particle in cell
                         const        long long   *linkList ){ // Points to nearby neighbor particles
-/*
+
 
   int    Nlx = userInput.getNlx();  // Minimum box numbers (should be 0)
   int    Nly = userInput.getNly();
@@ -404,7 +404,7 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
   }       //Halo loop
 
   delete [] integLengths;
-//*/
+
 }
 
 
@@ -422,7 +422,7 @@ void writeImage(              inputInfo    userInput  , // All the user info
                  const long long     *sphereIndexes   , // Particle indexes in each set
                  const long long     *   boxIndexes   ,
                  const long long     * integIndexes   ){
-/*
+
 
 
   // Number of elements in each direction, and total number of pixels
@@ -522,10 +522,10 @@ void writeImage(              inputInfo    userInput  , // All the user info
   }
   }
     std::cout << std::endl;
-*/
+
 }
 
-/*
+
 // Write the fits image to file
 int  writeFits( const std::string           fileName    ,  // File name to write
                 const int                  *N_pixels    ,  // N_pixels in each direction
@@ -608,4 +608,4 @@ int  writeFits( const std::string           fileName    ,  // File name to write
   userInput.wroteFile();
   return 0;
 }
-*/
+
