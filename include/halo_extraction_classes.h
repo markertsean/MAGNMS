@@ -19,7 +19,7 @@ class inputInfo{
     void setParticleDir ( std::string   inpS ) { particleDir     = inpS; }
     void setHeaderDir   ( std::string   inpS ) {   headerDir     = inpS; }
     void setCatType     ( std::string   inpS ) {   catType       = inpS;
-                                                  setPartMass();         }
+}//                                                  setPartMass();         }
     void setMinMass     ( double        inpD ) {   minMass       = inpD; }
     void setMaxMass     ( double        inpD ) {   maxMass       = inpD; }
     void setRadiusMult  ( double        inpD ) {radiusMultiplier = inpD; }
@@ -153,7 +153,7 @@ class inputInfo{
       return true;
     }
 
-
+/*
     void setPartMass( ){
 
       if ( catType.compare( "BMDP"  ) == 0 ){ particleMass = 2.4e10; } else
@@ -162,13 +162,13 @@ class inputInfo{
       if ( catType.compare( "MD"    ) == 0 ){ particleMass = 8.7e9 ; } else
       if ( catType.compare( "BP"    ) == 0 ){ particleMass = 1.5e8 ; } else
       if ( catType.compare( "B"     ) == 0 ){ particleMass = 1.3e8 ; } else
-      if ( catType.compare( "short" ) == 0 ){ /* No change needed */ } else
+      if ( catType.compare( "short" ) == 0 ){                        } else // No change needed
       {
         std::cout<<"Unrecognized catalog: "<<catType<<std::endl;
         exit(1);
       }
     }
-
+//*/
 
   private:
 
@@ -285,7 +285,7 @@ inputInfo::inputInfo( ){
 
      particleMass = 0.0;
 
-          setPartMass();
+//          setPartMass();
 
    maxIntegLength = 400.0;
       integStep   = 0.2;

@@ -62,14 +62,14 @@ int main( int arg, char ** argv ){
     printf("Error in reading input file, aborting\n\n");
     exit(1);
   }
-
+/*
   if ( !( (userInput.getCatType()).compare( "short" ) == 0 ) &&
        !( (userInput.getCatType()).compare( "BMD"   ) == 0 ) ){
 
     std::cout << " Catalog type unsupported: " << userInput.getCatType() << std::endl;
     exit(1);
   }
-
+*/
 
   /////////////////////////////////////////
   //////Write header/part directory////////
@@ -148,10 +148,14 @@ int main( int arg, char ** argv ){
 
   std::cout << " Attempting to read particle file..." << std::endl;
 
-  long long numParticles = 0;
 
+  // Attempts to locate the particle file we will use,
+  //  and reads the number of particles to allocate
+  long long numParticles = 0;
   numParticles = setPartFile( userInput );
 
+
+  // If read 0 particles, error
   if ( numParticles == 0 ){
 
     printf(" Error reading particle file:%s\n", (userInput.getInputPart()).c_str() );
@@ -159,15 +163,20 @@ int main( int arg, char ** argv ){
     exit(1);
 
   }
+
+
+  // Saves this number of particles
   userInput.setNumParticles( numParticles );
   printf("\n Number of particles: %lli\n", userInput.getNumParticles() );
 
+
+  // Allocate the partcles
   particlePosition *particle = new particlePosition[numParticles];
-
   printf(" Allocated %lli particles\n  Reading particle file...\n\n", numParticles );
-exit(0);
-  numParticles = readParticle( userInput, particle );
 
+
+  // Read the particle positions
+  numParticles = readParticle( userInput, particle );
   if ( numParticles != userInput.getNumParticles() ){
     printf("Error: mismatch in particle read in\n Allocated: %lli\n Read in  : %lli\n", userInput.getNumParticles(), numParticles );
     exit(1);
@@ -180,11 +189,7 @@ exit(0);
   readHeader  ( userInput );
   std::cout << " Done."                         << std::endl << std::endl;
 
-for(int i=0;i<userInput.getNumParticles();++i){
-if (i%10000000==0)  printf("%7.2f %7.2f %7.2f\n",particle[i].x_pos,particle[i].y_pos,particle[i].z_pos);
-}
 
-exit(0);
   /////////////////////////////////////////
   ////////Generate link lists//////////////
   /////////////////////////////////////////
@@ -203,7 +208,7 @@ exit(0);
 
 
   std::cout << " Generating link list..." << std::endl;
-
+/*
 std::cout << "Halo  memory: " <<  sizeof( haloInfo         ) * userInput.getNumHalos()     / (1e6) << " Mb" << std::endl;
 std::cout << "Part  memory: " <<  sizeof( particlePosition ) * userInput.getNumParticles() / (1e9) << " Gb" << std::endl;
 std::cout << "Link  memory: " <<  sizeof( long long        ) * userInput.getNumParticles() / (1e9) << " Gb" << std::endl;
@@ -212,6 +217,7 @@ std::cout << "Total memory: " << (sizeof( long long        ) * userInput.getNtot
                                   sizeof( long long        ) * userInput.getNumParticles() +
                                   sizeof( particlePosition ) * userInput.getNumParticles() +
                                   sizeof( haloInfo         ) * userInput.getNumHalos()   ) / (1e9) << " Gb" << std::endl;
+*/
 
   //Make link list between particles
   long long  *linkList = new long long [ userInput.getNumParticles() ];
@@ -240,10 +246,10 @@ std::cout << "Total memory: " << (sizeof( long long        ) * userInput.getNtot
   delete [] myHalos;                                        //        Deletes old halo array
 
   std::cout << " Done."     << std::endl  << std::endl;
-
+/*
 std::cout << "Halo memory: " << sizeof( haloInfo         ) * userInput.getNumHalos()     / (1e3) << " Kb" << std::endl;
 std::cout << "Part memory: " << sizeof( particlePosition ) * userInput.getNumParticles() / (1e6) << " Mb" << std::endl;
-
+*/
   /////////////////////////////////////////
   ////////Link halos, write files//////////
   /////////////////////////////////////////

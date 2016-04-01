@@ -518,7 +518,7 @@ long long setPartFile( inputInfo &userInput ) { //All the user input
   long long numParticles = 0;
 
 
-  //If the user specified a file, use it
+  // If the user specified a file, use it
   if ( (userInput.getInputPart()!="") ){
 
     std::string partCatalog = userInput.getInputPart();
@@ -540,14 +540,14 @@ long long setPartFile( inputInfo &userInput ) { //All the user input
       printf( "%s%s\n", "  Using   header file: ",                                tempS );
 
       //Go through header file to determine number of particles for array allocation
-      std::string   tempStr[8];
-      double tempInt[8];
+      std::string   tempStr[14];
+      double tempInt[14];
 
-      for ( int i = 0; i <= 7; ++i ){ //Number of particles is the 8th item
+      for ( int i = 0; i <= 13; ++i ){ //Number of particles is the 8th item
         testHead >> tempStr[i];
         testHead >> tempInt[i];
       }
-      numParticles = tempInt[7];
+      numParticles = tempInt[13];
 
       userInput.setInputHead( tempS );
 
@@ -634,34 +634,19 @@ long long readParticle( inputInfo userInfo, particlePosition *particles ){
 
   long long counter = 0;
 
-  float x, y, z, prevX, prevY, prevZ;
+  float x, y, z;
 
   if ( inputParticleFile.good() ){
-    for ( int i = 0; i < 500004;++i){//userInfo.getNumParticles() ; ++i ){
-prevX = x;
-prevY = y;
-prevZ = z;
+    for ( int i = 0; i < userInfo.getNumParticles() ; ++i ){
 
       inputParticleFile >> x >> y >> z;
-/*
-      inputParticleFile >> x;//particles[i].x_pos;
-      inputParticleFile >> y;//particles[i].y_pos;
-      inputParticleFile >> z;//particles[i].z_pos;
-//*/
 
-if ( ( x == prevX ) &&
-     ( y == prevY ) &&
-     ( z == prevZ ) ) {
-  printf("%i %7.2f %7.2f %7.2f %7.2f %7.2f %7.2f\n", i, x, y, z, prevX, prevY, prevZ);
-  exit(0);
-}
-//*/
       particles[i].x_pos = x;
       particles[i].y_pos = y;
       particles[i].z_pos = z;
-//printf("%7.2f %7.2f %7.2f\n", x, y, z);
-if (i%100000==0)  printf("%7.2f %7.2f %7.2f\n", x, y, z);
-//if (i%10000000==0)  printf("%7.2f %7.2f %7.2f\n",particles[i].x_pos,particles[i].y_pos,particles[i].z_pos);
+
+      int readLines = 1e7;
+      if (i%readLines==0)  printf("      Read %12i lines: %7.2f %7.2f %7.2f\n", i, x, y, z);
 
       ++counter;
     }
@@ -672,6 +657,8 @@ if (i%100000==0)  printf("%7.2f %7.2f %7.2f\n", x, y, z);
     exit(1);
 
   }
+
+  printf("\n");
 
   return counter;
 }
@@ -713,15 +700,6 @@ bool readHeader  ( inputInfo &userInfo ){
       inputHeaderFile >>   junk; // dBuffer
       inputHeaderFile >>   blah;
 
-      inputHeaderFile >>   junk; // Number of particles
-      inputHeaderFile >>   blahL;
-
-      if ( blahL != userInfo.getNumParticles() ){
-
-        printf("Error: particle mismatch\n Particle read in: %lli\n Header file: %lli\n",userInfo.getNumParticles(),blahL);
-        exit(1);
-      }
-
       inputHeaderFile >>   junk; // Left x boundary
       inputHeaderFile >>   blah;
       userInfo.setXmin   ( blah );
@@ -745,6 +723,15 @@ bool readHeader  ( inputInfo &userInfo ){
       inputHeaderFile >>   junk; // Right z boundary
       inputHeaderFile >>   blah;
       userInfo.setZmax   ( blah );
+
+      inputHeaderFile >>   junk; // Number of particles
+      inputHeaderFile >>   blahL;
+
+      if ( blahL != userInfo.getNumParticles() ){
+
+        printf("Error: particle mismatch\n Particle read in: %lli\n Header file: %lli\n",userInfo.getNumParticles(),blahL);
+        exit(1);
+      }
 
   }
   else {
