@@ -208,6 +208,8 @@ int main( int arg, char ** argv ){
 
 
   std::cout << " Generating link list..." << std::endl;
+
+
 /*
 std::cout << "Halo  memory: " <<  sizeof( haloInfo         ) * userInput.getNumHalos()     / (1e6) << " Mb" << std::endl;
 std::cout << "Part  memory: " <<  sizeof( particlePosition ) * userInput.getNumParticles() / (1e9) << " Gb" << std::endl;
@@ -217,7 +219,7 @@ std::cout << "Total memory: " << (sizeof( long long        ) * userInput.getNtot
                                   sizeof( long long        ) * userInput.getNumParticles() +
                                   sizeof( particlePosition ) * userInput.getNumParticles() +
                                   sizeof( haloInfo         ) * userInput.getNumHalos()   ) / (1e9) << " Gb" << std::endl;
-*/
+//*/
 
   //Make link list between particles
   long long  *linkList = new long long [ userInput.getNumParticles() ];
@@ -244,12 +246,17 @@ std::cout << "Total memory: " << (sizeof( long long        ) * userInput.getNtot
   haloInfo halos[N_halos];                                  //  Allocates our new halo array
   N_halos = findBoxHalos( userInput, myHalos,   halos, 1 ); //   Fills in our new halo array
   delete [] myHalos;                                        //        Deletes old halo array
+  std::cout << "  Allocated " << N_halos    << " halos" << std::endl;
 
-  std::cout << " Done."     << std::endl  << std::endl;
+  std::cout << " Done."       << std::endl  << std::endl;
+
+
 /*
 std::cout << "Halo memory: " << sizeof( haloInfo         ) * userInput.getNumHalos()     / (1e3) << " Kb" << std::endl;
 std::cout << "Part memory: " << sizeof( particlePosition ) * userInput.getNumParticles() / (1e6) << " Mb" << std::endl;
-*/
+//*/
+
+
   /////////////////////////////////////////
   ////////Link halos, write files//////////
   /////////////////////////////////////////

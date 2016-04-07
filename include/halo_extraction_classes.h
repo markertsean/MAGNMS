@@ -12,39 +12,39 @@ class inputInfo{
     static unsigned long Num_files;
 
     //Functions to change files the user may input
-    void setReadFile    ( std::string   inpS ) { readFile        = inpS; }
-    void setInputCatalog( std::string   inpS ) { inputCatalog    = inpS; }
-    void setInputPart   ( std::string   inpS ) { inputPartFiles  = inpS; }
-    void setInputHead   ( std::string   inpS ) { inputHeadFiles  = inpS; }
-    void setParticleDir ( std::string   inpS ) { particleDir     = inpS; }
-    void setHeaderDir   ( std::string   inpS ) {   headerDir     = inpS; }
-    void setCatType     ( std::string   inpS ) {   catType       = inpS;
-}//                                                  setPartMass();         }
-    void setMinMass     ( double        inpD ) {   minMass       = inpD; }
-    void setMaxMass     ( double        inpD ) {   maxMass       = inpD; }
-    void setRadiusMult  ( double        inpD ) {radiusMultiplier = inpD; }
-    void setShortCat    ( short         inpI ) {  useShortCat    = inpI; }
-    void setUseShort    ( short         inpI ) {  usingShort     = inpI; }
-    void setSnapNum     ( short         inpI ) {  snapshotNum    = inpI; }
-    void setNumHalos    ( unsigned long inpI ) {  numHalos       = inpI; }
-    void setNumParticles( long     long inpI ) {  numParticles   = inpI; }
-    void setFOV         ( float         inpF ) {   boxFOV        = inpF; }
-    void setXmin        ( float         inpF ) {   x_min         = inpF; }
-    void setXmax        ( float         inpF ) {   x_max         = inpF; }
-    void setYmin        ( float         inpF ) {   y_min         = inpF; }
-    void setYmax        ( float         inpF ) {   y_max         = inpF; }
-    void setZmin        ( float         inpF ) {   z_min         = inpF; }
-    void setZmax        ( float         inpF ) {   z_max         = inpF; }
-    void setNPixelsH    ( int           inpI ) {   N_pixels_h    = inpI; }
-    void setNPixelsV    ( int           inpI ) {   N_pixels_v    = inpI; }
-    void setIntegLength ( double        inpF ) {  maxIntegLength = inpF; }
-    void setIntegStep   ( double        inpF ) {     integStep   = inpF; }
+    void setReadFile     ( std::string   inpS ) { readFile        = inpS; }
+    void setInputCatalog ( std::string   inpS ) { inputCatalog    = inpS; }
+    void setInputPart    ( std::string   inpS ) { inputPartFiles  = inpS; }
+    void setInputHead    ( std::string   inpS ) { inputHeadFiles  = inpS; }
+    void setParticleDir  ( std::string   inpS ) { particleDir     = inpS; }
+    void setHeaderDir    ( std::string   inpS ) {   headerDir     = inpS; }
+    void setCatType      ( std::string   inpS ) {   catType       = inpS; }
+    void setMinMass      ( double        inpD ) {   minMass       = inpD; }
+    void setMaxMass      ( double        inpD ) {   maxMass       = inpD; }
+    void setRadiusMult   ( double        inpD ) {radiusMultiplier = inpD; }
+    void setRadiusConvert( double        inpD ) {radiusConverter  = inpD; }
+    void setShortCat     ( short         inpI ) {  useShortCat    = inpI; }
+    void setUseShort     ( short         inpI ) {  usingShort     = inpI; }
+    void setSnapNum      ( short         inpI ) {  snapshotNum    = inpI; }
+    void setNumHalos     ( unsigned long inpI ) {  numHalos       = inpI; }
+    void setNumParticles ( long     long inpI ) {  numParticles   = inpI; }
+    void setFOV          ( float         inpF ) {   boxFOV        = inpF; }
+    void setXmin         ( float         inpF ) {   x_min         = inpF; }
+    void setXmax         ( float         inpF ) {   x_max         = inpF; }
+    void setYmin         ( float         inpF ) {   y_min         = inpF; }
+    void setYmax         ( float         inpF ) {   y_max         = inpF; }
+    void setZmin         ( float         inpF ) {   z_min         = inpF; }
+    void setZmax         ( float         inpF ) {   z_max         = inpF; }
+    void setNPixelsH     ( int           inpI ) {   N_pixels_h    = inpI; }
+    void setNPixelsV     ( int           inpI ) {   N_pixels_v    = inpI; }
+    void setIntegLength  ( double        inpF ) {  maxIntegLength = inpF; }
+    void setIntegStep    ( double        inpF ) {     integStep   = inpF; }
 
-    void setAexpn       ( float         inpF ) {  aexpn          = inpF; }
-    void setHubble      ( float         inpF ) {  hubble         = inpF; }
-    void setOmega_m     ( float         inpF ) {  om_o           = inpF; }
-    void setOmega_l     ( float         inpF ) {  om_l           = inpF; }
-    void setParticleMass( double        inpF ) {  particleMass   = inpF; }
+    void setAexpn        ( float         inpF ) {  aexpn          = inpF; }
+    void setHubble       ( float         inpF ) {  hubble         = inpF; }
+    void setOmega_m      ( float         inpF ) {  om_o           = inpF; }
+    void setOmega_l      ( float         inpF ) {  om_l           = inpF; }
+    void setParticleMass ( double        inpF ) {  particleMass   = inpF; }
 
 
     std::string   getReadFile      () const { return readFile         ; }
@@ -60,6 +60,7 @@ class inputInfo{
     double        getMinMass       () const { return        minMass   ; }
     double        getMaxMass       () const { return        maxMass   ; }
     double        getRadiusMult    () const { return radiusMultiplier ; }
+    double        getRadiusConvert () const { return radiusConverter  ; }
     double        getFOV           () const { return   boxFOV         ; }
     short         getShortCat      () const { return   useShortCat    ; }
     short         getUsingShort    () const { return   usingShort     ; }
@@ -193,6 +194,7 @@ class inputInfo{
     double          minMass    ; // Editable, minimum mass halo to use
     double          maxMass    ; // Editable, maximum mass halo to use
     double    radiusMultiplier ; // Editable, multiplier to radius to put in radius box, EDITEDITEDITEDITEDIT
+    double    radiusConverter  ; // Editable, convert units to match the position coordinates
     double              boxFOV ; // Editable, field of view of the image box
 
     short          useShortCat ; // Editable, use a short catalog, will generate a new catalog easier to read in
@@ -254,6 +256,7 @@ inputInfo::inputInfo( ){
        minMass    =  1e15;
        maxMass    = -1.0 ;
  radiusMultiplier =  1.0 ;
+  radiusConverter = 1e-3 ;
       useShortCat =  1   ;
       snapshotNum =  0   ;
       usingShort  =  0   ;
@@ -311,9 +314,7 @@ class haloInfo {
     void setID( long  inpL ) {    id = inpL; }
     void setBA( float inpF ) { ba_rat= inpF; }
     void setCA( float inpF ) { ca_rat= inpF; }
-
-    void setRm( float inpF ) { float conversion = 1e-3; //kpc to Mpc, radius in kpc but all other coordinates Mpc
-                                          R_max = inpF * conversion; }
+    void setRm( float inpF ) { R_max = inpF; }
 
     void setDistinct( long inpL ) { distinct = inpL; }
 

@@ -55,6 +55,9 @@ bool readUserInput( std::string fileName, inputInfo &myInput ){
       else if ( strcmp( inpC1, "rMult"       ) == 0 ){
         myInput.setRadiusMult  ( std::stod( inpS )  );
       }
+      else if ( strcmp( inpC1, "rConv"       ) == 0 ){
+        myInput.setRadiusConvert( std::stod( inpS )  );
+      }
       else if ( strcmp( inpC1, "FOV"         ) == 0 ){
         myInput.setFOV         ( std::stod( inpS )  );
       }
@@ -158,11 +161,16 @@ unsigned long readCatalog( haloInfo      halos[] ,  //Stores data of halos
   else
   if ( ((*userInfo).getCatType()).compare(    "MD" ) == 0 ){
     std::cout << "  Reading file:        " << (*userInfo).getInputCatalog() << std::endl;
-    N_read = readMultiDark(    myFile, halos, N_halos );
+    N_read = readMultiDark(       myFile, halos, N_halos );
   }
   else
-  if ( ((*userInfo).getCatType()).compare(   "BMD" ) == 0 ){
-    N_read = readBigMultiDark( (*userInfo).getInputCatalog(), halos, N_halos );
+  if ( ((*userInfo).getCatType()).compare(   "MDP" ) == 0 ){
+    std::cout << "  Reading file:        " << (*userInfo).getInputCatalog() << std::endl;
+    N_read = readMultiDarkPlanck( myFile, halos, N_halos );
+  }
+  else
+  if ( ((*userInfo).getCatType()).compare(  "BMDP" ) == 0 ){
+    N_read = readBigMultiDarkPlanck( (*userInfo).getInputCatalog(), halos, N_halos );
   }
   else
   {
@@ -326,11 +334,78 @@ unsigned long readMultiDark( std::ifstream &inpFile   ,
 }
 
 
+unsigned long readMultiDarkPlanck( std::ifstream  &inpFile   ,
+                                   haloInfo          halos[] ,
+                                   unsigned long   N_halos   ){
+
+  //Skip the header of file
+  int headerLength = 17;
+  {
+    std::string junk;
+    for (int i=0;i<headerLength;++i)
+      std::getline(inpFile, junk);
+  }
+
+
+  std::string str;  //The read in line
+  std::string junk; //For stuff we don't need
+
+  float   x, y, z, M, R, C, N, ba, ca, xa, ya, za;
+  long id;
+  long ds;
+
+  int N_valid = 0;
+
+  while ( std::getline( inpFile, str ) ){
+
+    std::stringstream line( str );
+    // x, y, z coordinate
+    line >>    x;    line >>    y;     line >>    z;    line >> junk;    line >> junk;     line >> junk;    line >> junk;
+
+    //M_tot, R_vir
+    line >>    M;    line >>    R;    line >> junk;    line >> junk;
+
+    // halo id number, Concentration, Number of halo, distinct/sub,
+    line >>   id;    line >>    C;    line >>    N;    line >>   ds;    line >> junk;    line >> junk;    line >> junk;    line >> junk;
+
+    // axis b/a ratio, c/a ratio, x axis, y axis, z axis
+    line >>   ba;    line >>   ca;    line >> junk;    line >> junk;    line >> junk;
+
+    //Test if halo is distinct and in mass range
+    if ( validHalo ( M, ds ) ){
+
+      //Can only occur on second run
+      //First run returns number of valid halos
+      //halos array then allocated
+      //Then run through and save those values
+      if ( N_halos > 0 ){
+        halos[ N_valid ].setX (  x );
+        halos[ N_valid ].setY (  y );
+        halos[ N_valid ].setZ (  z );
+        halos[ N_valid ].setC (  C );
+        halos[ N_valid ].setM (  M );
+        halos[ N_valid ].setN (  N );
+        halos[ N_valid ].setRm(  R );
+        halos[ N_valid ].setID( id );
+        halos[ N_valid ].setBA( ba );
+        halos[ N_valid ].setCA( ca );
+        halos[ N_valid ].setDistinct( ds );
+      }
+
+      ++N_valid;
+    }
+
+  }
+
+  return N_valid;
+
+}
+
 
 // Big multi dark catalogs are broken into many files
-unsigned long readBigMultiDark( std::string    inpFile   ,
-                               haloInfo          halos[] ,
-                               unsigned long   N_halos   ){
+unsigned long readBigMultiDarkPlanck( std::string    inpFile   ,
+                                      haloInfo          halos[] ,
+                                      unsigned long   N_halos   ){
 
 
 

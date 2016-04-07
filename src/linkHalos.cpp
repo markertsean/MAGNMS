@@ -187,9 +187,10 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
 
 
     // Simplify coordinates
-    float x = halos[i].getX();
-    float y = halos[i].getY();
-    float z = halos[i].getZ();
+    float x   = halos[i].getX();
+    float y   = halos[i].getY();
+    float z   = halos[i].getZ();
+    float r_v = halos[i].getRm() * userInput.getRadiusConvert();
 
     // Left and rightmost coordinates in the FOV
     float xLeft  = x - FOV / 2.0;
@@ -251,8 +252,6 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
 
       long long particleIndex = labelList[ cellIndex ];  //The index for the first particle in the link list
 
-
-
       //Loop over link list
       while ( particleIndex != -1 ){
 
@@ -267,11 +266,10 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
              (  yLeft              < partY) && (partY < ( yRight           )) &&
              (( z - haloMaxInteg ) < partZ) && (partZ < ( z + haloMaxInteg )) ){
 
-
           // Check if in sphere, Rm > sqrt( ( x_h-x_p )^2 + ...
-          if ( ( halos[i].getRm() * halos[i].getRm() ) >= ( ( x - partX ) * ( x - partX ) +
-                                                            ( y - partY ) * ( y - partY ) +
-                                                            ( z - partZ ) * ( z - partZ ) ) ){
+          if ( ( r_v * r_v )  >= ( ( x - partX ) * ( x - partX ) +
+                                   ( y - partY ) * ( y - partY ) +
+                                   ( z - partZ ) * ( z - partZ ) ) ){
             ++N_sphere;
           }
 
@@ -296,7 +294,6 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
     }
     }   //Box loop
     }
-
 
     // Only continue if we found particles for our halo
     if ( ( N_sphere > 0 ) && ( N_box > 0 ) ){
@@ -352,9 +349,9 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
 
 
             // Check if in sphere, Rm > sqrt( ( x_h-x_p )^2 + ...
-            if ( ( halos[i].getRm() * halos[i].getRm() ) >= ( ( x - partX ) * ( x - partX ) +
-                                                              ( y - partY ) * ( y - partY ) +
-                                                              ( z - partZ ) * ( z - partZ ) ) ){
+            if ( ( r_v * r_v ) >= ( ( x - partX ) * ( x - partX ) +
+                                    ( y - partY ) * ( y - partY ) +
+                                    ( z - partZ ) * ( z - partZ ) ) ){
               sphereIndexes[ sCounter ] = particleIndex;
               ++sCounter;
             }
