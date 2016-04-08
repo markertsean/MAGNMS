@@ -1,14 +1,14 @@
 /***************************************************************************************
 
-This program takes an input file (extractInfo.dat or command line argument) for input
+This program takes an input file (extractInfo.dat or given as command line argument) for input
 parameters to write FITS mass maps from simulations. The process is:
 
 1. Read the user input
 2. Perform internal checks for directories
-3. Read the halo catalog, write a short file of valid halos for faster read in
+3. Read the halo catalog, write a short file of valid halos for faster read in based on user constraints
 4. Read in the particles, save as array into memory
 5. Generate link list of particles
-6. Link particles and halos
+6. Link particles and halos, writing output FITS files
    -Particles go in Rvir, FOV box, or integration list sets
    -Writes images with headers and FITS mass maps, no smoothing
    -Currently does nothing with triaxiality
