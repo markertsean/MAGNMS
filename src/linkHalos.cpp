@@ -580,11 +580,16 @@ int  writeFits( const std::string           fileName    ,  // File name to write
   }
   catch (FITS::CantCreate){  return -1; }
 
+  int axisNum =0;
+
+  if ( userInput.getIntegAxis() == 'x' ) axisNum = 1;
+  if ( userInput.getIntegAxis() == 'y' ) axisNum = 2;
+  if ( userInput.getIntegAxis() == 'z' ) axisNum = 3;
 
   // Add a header
-  ( *pFits ).pHDU().addKey("Catalog"   , userInput.getCatType()  , "Simulation catalog");
-  ( *pFits ).pHDU().addKey("FOV"       , userInput.getFOV()      , "Field of view, (h^{-1} Mpc)");
-//  ( *pFits ).pHDU().addKey("Integ axis", tempS                   , "Axis parallel to LOS");
+  ( *pFits ).pHDU().addKey("Catalog"   , userInput.getCatType()   , "Simulation catalog");
+  ( *pFits ).pHDU().addKey("FOV"       , userInput.getFOV()       , "Field of view, (h^{-1} Mpc)");
+  ( *pFits ).pHDU().addKey("Integ axis", axisNum                  , "Axis parallel to LOS");
 
   ( *pFits ).pHDU().addKey("X"       , halo.getX()  , "X coordinate of the halo, center of image");
   ( *pFits ).pHDU().addKey("Y"       , halo.getY()  , "Y coordinate of the halo, center of image");
