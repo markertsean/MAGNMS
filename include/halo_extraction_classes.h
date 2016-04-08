@@ -19,6 +19,16 @@ class inputInfo{
     void setParticleDir  ( std::string   inpS ) { particleDir     = inpS; }
     void setHeaderDir    ( std::string   inpS ) {   headerDir     = inpS; }
     void setCatType      ( std::string   inpS ) {   catType       = inpS; }
+
+    void setIntegAxis    ( char          inpC ) {  if ( inpC != 'x' &&
+                                                        inpC != 'y' &&
+                                                        inpC != 'z') {
+
+                                                      std::cout << "Unrecognized axis: " << inpC << std::endl;
+                                                      exit(1);
+                                                    }
+                                                   integAxis      = inpC; }
+
     void setMinMass      ( double        inpD ) {   minMass       = inpD; }
     void setMaxMass      ( double        inpD ) {   maxMass       = inpD; }
     void setRadiusMult   ( double        inpD ) {radiusMultiplier = inpD; }
@@ -55,6 +65,8 @@ class inputInfo{
     std::string   getHeaderDir     () const { return   headerDir      ; }
     std::string   getPartFileStart () const { return partFileStart    ; }
     std::string   getCatType       () const { return   catType        ; }
+
+    char          getIntegAxis     () const { return   integAxis      ; }
 
     double        getParticleMass  () const { return   particleMass   ; }
     double        getMinMass       () const { return        minMass   ; }
@@ -189,6 +201,7 @@ class inputInfo{
     std::string     catDir    ; // Directory of the halo catalog
     std::string     catName   ; // Name of the halo catalog
 
+    char           integAxis  ;
 
     // Halo restrictions imposed by user
     double          minMass    ; // Editable, minimum mass halo to use
@@ -253,6 +266,9 @@ inputInfo::inputInfo( ){
       catDir     = "";
       catName    = "";
       catType    = "MD";
+
+      integAxis  = 'z';
+
        minMass    =  1e15;
        maxMass    = -1.0 ;
  radiusMultiplier =  1.0 ;

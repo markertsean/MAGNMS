@@ -580,9 +580,11 @@ int  writeFits( const std::string           fileName    ,  // File name to write
   }
   catch (FITS::CantCreate){  return -1; }
 
+
   // Add a header
-  ( *pFits ).pHDU().addKey("Catalog" , userInput.getCatType(), "Simulation catalog");
-  ( *pFits ).pHDU().addKey("FOV"     , userInput.getFOV()    , "Field of view, (h^{-1} Mpc)");
+  ( *pFits ).pHDU().addKey("Catalog"   , userInput.getCatType()  , "Simulation catalog");
+  ( *pFits ).pHDU().addKey("FOV"       , userInput.getFOV()      , "Field of view, (h^{-1} Mpc)");
+//  ( *pFits ).pHDU().addKey("Integ axis", tempS                   , "Axis parallel to LOS");
 
   ( *pFits ).pHDU().addKey("X"       , halo.getX()  , "X coordinate of the halo, center of image");
   ( *pFits ).pHDU().addKey("Y"       , halo.getY()  , "Y coordinate of the halo, center of image");
@@ -593,6 +595,7 @@ int  writeFits( const std::string           fileName    ,  // File name to write
   ( *pFits ).pHDU().addKey("C"       , halo.getC()  ,      "Virial radius of the central halo (h^{-1}kpc)");
   ( *pFits ).pHDU().addKey("b/a"     , halo.getBA() ,   "Ratio of b to a axis of central halo");
   ( *pFits ).pHDU().addKey("c/a"     , halo.getCA() ,   "Ratio of c to a axis of central halo");
+
 
   // When doing this with an integration length, add to header
   if ( integLength > 0 )

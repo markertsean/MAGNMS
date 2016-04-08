@@ -46,6 +46,10 @@ bool readUserInput( std::string fileName, inputInfo &myInput ){
         myInput.setCatType     ( inpS  );
       }
 
+      else if ( strcmp( inpC1, "integAxis") == 0 ){
+        myInput.setIntegAxis   (*inpC2 );
+      }
+
       else if ( strcmp( inpC1, "minMass"     ) == 0 ){
         myInput.setMinMass     ( std::stod( inpS )  );
       }
@@ -194,6 +198,14 @@ unsigned long readCatalog( haloInfo      halos[] ,  //Stores data of halos
     }
   }
 
+  // If we are using a non-z axis, swap the coordinates
+  if ( N_halos > 0 && (*userInfo).getIntegAxis() != 'z' ){
+    for ( int i = 0; i < N_halos; ++i ){
+
+      integAxisSwap( &(halos[i]), (*userInfo).getIntegAxis() );
+    }
+  }
+
   return N_read;
 }
 
@@ -243,6 +255,7 @@ unsigned long readShortCat ( std::ifstream &inpFile   ,
       //halos array then allocated
       //Then run through and save those values
       if ( N_halos > 0 ){
+
         halos[ N_valid ].setX (  x );
         halos[ N_valid ].setY (  y );
         halos[ N_valid ].setZ (  z );
@@ -528,6 +541,38 @@ unsigned long readBigMultiDarkPlanck( std::string    inpFile   ,
 }
 
 
+
+// If the user wants us to integrate using a different axis than the z axis, swap the variables
+void integAxisSwap( haloInfo  *halo ,
+                    const char axis ){
+
+  if (      axis == 'z' ){
+    return;
+  }
+  else if ( axis == 'y' ){
+
+    float oldY;
+
+    oldY = (*halo).getY();
+           (*halo).setY( (*halo).getZ() );
+           (*halo).setZ(      oldY   );
+
+    return;
+  }
+  else if ( axis == 'x' ){
+
+    float oldX;
+
+    oldX = (*halo).getX();
+           (*halo).setX( (*halo).getZ() );
+           (*halo).setZ(         oldX   );
+
+    return;
+  }
+
+}
+
+
 //Writes short catalog for easy reading
 bool         writeShortCat ( std::ofstream &inpFile   ,
                              haloInfo         halos[] ,
@@ -716,9 +761,20 @@ long long readParticle( inputInfo userInfo, particlePosition *particles ){
 
       inputParticleFile >> x >> y >> z;
 
-      particles[i].x_pos = x;
-      particles[i].y_pos = y;
-      particles[i].z_pos = z;
+      if ( userInfo.getIntegAxis() == 'z' ){
+        particles[i].x_pos = x;
+        particles[i].y_pos = y;
+        particles[i].z_pos = z;
+      } else
+      if ( userInfo.getIntegAxis() == 'x' ){
+        particles[i].x_pos = z;
+        particles[i].y_pos = y;
+        particles[i].z_pos = x;
+      } else {
+        particles[i].x_pos = x;
+        particles[i].y_pos = z;
+        particles[i].z_pos = y;
+      }
 
       int readLines = 1e7;
       if (i%readLines==0)  printf("      Read %12i lines: %7.2f %7.2f %7.2f\n", i, x, y, z);
@@ -775,6 +831,9 @@ bool readHeader  ( inputInfo &userInfo ){
       inputHeaderFile >>   junk; // dBuffer
       inputHeaderFile >>   blah;
 
+
+      if (      userInfo.getIntegAxis() == 'z' ){ // Use z axis normally
+
       inputHeaderFile >>   junk; // Left x boundary
       inputHeaderFile >>   blah;
       userInfo.setXmin   ( blah );
@@ -798,6 +857,62 @@ bool readHeader  ( inputInfo &userInfo ){
       inputHeaderFile >>   junk; // Right z boundary
       inputHeaderFile >>   blah;
       userInfo.setZmax   ( blah );
+
+      }
+      else if ( userInfo.getIntegAxis() == 'y' ){  // Swaps y and z
+
+      inputHeaderFile >>   junk; // Left x boundary
+      inputHeaderFile >>   blah;
+      userInfo.setXmin   ( blah );
+
+      inputHeaderFile >>   junk; // Right x boundary
+      inputHeaderFile >>   blah;
+      userInfo.setXmax   ( blah );
+
+      inputHeaderFile >>   junk; // Left y boundary
+      inputHeaderFile >>   blah;
+      userInfo.setZmin   ( blah );
+
+      inputHeaderFile >>   junk; // Right y boundary
+      inputHeaderFile >>   blah;
+      userInfo.setZmax   ( blah );
+
+      inputHeaderFile >>   junk; // Left z boundary
+      inputHeaderFile >>   blah;
+      userInfo.setYmin   ( blah );
+
+      inputHeaderFile >>   junk; // Right z boundary
+      inputHeaderFile >>   blah;
+      userInfo.setYmax   ( blah );
+
+      }
+      else {                                       // Swap x and z
+
+      inputHeaderFile >>   junk; // Left x boundary
+      inputHeaderFile >>   blah;
+      userInfo.setZmin   ( blah );
+
+      inputHeaderFile >>   junk; // Right x boundary
+      inputHeaderFile >>   blah;
+      userInfo.setZmax   ( blah );
+
+      inputHeaderFile >>   junk; // Left y boundary
+      inputHeaderFile >>   blah;
+      userInfo.setYmin   ( blah );
+
+      inputHeaderFile >>   junk; // Right y boundary
+      inputHeaderFile >>   blah;
+      userInfo.setYmax   ( blah );
+
+      inputHeaderFile >>   junk; // Left z boundary
+      inputHeaderFile >>   blah;
+      userInfo.setXmin   ( blah );
+
+      inputHeaderFile >>   junk; // Right z boundary
+      inputHeaderFile >>   blah;
+      userInfo.setXmax   ( blah );
+
+      }
 
       inputHeaderFile >>   junk; // Number of particles
       inputHeaderFile >>   blahL;

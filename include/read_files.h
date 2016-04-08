@@ -34,6 +34,12 @@
                                         haloInfo         halos[] ,
                                         unsigned long  N_halos   );
 
+  // When integrating along a non z axis, swap coordinates on read in
+  void integAxisSwap( haloInfo  *halo ,
+                      const char axis );
+
+
+
   //Writes short catalog for easy reading
   bool         writeShortCat ( std::ofstream &inpFile   ,
                                haloInfo         halos[] ,
