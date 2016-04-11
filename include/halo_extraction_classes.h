@@ -126,7 +126,7 @@ class inputInfo{
       //Finds the last occurance of '.', which gives first file name
       int lastDot = catName.find_last_of(".");
 
-      if ( catType.compare( "BMD") == 0 ){
+      if ( catType.compare( "BMD") == 0 || catType.compare( "MDP") == 0 ){
         lastDot = ( catName.substr( 0, lastDot ) ).find_last_of(".");
       }
 
@@ -164,6 +164,17 @@ class inputInfo{
       NtotCell = (Nrx+1) * (Nry+1) * (Nrz+1);
 
       return true;
+    }
+
+    float getCatBoxSize(){
+      if ( catType.compare( "B"   ) == 0 || catType.compare(   "BP" ) == 0 ){
+        return  250.0;
+      }
+      if ( catType.compare( "MD"  ) == 0 || catType.compare(  "MDP" ) == 0 ){
+        return 1000.0;
+      }
+      // ( catType.compare( "BMD" ) == 0 || catType.compare( "BMDP" ) == 0 )
+        return 2500.0;
     }
 
 /*

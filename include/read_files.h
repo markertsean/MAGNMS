@@ -24,9 +24,9 @@
                                unsigned long  N_halos   );
 
   //Reads catalog with Multidark format
-  unsigned long readMultiDarkPlanck( std::ifstream &inpFile   ,
-                                     haloInfo         halos[] ,
-                                     unsigned long  N_halos   );
+  unsigned long    readMultiDarkPlanck( std::string    inpFile   ,
+                                        haloInfo         halos[] ,
+                                        unsigned long  N_halos   );
 
 
   //Reads catalog with BigMultiDark format

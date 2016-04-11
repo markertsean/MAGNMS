@@ -168,7 +168,6 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
   float cell = userInput.getCell();
   float FOV  = userInput.getFOV() ;
 
-
   double maxInteg        = userInput.getMaxIntegLength() / 2.0;                                     // Max distance to go on one side
   double    integStart   = userInput.getFOV() / 2.0;                                                // Starting value to integrate from, FOV/2
   int     N_integSteps   = ( log10( maxInteg ) - log10( integStart ) ) / userInput.getIntegStep() ; // Number of steps given our integration step size
@@ -179,6 +178,15 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
   // Populate the array with the integration lengths
   for ( int i = 0 ; i < N_integSteps ; ++i ){
     integLengths[i] = pow( 10, (i+1) * integStep  +  log10(integStart) );
+  }
+
+
+
+  // If we have the whole z axis, use periodic boundary conditions
+  short periodic = 0;
+  if ( userInput.getZmax() - zMin == userInput.getCatBoxSize() ){
+        periodic = 1;
+    std::cout<<"  Using periodic boundaries..." << std::endl;
   }
 
 
@@ -210,6 +218,17 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
     int zRightN = std::min( std::max( Nlz, int( ( z - zMin + maxInteg ) / cell + 1 ) ), Nrz );
 
 
+    if ( periodic==1 ){
+                        zLeftN =           int( ( z - zMin - maxInteg ) / cell - 1 )         ; // If loop out of bounds, it's alright
+                       zRightN =           int( ( z - zMin + maxInteg ) / cell + 1 )         ;
+
+      if ( zLeftN < 0 ) {
+         zLeftN =  zLeftN + Nrx + 1;  // If left side negative, need to add n nodes
+        zRightN = zRightN + Nrx + 1;  //  to both sides to make modulus work
+      }
+    }
+
+
     // Number of particles in each set
     long long    N_sphere(0);
     long long    N_box   (0);
@@ -220,6 +239,7 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
     // Maximum possible integration length for our halo
     double haloMaxInteg      = maxInteg;
     int    haloMaxIntegIndex = N_integSteps;
+
 
 
     // Find if there is an integ length that goes outside the box, keep looping until it's in
@@ -238,13 +258,15 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
       }
     }
 
+
+
     // Loop over cells possibly containing particles of our halo, and count
     //  the number that belong in each particle set
     for ( int xIndex = xLeftN; xIndex <= xRightN; ++xIndex ){
     for ( int yIndex = yLeftN; yIndex <= yRightN; ++yIndex ){
-    for ( int zIndex = zLeftN; zIndex <= zRightN; ++zIndex ){
+    for ( int zI     = zLeftN; zI     <= zRightN; ++zI     ){
 
-
+      int zIndex = zI % (Nrx+1);                         // Handles boundaries
 
       long cellIndex = xIndex +                          //Index for the cell for labellist
                        yIndex * Nrx +
@@ -324,9 +346,9 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
       //Loop over cells again to find indexes of particles
       for ( int xIndex = xLeftN; xIndex <= xRightN; ++xIndex ){
       for ( int yIndex = yLeftN; yIndex <= yRightN; ++yIndex ){
-      for ( int zIndex = zLeftN; zIndex <= zRightN; ++zIndex ){
+      for ( int zI     = zLeftN; zI     <= zRightN; ++zI     ){
 
-
+        int zIndex = zI % (Nrx+1);                         // Handles periodic boundaries
 
         long cellIndex = xIndex +                          //Index for the cell for labellist
                          yIndex * Nrx +
@@ -398,8 +420,9 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
     delete[] sphereIndexes, boxIndexes, integIndexes, integCounter;
     }     //If we found particles
     delete [] N_integ;
+//*/
   }       //Halo loop
-
+exit(0);
   delete [] integLengths;
 
 }

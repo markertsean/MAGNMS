@@ -80,7 +80,7 @@ int main( int arg, char ** argv ){
     int maxStrLength=400;
     char str[maxStrLength];
 
-    /*
+/*
     //If header directory exists, we use it
     //If not, create it
     sprintf( str, "mkdir %s", (userInput.getHeaderDir()).c_str() );
@@ -90,7 +90,7 @@ int main( int arg, char ** argv ){
       std::cout << " Writing directory: " << userInput.getHeaderDir() << std::endl;
       system(str);
     }
-    */
+//*/
 
     sprintf( str, "mkdir %s", (userInput.getParticleDir()).c_str() );
     if ( stat((userInput.getParticleDir()).c_str(), &sb) == 0 ){
@@ -211,14 +211,14 @@ int main( int arg, char ** argv ){
 
 
 /*
-std::cout << "Halo  memory: " <<  sizeof( haloInfo         ) * userInput.getNumHalos()     / (1e6) << " Mb" << std::endl;
-std::cout << "Part  memory: " <<  sizeof( particlePosition ) * userInput.getNumParticles() / (1e9) << " Gb" << std::endl;
-std::cout << "Link  memory: " <<  sizeof( long long        ) * userInput.getNumParticles() / (1e9) << " Gb" << std::endl;
-std::cout << "Label memory: " <<  sizeof( long long        ) * userInput.getNtotCell    () / (1e6) << " Mb" << std::endl;
-std::cout << "Total memory: " << (sizeof( long long        ) * userInput.getNtotCell    () +
-                                  sizeof( long long        ) * userInput.getNumParticles() +
-                                  sizeof( particlePosition ) * userInput.getNumParticles() +
-                                  sizeof( haloInfo         ) * userInput.getNumHalos()   ) / (1e9) << " Gb" << std::endl;
+  std::cout << "Halo  memory: " <<  sizeof( haloInfo         ) * userInput.getNumHalos()     / (1e6) << " Mb" << std::endl;
+  std::cout << "Part  memory: " <<  sizeof( particlePosition ) * userInput.getNumParticles() / (1e9) << " Gb" << std::endl;
+  std::cout << "Link  memory: " <<  sizeof( long long        ) * userInput.getNumParticles() / (1e9) << " Gb" << std::endl;
+  std::cout << "Label memory: " <<  sizeof( long long        ) * userInput.getNtotCell    () / (1e6) << " Mb" << std::endl;
+  std::cout << "Total memory: " << (sizeof( long long        ) * userInput.getNtotCell    () +
+                                    sizeof( long long        ) * userInput.getNumParticles() +
+                                    sizeof( particlePosition ) * userInput.getNumParticles() +
+                                    sizeof( haloInfo         ) * userInput.getNumHalos()   ) / (1e9) << " Gb" << std::endl;
 //*/
 
   //Make link list between particles
@@ -252,8 +252,8 @@ std::cout << "Total memory: " << (sizeof( long long        ) * userInput.getNtot
 
 
 /*
-std::cout << "Halo memory: " << sizeof( haloInfo         ) * userInput.getNumHalos()     / (1e3) << " Kb" << std::endl;
-std::cout << "Part memory: " << sizeof( particlePosition ) * userInput.getNumParticles() / (1e6) << " Mb" << std::endl;
+  std::cout << "Halo memory: " << sizeof( haloInfo         ) * userInput.getNumHalos()     / (1e3) << " Kb" << std::endl;
+  std::cout << "Part memory: " << sizeof( particlePosition ) * userInput.getNumParticles() / (1e6) << " Mb" << std::endl;
 //*/
 
 

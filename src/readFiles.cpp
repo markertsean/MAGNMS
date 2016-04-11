@@ -169,8 +169,7 @@ unsigned long readCatalog( haloInfo      halos[] ,  //Stores data of halos
   }
   else
   if ( ((*userInfo).getCatType()).compare(   "MDP" ) == 0 ){
-    std::cout << "  Reading file:        " << (*userInfo).getInputCatalog() << std::endl;
-    N_read = readMultiDarkPlanck( myFile, halos, N_halos );
+    N_read =    readMultiDarkPlanck( (*userInfo).getInputCatalog(), halos, N_halos );
   }
   else
   if ( ((*userInfo).getCatType()).compare(  "BMDP" ) == 0 ){
@@ -347,68 +346,126 @@ unsigned long readMultiDark( std::ifstream &inpFile   ,
 }
 
 
-unsigned long readMultiDarkPlanck( std::ifstream  &inpFile   ,
+unsigned long readMultiDarkPlanck( std::string     inpFile   ,
                                    haloInfo          halos[] ,
                                    unsigned long   N_halos   ){
 
-  //Skip the header of file
+
+
+  int         N_valid = 0;    // Number of lines read that we accept
+  bool      validFile = true; // Used to check if there are more files
+
+  std::string fileStart;      // Start to file, before number appendage
+  std::string   newFile;      // Stores the new file name
+  std::string     cFile;      // String form of initial file number
+
+  int     fileCounter(0);     // Keeps track of the file number
+  int     initCounter(0);     // Initial file number, should be 0 but might not be
+
+                                                                    // FILENAME.##.DAT
+  int   lastDot =  inpFile.                      find_last_of("."); // FILENAME.##. <- Locations
+  int secondDot = (inpFile.substr( 0, lastDot )).find_last_of("."); // FILENAME.    <-
+
+
+  fileStart     =  inpFile.substr( 0, secondDot + 1);     // FILENAME.
+  cFile         =  inpFile.substr(    secondDot + 1, 2 ); // ##
+
+  initCounter   = stoi( cFile ); // Value of the ##
+
+
+  // Open the ifstream
+  std::ifstream myFile;
+
+  myFile.open(inpFile,std::ifstream::in);
+
+  // Skip the header of file
   int headerLength = 17;
   {
     std::string junk;
     for (int i=0;i<headerLength;++i)
-      std::getline(inpFile, junk);
+      std::getline(myFile, junk);
   }
 
 
-  std::string str;  //The read in line
-  std::string junk; //For stuff we don't need
 
-  float   x, y, z, M, R, C, N, ba, ca, xa, ya, za;
-  long id;
-  long ds;
+  do{
 
-  int N_valid = 0;
+    std::cout << "  Reading file: " << inpFile << std::endl;
 
-  while ( std::getline( inpFile, str ) ){
+    std::string str;  //The read in line
+    std::string junk; //For stuff we don't need
 
-    std::stringstream line( str );
-    // x, y, z coordinate
-    line >>    x;    line >>    y;     line >>    z;    line >> junk;    line >> junk;     line >> junk;    line >> junk;
+    float   x, y, z, M, R, C, N, ba, ca, xa, ya, za;
+    long   id;
+    long   ds;
 
-    //M_tot, R_vir
-    line >>    M;    line >>    R;    line >> junk;    line >> junk;
+    while ( std::getline( myFile, str ) ){
 
-    // halo id number, Concentration, Number of halo, distinct/sub,
-    line >>   id;    line >>    C;    line >>    N;    line >>   ds;    line >> junk;    line >> junk;    line >> junk;    line >> junk;
+      std::stringstream line( str );
+      // x, y, z coordinate
+      line >>    x;    line >>    y;     line >>    z;    line >> junk;    line >> junk;     line >> junk;    line >> junk;
 
-    // axis b/a ratio, c/a ratio, x axis, y axis, z axis
-    line >>   ba;    line >>   ca;    line >> junk;    line >> junk;    line >> junk;
+      //M_tot, R_vir
+      line >>    M;    line >>    R;    line >> junk;    line >> junk;
 
-    //Test if halo is distinct and in mass range
-    if ( validHalo ( M, ds ) ){
+      // halo id number, Concentration, Number of halo, distinct/sub,
+      line >>   id;    line >>    C;    line >>    N;    line >>   ds;    line >> junk;    line >> junk;    line >> junk;    line >> junk;
 
-      //Can only occur on second run
-      //First run returns number of valid halos
-      //halos array then allocated
-      //Then run through and save those values
-      if ( N_halos > 0 ){
-        halos[ N_valid ].setX (  x );
-        halos[ N_valid ].setY (  y );
-        halos[ N_valid ].setZ (  z );
-        halos[ N_valid ].setC (  C );
-        halos[ N_valid ].setM (  M );
-        halos[ N_valid ].setN (  N );
-        halos[ N_valid ].setRm(  R );
-        halos[ N_valid ].setID( id );
-        halos[ N_valid ].setBA( ba );
-        halos[ N_valid ].setCA( ca );
-        halos[ N_valid ].setDistinct( ds );
-      }
+      // axis b/a ratio, c/a ratio, x axis, y axis, z axis
+      line >>   ba;    line >>   ca;    line >> junk;    line >> junk;    line >> junk;
 
-      ++N_valid;
+      //Test if halo is distinct and in mass range
+      if ( validHalo ( M, ds ) ){
+
+        //Can only occur on second run
+        //First run returns number of valid halos
+        //halos array then allocated
+        //Then run through and save those values
+        if ( N_halos > 0 ){
+          halos[ N_valid ].setX (  x );
+          halos[ N_valid ].setY (  y );
+          halos[ N_valid ].setZ (  z );
+          halos[ N_valid ].setC (  C );
+          halos[ N_valid ].setM (  M );
+          halos[ N_valid ].setN (  N );
+          halos[ N_valid ].setRm(  R );
+          halos[ N_valid ].setID( id );
+          halos[ N_valid ].setBA( ba );
+          halos[ N_valid ].setCA( ca );
+          halos[ N_valid ].setDistinct( ds );
+        }
+
+        ++N_valid;
+      }// Test validity
+
+    }  // File loop
+
+
+
+    myFile.close(); // Close previous file
+
+
+    // FILENAME.00.DAT - > FILENAME.01.DAT, just increment the number of the files
+
+    ++fileCounter;
+    char temp[100];
+    sprintf(temp, "%s%02i.DAT", fileStart.c_str(), fileCounter+initCounter);
+    inpFile = temp;
+
+
+    // Attempt to open the new file
+    myFile.open(inpFile,std::ifstream::in);
+
+
+    // If we can't open, leave the loop
+    if ( myFile.good() != 1 ){
+      validFile = false;
     }
 
-  }
+
+  } while ( validFile );    // Loop over files
+
+  myFile.close();
 
   return N_valid;
 
