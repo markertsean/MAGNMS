@@ -10,7 +10,7 @@ module setarrs
   integer*4                                       :: jstep                ! For loops
   integer*4                                       :: ntot, nrecord        ! Number of things
   integer*4                                       :: dirpathlength
-
+  integer*4                                       :: PMssFirst, PMssLast  ! First and last values for PMss Files
 
   real*4                                        :: xl, xr, yl, yr, zl, zr, dbuffer  ! Boundaries
   real*4                                        :: aexpn, om0, oml0, hubble, ovdens ! Cosmology
@@ -41,7 +41,7 @@ subroutine readconfig
 
   found = .false.
 
-  do jfile = 1, maxdomains
+  do jfile = PMssFirst, PMssLast
 
      !File to attempt to open, if it exists, read data
      write(name,formatstr) dirpath,'PMss.snap_',jstep,'.',jfile,'.DAT'
@@ -119,11 +119,11 @@ end module setarrs
 !jstep is snapshot number
 !filestart is something like ../data/Part. and is used to write out files
 !filestartlength is the length of filestart, needed to get the format for the name variable right. Was having issues opening without this
-integer*8 function readpmss( initjstep, filestart, filestartlength )
+integer*8 function readpmss( initjstep, filestart, filestartlength, firstPMss, lastPMss )
 
   use setarrs
 
-  integer*4,    intent(in) :: initjstep, filestartlength
+  integer*4,    intent(in) :: initjstep, filestartlength, firstPMss, lastPMss
   character*60, intent(in) :: filestart
 
   integer*4 :: i0,j0, k0
@@ -132,12 +132,12 @@ integer*8 function readpmss( initjstep, filestart, filestartlength )
   character*80 :: particle_name, header_name
 
 
-
-
   ! Save input variables to common block, configure common block variables
   jstep         = initjstep
   dirpath       = filestart
   dirpathlength = filestartlength
+  PMssFirst     = firstPMss
+  PMssLast      =  lastPMss
 
   ! Creates write statement for output file names, using length of filestart
   if (filestartlength.ge.10) then
@@ -236,7 +236,7 @@ function readfile( i0, j0, k0, totparticles )
   real*8        :: xxl, xxr, yyl, yyr, zzl, zzr, dB
 
   character*100 :: name
-  logical       :: ext,found, inside
+  logical       :: ext,found, inside, validNode
 
 
   real*4,    allocatable, dimension(:) :: Xb, Yb, Zb, Vxb, Vyb, Vzb
@@ -247,12 +247,14 @@ function readfile( i0, j0, k0, totparticles )
   nin    = 0
   icount = 0
 
+  validNode = ( node.lt.PMssLast).and.( node.gt.PMssfirst)
+
   !File to attempt to open, if it exists, read data
   write(name,formatstr) dirpath,'PMss.snap_',jstep,'.',node,'.DAT'
 
 
   inquire(file=trim(name),exist =ext)
-  if(ext)then
+  if(ext.and.validNode)then
 
     write(*,*) "  Reading file: ",name
 

@@ -49,6 +49,8 @@ class inputInfo{
     void setNPixelsV     ( int           inpI ) {   N_pixels_v    = inpI; }
     void setIntegLength  ( double        inpF ) {  maxIntegLength = inpF; }
     void setIntegStep    ( double        inpF ) {     integStep   = inpF; }
+    void setPMssFirstNum ( int           inpI ) { PMssFirstFileNum= inpI; }
+    void setPMssLastNum  ( int           inpI ) { PMssLastFileNum = inpI; }
 
     void setAexpn        ( float         inpF ) {  aexpn          = inpF; }
     void setHubble       ( float         inpF ) {  hubble         = inpF; }
@@ -78,6 +80,7 @@ class inputInfo{
     short         getUsingShort    () const { return   usingShort     ; }
     short         getSnapNum       () const { return   snapshotNum    ; }
 
+
     unsigned long getNumHalos      () const { return   numHalos       ; }
     long     long getNumParticles  () const { return   numParticles   ; }
 
@@ -99,6 +102,9 @@ class inputInfo{
 
     int           getNPixlesH      () const { return   N_pixels_h     ; }
     int           getNPixelsV      () const { return   N_pixels_v     ; }
+
+    int           getPMssFirstNum  () const { return PMssFirstFileNum ; }
+    int           getPMssLastNum   () const { return PMssLastFileNum  ; }
 
     double        getMaxIntegLength() const { return   maxIntegLength ; }
     double        getIntegStep     () const { return      integStep   ; }
@@ -212,7 +218,6 @@ class inputInfo{
     std::string     catDir    ; // Directory of the halo catalog
     std::string     catName   ; // Name of the halo catalog
 
-    char           integAxis  ;
 
     // Halo restrictions imposed by user
     double          minMass    ; // Editable, minimum mass halo to use
@@ -261,6 +266,20 @@ class inputInfo{
     float om_o;
     float om_l;
     float hubble;
+
+
+
+    ///////////////////////////////////////
+    ///////////////////////////////////////
+    //////        NEW           ///////////
+    ///////////////////////////////////////
+    ///////////////////////////////////////
+
+
+    char           integAxis  ;
+    int      PMssFirstFileNum ;
+    int      PMssLastFileNum  ;
+
 
 };
 
@@ -324,6 +343,10 @@ inputInfo::inputInfo( ){
        hubble = 0;
          om_o = 0;
          om_l = 0;
+
+  PMssFirstFileNum = -1;
+  PMssLastFileNum = -1;
+
 }
 
 
@@ -395,6 +418,11 @@ particlePosition::particlePosition(){
 }
 
 
-extern "C" long long readpmss_( int *jstep, char *filestart, int *filestartlength );
+// Fortran function for reading PMss
+extern "C" long long readpmss_( int  *jstep          , // Snapshot num
+                                char *filestart      , // Part of the file name
+                                int  *filestartlength, // Length of filestart
+                                int  *firstPMss      , // First PMssFile Blah.0081.firstPMss.DAT
+                                int  *lastPMss       );// Last ^
 
 #endif // HE_CLASSES

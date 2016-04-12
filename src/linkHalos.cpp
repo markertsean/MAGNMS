@@ -147,7 +147,7 @@ void makeLinkList( const inputInfo          userInfo ,   //Contains the global i
 
 
 
-//Matches halos with particles, and calls write functions
+// Matches halos with particles, and calls write functions
 void linkHaloParticles(              inputInfo   userInput ,  // Info from the user
                         const         haloInfo      *halos ,  // The halo information
                         const particlePosition  *particles ,  // Position of the particles

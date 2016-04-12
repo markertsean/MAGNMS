@@ -85,6 +85,13 @@ bool readUserInput( std::string fileName, inputInfo &myInput ){
         myInput.setNPixelsV    ( std::stoi( inpS )  );
       }
 
+      else if ( strcmp( inpC1, "PMssFirst"  ) == 0 ){
+        myInput.setPMssFirstNum( std::stoi( inpS )  );
+      }
+      else if ( strcmp( inpC1, "PMssLast"   ) == 0 ){
+        myInput.setPMssLastNum ( std::stoi( inpS )  );
+      }
+
     }
   }
   //If file doesn't open, throw error
@@ -775,10 +782,10 @@ long long setPartFile( inputInfo &userInput ) { //All the user input
   else{
 
     char tempC[60];                                           //For passing begining of file name to the fortran function
-                                                                // if blank, just uses current file directory
+                                                              // if blank, just uses current file directory
     strcpy(tempC, partFileStart.c_str());                     //Copy the string to the char array
     int fileNameLength = partFileStart.length();              //Length of the particle file name, needed for
-                                                                // fortran format string
+                                                              // fortran format string
     /*
       readpmss reads the fortran unformatted binary file for the particles
       file name from the snapshop
@@ -790,7 +797,13 @@ long long setPartFile( inputInfo &userInput ) { //All the user input
       and then scan used halo catalog for the acceptance criteria
       Also, it returns the number of particles in the file
     */
-    numParticles = readpmss_( &snapNum, tempC, &fileNameLength );
+    int firstPMssNum =    1;
+    int  lastPMssNum = 2048;
+
+    if ( userInput.getPMssFirstNum() != -1 ) firstPMssNum = userInput.getPMssFirstNum(); // If user specified, use specific file number extensions
+    if ( userInput.getPMssLastNum()  != -1 )  lastPMssNum = userInput.getPMssLastNum() ;
+
+    numParticles = readpmss_( &snapNum, tempC, &fileNameLength, &firstPMssNum, &lastPMssNum );
 
     userInput.setInputPart( testPartFile );
     userInput.setInputHead( testHeadFile );
