@@ -247,7 +247,7 @@ function readfile( i0, j0, k0, totparticles )
   nin    = 0
   icount = 0
 
-  validNode = ( node.lt.PMssLast).and.( node.gt.PMssfirst)
+  validNode = ( node.le.PMssLast).and.( node.ge.PMssfirst)
 
   !File to attempt to open, if it exists, read data
   write(name,formatstr) dirpath,'PMss.snap_',jstep,'.',node,'.DAT'
