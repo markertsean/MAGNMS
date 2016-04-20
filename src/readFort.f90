@@ -256,12 +256,7 @@ function readfile( i0, j0, k0, totparticles )
   inquire(file=trim(name),exist =ext)
   if(ext.and.validNode)then
 
-    write(*,*) "  Reading file: ",name
-
-    allocate(  Xb(nrecord),  Yb(nrecord),  Zb(nrecord) )
-    allocate( Vxb(nrecord), Vyb(nrecord), Vzb(nrecord) )
-    allocate(  Ib(Nrecord))
-
+     write(*,*) "  Reading file: ",name
 
      ! Reads header info from file
      open(1,file=trim(Name),form='unformatted')
@@ -288,14 +283,22 @@ function readfile( i0, j0, k0, totparticles )
      dbuffer = dbuffer1
      nbuffer = anbuffer1
 
+
      do
         read(1,iostat=ierr)nrecord         ! number of particles in this record
         if(ierr/=0)exit
 
+        allocate(  Xb(nrecord),  Yb(nrecord),  Zb(nrecord) )
+        allocate( Vxb(nrecord), Vyb(nrecord), Vzb(nrecord) )
+        allocate(  Ib(Nrecord))
+
+
         nin  = nin  + nrecord
+
 
         read(1)(  Xb(m),  Yb(m),  Zb(m), &
                  Vxb(m), Vyb(m), Vzb(m), Ib(m), m=1, Nrecord)
+
 
           do i=1,nrecord
 
@@ -320,14 +323,16 @@ function readfile( i0, j0, k0, totparticles )
             endif ! inside
 
           enddo ! nrecord loop
+
+        deallocate(  xb,  yb,  zb)
+        deallocate( vxb, vyb, vzb)
+        deallocate(  Ib )
+
      enddo      ! read record loop
      close(1)
 
      if(nin /= ntot)stop ' -- Wrong number of particles --'
 
-    deallocate(  xb,  yb,  zb)
-    deallocate( vxb, vyb, vzb)
-    deallocate(  Ib )
 
   endif ! File exists
 
