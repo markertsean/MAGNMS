@@ -210,7 +210,7 @@ int main( int arg, char ** argv ){
   std::cout << " Generating link list..." << std::endl;
 
 
-/*
+
   std::cout << "Halo  memory: " <<  sizeof( haloInfo         ) * userInput.getNumHalos()     / (1e6) << " Mb" << std::endl;
   std::cout << "Part  memory: " <<  sizeof( particlePosition ) * userInput.getNumParticles() / (1e9) << " Gb" << std::endl;
   std::cout << "Link  memory: " <<  sizeof( long long        ) * userInput.getNumParticles() / (1e9) << " Gb" << std::endl;
@@ -251,7 +251,7 @@ int main( int arg, char ** argv ){
   std::cout << " Done."       << std::endl  << std::endl;
 
 
-/*
+
   std::cout << "Halo memory: " << sizeof( haloInfo         ) * userInput.getNumHalos()     / (1e3) << " Kb" << std::endl;
   std::cout << "Part memory: " << sizeof( particlePosition ) * userInput.getNumParticles() / (1e6) << " Mb" << std::endl;
 //*/
