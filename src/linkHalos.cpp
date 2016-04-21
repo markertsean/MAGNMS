@@ -223,8 +223,8 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
                        zRightN =           int( ( z - zMin + maxInteg ) / cell + 1 )         ;
 
       if ( zLeftN < 0 ) {
-         zLeftN =  zLeftN + Nrx + 1;  // If left side negative, need to add n nodes
-        zRightN = zRightN + Nrx + 1;  //  to both sides to make modulus work
+          zLeftN =   zLeftN + Nrz + 1;  // If left side negative, need to add n nodes to each side
+         zRightN =  zRightN + Nrz + 1;
       }
     }
 
@@ -246,7 +246,8 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
     for ( int j = N_integSteps-1; j >= 0 ; --j ){
       N_integ[j] = 0;
 
-      if ( ( z + integLengths[j] ) > userInput.getZmax() || // If an integration length is outside the box
+      if ( ( periodic !=1 )                              && (
+           ( z + integLengths[j] ) > userInput.getZmax() || // If an integration length is outside the box, and not periodic
            ( z - integLengths[j] ) < userInput.getZmin() ){
         if ( j > 0 ){
           haloMaxInteg      = integLengths[j-1];
@@ -266,7 +267,7 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
     for ( int yIndex = yLeftN; yIndex <= yRightN; ++yIndex ){
     for ( int zI     = zLeftN; zI     <= zRightN; ++zI     ){
 
-      int zIndex = zI % (Nrx+1);                         // Handles boundaries
+      int zIndex = zI % (Nrz+1);                         // Handles boundaries
 
       long cellIndex = xIndex +                          //Index for the cell for labellist
                        yIndex * Nrx +
@@ -348,7 +349,7 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
       for ( int yIndex = yLeftN; yIndex <= yRightN; ++yIndex ){
       for ( int zI     = zLeftN; zI     <= zRightN; ++zI     ){
 
-        int zIndex = zI % (Nrx+1);                         // Handles periodic boundaries
+        int zIndex = zI % (Nrz+1);                         // Handles periodic boundaries
 
         long cellIndex = xIndex +                          //Index for the cell for labellist
                          yIndex * Nrx +
