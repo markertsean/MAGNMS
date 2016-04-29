@@ -846,7 +846,7 @@ long long readParticle( inputInfo userInfo, particlePosition *particles ){
         particles[i].z_pos = y;
       }
 
-      int readLines = 1e7;
+      int readLines = 5e7;
       if (i%readLines==0)  printf("      Read %12i lines: %7.2f %7.2f %7.2f\n", i, x, y, z);
 
       ++counter;
