@@ -423,7 +423,7 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
     delete [] N_integ;
 //*/
   }       //Halo loop
-exit(0);
+
   delete [] integLengths;
 
 }
