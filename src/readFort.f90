@@ -12,11 +12,10 @@ module setarrs
   integer*4                                       :: dirpathlength
   integer*4                                       :: PMssFirst, PMssLast  ! First and last values for PMss Files
 
-  real*4                                        :: xl, xr, yl, yr, zl, zr, dbuffer  ! Boundaries
+  real*4                                        :: xl=0, xr=0, yl=0, yr=0, zl=0, zr=0, dbuffer  ! Boundaries
   real*4                                        :: aexpn, om0, oml0, hubble, ovdens ! Cosmology
   real*4                                        :: box, massone                     ! Simulation
   real*4,                Dimension(MaxDomains) :: xLeft,xRight, yLeft,yRight,zLeft,zRight
-  real*4,                DIMENSION(MaxDomains) :: Xmm,Xmx, Ymm,Ymx, Zmm,Zmx
   real*4,  ALLOCATABLE, DIMENSION(:)          :: Xp, Yp, Zp
 
 
@@ -30,6 +29,7 @@ subroutine readconfig
   character*80 :: name
   logical      :: ext, found
   real*4       :: qx, qy, qz
+  integer*4    :: fileIndex
 
   !Creates write statement for file name, using length of dirpath
   if (dirpathlength.ge.10) then
@@ -49,6 +49,8 @@ subroutine readconfig
      Inquire(file=name,exist =ext)
 
      If(ext)Then
+
+        fileIndex = jfile
 
         open(1,file=name,form='unformatted')
         read(1) aexpn,om0,oml0,hubble,box,massone
@@ -101,13 +103,13 @@ subroutine readconfig
     zRight(i) =   i       * qz
   end do
 
-  ! Initializing the arrays
-   Xmm(:) =  1.e8
-   Xmx(:) = -1.e8
-   Ymm(:) =  1.e8
-   Ymx(:) = -1.e8
-   Zmm(:) =  1.e8
-   Zmx(:) = -1.e8
+
+  xl =  xLeft( fileIndex )
+  xr = xRight( fileIndex )
+  yl =  yLeft( fileIndex )
+  yr = yRight( fileIndex )
+  zl =  zLeft( fileIndex )
+  zr = zRight( fileIndex )
 
 
 end subroutine readconfig
@@ -163,6 +165,8 @@ integer*8 function readpmss( initjstep, filestart, filestartlength, firstPMss, l
   totParticles = 0
 
 
+
+
   do k0=1,nz
   do j0=1,ny
   do i0=1,nx
@@ -172,22 +176,8 @@ integer*8 function readpmss( initjstep, filestart, filestartlength, firstPMss, l
   enddo ! k
 
 
-  ! Find the max boundaries of the box
-  do i0=1, maxdomains
-    xl = floor(   min( xl, xmm(i0) ) )
-    yl = floor(   min( yl, ymm(i0) ) )
-    zl = floor(   min( zl, zmm(i0) ) )
-    xr = ceiling( max( xr, xmx(i0) ) )
-    yr = ceiling( max( yr, ymx(i0) ) )
-    zr = ceiling( max( zr, zmx(i0) ) )
-  enddo
 
-  xl = xl + dbuffer
-  yl = yl + dbuffer
-  zl = zl + dbuffer
-  xr = xr - dbuffer
-  yr = yr - dbuffer
-  zr = zr - dbuffer
+
 
   write(*,*) ' Total Number of particles =',totparticles
   close(2)
@@ -267,6 +257,11 @@ function readfile( i0, j0, k0, totparticles )
      if(node1 /= node)stop '-- Error in Header --'
 
 
+     node    = node1
+     dbuffer = dbuffer1
+     nbuffer = anbuffer1
+
+
      xxl =  xLeft( i0 )
      xxr = xRight( i0 )
      yyl =  yLeft( j0 )
@@ -274,14 +269,15 @@ function readfile( i0, j0, k0, totparticles )
      zzl =  zLeft( k0 )
      zzr = zRight( k0 )
 
+     xl =  min( xl, xxl )
+     yl =  min( yl, yyl )
+     zl =  min( zl, zzl )
+     xr =  max( xr, xxr )
+     yr =  max( yr, yyr )
+     zr =  max( zr, zzr )
 
      write(*,'(5x,a,i5,3x,a,3(2f8.2,2x),3x,a,i10)') 'node= ',node1, &
               'limits= ',xxl,xxr,yyl,yyr,zzl,zzr,' Ntotal in node=',ntot
-
-
-     node    = node1
-     dbuffer = dbuffer1
-     nbuffer = anbuffer1
 
 
      do
@@ -309,14 +305,6 @@ function readfile( i0, j0, k0, totparticles )
 
             if( inside ) then
               icount = icount + 1
-
-              Xmm( node ) = min( xb(m), Xmm(node) )
-              Xmx( node ) = max( xb(m), Xmx(node) )
-              Ymm( node ) = min( yb(m), Ymm(node) )
-              Ymx( node ) = max( yb(m), Ymx(node) )
-              Zmm( node ) = min( zb(m), Zmm(node) )
-              Zmx( node ) = max( zb(m), Zmx(node) )
-
 
               write(2,'(3f12.6)') Xb(i), Yb(i), Zb(i)
 
