@@ -248,7 +248,7 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
 
       if ( ( periodic !=1 )                              && (
            ( z + integLengths[j] ) > userInput.getZmax() || // If an integration length is outside the box, and not periodic
-           ( z - integLengths[j] ) < userInput.getZmin() ){
+           ( z - integLengths[j] ) < userInput.getZmin() )){
         if ( j > 0 ){
           haloMaxInteg      = integLengths[j-1];
           haloMaxIntegIndex = j-1;
