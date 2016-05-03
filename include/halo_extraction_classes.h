@@ -5,6 +5,21 @@
 #ifndef HE_CLASSES
 #define HE_CLASSES
 
+
+
+// Log file name
+extern std::string logFileName;
+
+// Generates log files, printing text to file
+inline void logMessage( const std::string &text ){
+
+    std::ofstream log_file(  logFileName, std::ios_base::out | std::ios_base::app );
+    log_file << text << std::endl;
+
+}
+
+
+
 class inputInfo{
 
   public:
@@ -425,17 +440,6 @@ extern "C" long long readpmss_( int  *jstep          , // Snapshot num
                                 int  *filestartlength, // Length of filestart
                                 int  *firstPMss      , // First PMssFile Blah.0081.firstPMss.DAT
                                 int  *lastPMss       );// Last ^
-
-// Log file name
-extern std::string logFileName;
-
-// Generates log files, printing text to file
-inline void logMessage( const std::string &text ){
-
-    std::ofstream log_file(  logFileName, std::ios_base::out | std::ios_base::app );
-    log_file << text << std::endl;
-
-}
 
 
 #endif // HE_CLASSES

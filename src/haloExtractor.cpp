@@ -77,17 +77,22 @@ int main( int arg, char ** argv ){
   //////////////////////////////////////
 
 
-  //Stores the user input from the input file
+  // Stores the user input from the input file
   inputInfo userInput;
 
-  //User can specify input file via command line, default: extractInfo.dat
+  // User can specify input file via command line, default: extractInfo.dat
   if ( arg > 1 ){
     userInput.setReadFile( argv[1] );
   }
+
+
   printf("\n Using input file: %s\n", (userInput.getReadFile()).c_str());
 
+  logMessage( std::string("Input file: ") +
+                  userInput.getReadFile() );
 
-  //Attempts to read the input file, and displays the resultant info
+
+  // Attempts to read the input file, and displays the resultant info
   if ( readUserInput( userInput.getReadFile(), userInput ) ){
 
     printf("  Halo Catalog       : %s\n  Particle File      : %s\n  Mass map Directory : %s\n\n",
@@ -99,6 +104,9 @@ int main( int arg, char ** argv ){
   else {
 
     printf("Error in reading input file, aborting\n\n");
+
+    logMessage( "Aborting" );
+
     exit(1);
 
   }
@@ -127,11 +135,14 @@ int main( int arg, char ** argv ){
 
     sprintf( str, "mkdir %s", (userInput.getParticleDir()).c_str() );
     if ( stat((userInput.getParticleDir()).c_str(), &sb) == 0 ){
-      std::cout << "  Found directory    : " << userInput.getParticleDir() << std::endl;;
+      std::cout << "  Found directory    : " << userInput.getParticleDir() << std::endl;
     } else {
       std::cout << "  Writing directory  : " << userInput.getParticleDir() << std::endl;
       system(str);
     }
+
+    logMessage( std::string("Using particle directory: ") +
+                std::string( userInput.getParticleDir() ));
 
     printf("\n\n");
   }
@@ -145,7 +156,7 @@ int main( int arg, char ** argv ){
       std::cout << " Attempting to read halo catalog..." << std::endl;
 
 
-  //Read the number of valid halos, for allocation
+  // Read the number of valid halos, for allocation
   unsigned long N_halos =0;
   {
     haloInfo myHalos[2];
@@ -153,8 +164,11 @@ int main( int arg, char ** argv ){
     printf("\n Number of valid halos: %lu\n",N_halos);
   }
 
+// LOGS THROUGH HERE
+
   haloInfo *myHalos = new haloInfo[N_halos];
     printf(" Allocated %lu halos\n",N_halos);
+
 
   {
     unsigned long old_N_halos = N_halos;
@@ -164,6 +178,7 @@ int main( int arg, char ** argv ){
       exit(1);
     }
   }
+
   userInput.setNumHalos( N_halos );
 
 

@@ -29,74 +29,138 @@ bool readUserInput( std::string fileName, inputInfo &myInput ){
 
       if      ( strcmp( inpC1, "haloFile" ) == 0 ){
         myInput.setInputCatalog( inpS  );
+
+        logMessage( std::string("haloFile=")+ inpS);
+
       }
       else if ( strcmp( inpC1, "partFile" ) == 0 ){
         myInput.setInputPart   ( inpS  );
+
+        logMessage( std::string("partFile=")+ inpS);
+
       }
       else if ( strcmp( inpC1, "headFile" ) == 0 ){
         myInput.setInputHead   ( inpS  );
+
+        logMessage( std::string("headFile=")+ inpS);
+
       }
       else if ( strcmp( inpC1, "partDir"  ) == 0 ){
         myInput.setParticleDir ( inpS  );
+
+        logMessage( std::string("partDir=")+ inpS);
+
       }
       else if ( strcmp( inpC1, "headDir"  ) == 0 ){
         myInput.setHeaderDir   ( inpS  );
+
+        logMessage( std::string("headDir=")+ inpS);
+
       }
       else if ( strcmp( inpC1, "catType"  ) == 0 ){
         myInput.setCatType     ( inpS  );
+
+        logMessage( std::string("catType=")+ inpS);
+
       }
 
       else if ( strcmp( inpC1, "integAxis") == 0 ){
         myInput.setIntegAxis   (*inpC2 );
+
+        logMessage( std::string("integAxis=")+ inpS);
+
       }
 
       else if ( strcmp( inpC1, "minMass"     ) == 0 ){
         myInput.setMinMass     ( std::stod( inpS )  );
+
+        logMessage( std::string("minMass=")+ inpS);
+
       }
       else if ( strcmp( inpC1, "maxMass"     ) == 0 ){
         myInput.setMaxMass     ( std::stod( inpS )  );
+
+        logMessage( std::string("maxMass=")+ inpS);
+
       }
       else if ( strcmp( inpC1, "rMult"       ) == 0 ){
         myInput.setRadiusMult  ( std::stod( inpS )  );
+
+        logMessage( std::string("rMult=")+ inpS);
+
       }
       else if ( strcmp( inpC1, "rConv"       ) == 0 ){
         myInput.setRadiusConvert( std::stod( inpS )  );
+
+        logMessage( std::string("rConv=")+ inpS);
+
       }
       else if ( strcmp( inpC1, "FOV"         ) == 0 ){
         myInput.setFOV         ( std::stod( inpS )  );
+
+        logMessage( std::string("FOV=")+ inpS);
+
       }
       else if ( strcmp( inpC1, "integLength" ) == 0 ){
         myInput.setIntegLength ( std::stod( inpS )  );
+
+        logMessage( std::string("integLength=")+ inpS);
+
       }
       else if ( strcmp( inpC1, "integStep"   ) == 0 ){
         myInput.setIntegStep   ( std::stod( inpS )  );
+
+        logMessage( std::string("integStep=")+ inpS);
+
       }
 
       else if ( strcmp( inpC1, "useShortCatalog" ) == 0 ){
         myInput.setShortCat    ( std::stoi( inpS )  );
+
+        logMessage( std::string("useShortCatalog=")+ inpS);
+
       }
       else if ( strcmp( inpC1, "snapNum"    ) == 0 ){
         myInput.setSnapNum     ( std::stoi( inpS )  );
+
+        logMessage( std::string("snapNum=")+ inpS);
+
       }
       else if ( strcmp( inpC1, "N_pixels_h" ) == 0 ){
         myInput.setNPixelsH    ( std::stoi( inpS )  );
+
+        logMessage( std::string("N_pixels_h=")+ inpS);
+
       }
       else if ( strcmp( inpC1, "N_pixels_v" ) == 0 ){
         myInput.setNPixelsV    ( std::stoi( inpS )  );
+
+        logMessage( std::string("N_pixels_v=")+ inpS);
+
       }
 
       else if ( strcmp( inpC1, "PMssFirst"  ) == 0 ){
         myInput.setPMssFirstNum( std::stoi( inpS )  );
+
+        logMessage( std::string("PMssFirst=")+ inpS);
+
       }
       else if ( strcmp( inpC1, "PMssLast"   ) == 0 ){
         myInput.setPMssLastNum ( std::stoi( inpS )  );
+
+        logMessage( std::string("PMssLast=")+ inpS);
+
       }
 
     }
   }
-  //If file doesn't open, throw error
+  // If file doesn't open, throw error
   else {
     std::cout << "Could not open input file: " << fileName << std::endl;
+
+    logMessage( std::string("Error opening input file") );
+
+
     return false;
   }
 
@@ -105,6 +169,9 @@ bool readUserInput( std::string fileName, inputInfo &myInput ){
   if ( myInput.getInputCatalog() == "" || myInput.getInputPart() == "" ){
     printf("Missing required input files:\n   Halo catalog (haloFile) = %s\n   Particle file (partFile) = %s\n\n",
           (myInput.getInputCatalog()).c_str(),(myInput.getInputPart()).c_str());
+
+    logMessage( std::string("Missing either halo catalog or particle file") );
+
     return false;
   }
 
@@ -125,68 +192,118 @@ unsigned long readCatalog( haloInfo      halos[] ,  //Stores data of halos
 
   unsigned long N_halosInit = N_halos;
 
-  //Generate short catalog name, based on input catalogs and flags
+  // Generate short catalog name, based on input catalogs and flags
   int lastDot = ((*userInfo).getInputCatalog()).find_last_of(".");
   std::string shortCat = ((*userInfo).getInputCatalog()).substr( 0, lastDot + 1 );
+
   if ( (*userInfo).getShortCat() == 1 ){
-    //Sets name based on flags
+
+    // Sets name based on flags
     if ( GLOBAL_MASS_LOWER_LIM != -1 ){
       std::stringstream stream;
       stream << std::fixed << std::setprecision(1) << log10( GLOBAL_MASS_LOWER_LIM );
       shortCat = shortCat + "Mmin_" + stream.str() +".";
     }
+
     if ( GLOBAL_MASS_UPPER_LIM != -1 ){
       std::stringstream stream;
       stream << std::fixed << std::setprecision(1) << log10( GLOBAL_MASS_UPPER_LIM );
       shortCat = shortCat + "Mmax_" + stream.str() +".";
     }
+
     shortCat = shortCat + "short_cat.DAT";
+
+    logMessage( std::string("Short Catalog: ") +
+                             shortCat          );
   }
 
 
-  //First time for allocation, try to open file to see if it exists
-  // if it exists, can read in first line to know size of halos
-  // Otherwise, attempt to open normal file
+
+
+
+  // First time for allocation, try to open file to see if it exists
+  //   if it exists, can read in first line to know size of halos
+  //   Otherwise, attempt to open normal file
   std::ifstream shortFile( shortCat );
   std::ifstream myFile( (*userInfo).getInputCatalog() );
-  if (//(                 N_halos   == 0 ) &&  //First time read in
-      ( (*userInfo).getShortCat() == 1 ) &&  //Using short catalog
+
+  if (( (*userInfo).getShortCat() == 1 ) &&  //Using short catalog
       (          shortFile.good() == 1 ) ){  //Short file found
+
     (*userInfo).setUseShort( 1 );
     std::cout << "  Found short catalog: " << shortCat << std::endl;
+
+    logMessage( std::string("Short Catalog found") );
+
   }
   else if( !myFile.is_open() ){
     std::cout << "\n Error opening halo catalog: " << (*userInfo).getInputCatalog() << std::endl;
+
+    logMessage( std::string("Error opening short catalog, Aborting"));
+
     exit(1);
   }
+
+
+
+
 
   unsigned long N_read = 0;
   bool dontWriteShort = true;
 
-  //Call read functions per function, to assign values, will use short if available
+
+  // Call read functions per function, to assign values, will use short if available
   if (  (*userInfo).getUsingShort()                 != 0 ){
     std::cout << "  Reading file:        " << shortCat                   << std::endl;
+
+    logMessage( std::string("Using short catalog") );
+
     N_read = readShortCat ( shortFile, halos, N_halos );
     dontWriteShort = false;
   }
   else
   if ( ((*userInfo).getCatType()).compare(    "MD" ) == 0 ){
     std::cout << "  Reading file:        " << (*userInfo).getInputCatalog() << std::endl;
+
+    logMessage( std::string("Reading MD catalog:") +
+                    (*userInfo).getInputCatalog()  );
+
     N_read = readMultiDark(       myFile, halos, N_halos );
   }
   else
   if ( ((*userInfo).getCatType()).compare(   "MDP" ) == 0 ){
+    std::cout << "  Reading file:        " << (*userInfo).getInputCatalog() << std::endl;
+
+    logMessage( std::string("Reading MD catalog:") +
+                    (*userInfo).getInputCatalog()  );
+
     N_read =    readMultiDarkPlanck( (*userInfo).getInputCatalog(), halos, N_halos );
   }
   else
   if ( ((*userInfo).getCatType()).compare(  "BMDP" ) == 0 ){
+    std::cout << "  Reading file:        " << (*userInfo).getInputCatalog() << std::endl;
+
+    logMessage( std::string("Reading MD catalog:") +
+                    (*userInfo).getInputCatalog()  );
+
+
     N_read = readBigMultiDarkPlanck( (*userInfo).getInputCatalog(), halos, N_halos );
   }
   else
   {
       std::cout << " Unrecognized catalog type: " << (*userInfo).getCatType() << std::endl;
+
+
+    logMessage( std::string("Unrecognized catalog type:") +
+                           (*userInfo).getCatType()       +
+                std::string(", Aborting")                 );
+
       exit(1);
   }
+
+
+
+
 
 
 
@@ -195,17 +312,35 @@ unsigned long readCatalog( haloInfo      halos[] ,  //Stores data of halos
        (         shortFile.good() != 1) &&   //And couldn't find shortcat
        (              N_halosInit >  0) &&   //And second time through
        (               dontWriteShort ) ) { //Why do i need this?
+
+  logMessage( std::string("Attempting to write short catalog")) ;
+
+
     std::ofstream writeFile( shortCat );
     if ( writeShortCat( writeFile, halos, N_halos ) ){
       std::cout << "  Wrote short catalog: " << shortCat << std::endl;
+
+      logMessage( std::string("Wrote short catalog: ") +
+                                     shortCat         ) ;
+
+
     }
     else {
       std::cout << " Failed to write short catalog: " << shortCat << std::endl;
+
+      logMessage( std::string("Failed to write short catalog: ") +
+                                               shortCat        ) ;
+
     }
   }
 
   // If we are using a non-z axis, swap the coordinates
   if ( N_halos > 0 && (*userInfo).getIntegAxis() != 'z' ){
+
+    logMessage( std::string("Swapping axes to integrate along ") +
+                             (*userInfo).getIntegAxis()        ) ;
+
+
     for ( int i = 0; i < N_halos; ++i ){
 
       integAxisSwap( &(halos[i]), (*userInfo).getIntegAxis() );
@@ -231,8 +366,16 @@ unsigned long readShortCat ( std::ifstream &inpFile   ,
   std::stringstream num( str );
   num >> num_Head;
   if ( N_halos == 0 ){
+
+    logMessage( std::string("First read in, N_halos=")+
+                std::to_string( num_Head )           );
+
     return num_Head;
   }
+
+  logMessage( std::string("Second read in, N_halos=")+
+              std::to_string( num_Head )           );
+
 
   float x, y, z, M, R, C, N, ba, ca;
   long id;
@@ -280,6 +423,8 @@ unsigned long readShortCat ( std::ifstream &inpFile   ,
 
   }
 
+  logMessage( std::string("Number of lines read:")+
+              std::to_string( N_valid )          );
 
   return N_valid;
 }
@@ -347,6 +492,9 @@ unsigned long readMultiDark( std::ifstream &inpFile   ,
     }
 
   }
+
+  logMessage( std::string("Number of lines read:")+
+              std::to_string( N_valid )          );
 
   return N_valid;
 
@@ -474,6 +622,10 @@ unsigned long readMultiDarkPlanck( std::string     inpFile   ,
 
   myFile.close();
 
+  logMessage( std::string("Number of lines read:")+
+              std::to_string( N_valid )          );
+
+
   return N_valid;
 
 }
@@ -600,6 +752,10 @@ unsigned long readBigMultiDarkPlanck( std::string    inpFile   ,
   } while ( validFile );    // Loop over files
 
   myFile.close();
+
+  logMessage( std::string("Number of lines read:")+
+              std::to_string( N_valid )          );
+
 
   return N_valid;
 }
