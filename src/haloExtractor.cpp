@@ -25,16 +25,52 @@ The last step tries to avoid allocating as much memory as possible, due to the e
 
 #include <CCfits/CCfits>
 #include <cmath>
+#include <ctime>
 
 #include "halo_extraction_classes.h"
 #include "read_files.h"
 #include "link_halos.h"
 
 
+
+// Keeps track of the number of FITS files written
 unsigned long inputInfo::Num_files = 0;
 
 
+std::string logFileName = "";
+
+
 int main( int arg, char ** argv ){
+
+
+  // Get the time the code started at
+  time_t   nowTime =      time(        0 );
+  tm    *startTime = localtime( &nowTime );
+
+  // Generates the log file name
+  {
+    char logFileNameC[100];
+
+    // Log file name is mostly the date
+    sprintf( logFileNameC, "logfile_HE.%4i.%02i.%02i.%02i.%02i.%02i.log",
+      (*startTime).tm_year+1900,
+      (*startTime).tm_mon ,
+      (*startTime).tm_mday,
+      (*startTime).tm_hour,
+      (*startTime).tm_min ,
+      (*startTime).tm_sec );
+
+    logFileName= std::string(logFileNameC) ;
+
+    // First line of the log file is the time
+    logMessage( (std::string(    "Code initialized at ")+
+                 std::to_string( (*startTime).tm_hour  )+
+                 std::string(    ":"                   )+
+                 std::to_string( (*startTime).tm_min   )+
+                 std::string(    ":"                   )+
+                 std::to_string( (*startTime).tm_sec   )));
+  }
+
 
   //////////////////////////////////////
   //////////User info read in///////////
@@ -50,26 +86,23 @@ int main( int arg, char ** argv ){
   }
   printf("\n Using input file: %s\n", (userInput.getReadFile()).c_str());
 
+
   //Attempts to read the input file, and displays the resultant info
   if ( readUserInput( userInput.getReadFile(), userInput ) ){
+
     printf("  Halo Catalog       : %s\n  Particle File      : %s\n  Mass map Directory : %s\n\n",
     (userInput.getInputCatalog()).c_str(),
     (userInput.getInputPart   ()).c_str(),
-//    (userInput.getHeaderDir   ()).c_str(),
     (userInput.getParticleDir ()).c_str());
+
   }
   else {
+
     printf("Error in reading input file, aborting\n\n");
     exit(1);
-  }
-/*
-  if ( !( (userInput.getCatType()).compare( "short" ) == 0 ) &&
-       !( (userInput.getCatType()).compare( "BMD"   ) == 0 ) ){
 
-    std::cout << " Catalog type unsupported: " << userInput.getCatType() << std::endl;
-    exit(1);
   }
-*/
+
 
   /////////////////////////////////////////
   //////Write header/part directory////////
