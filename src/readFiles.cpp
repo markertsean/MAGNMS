@@ -863,6 +863,10 @@ long long setPartFile( inputInfo &userInput ) { //All the user input
 
     std::string partCatalog = userInput.getInputPart();
 
+    logMessage( std::string("User specified particle file: ") +
+                            partCatalog                       );
+
+
     char tempS[60];
 
     sprintf(tempS,"%s.header.dat", (partCatalog.substr(0,partCatalog.length()-4)).c_str() );
@@ -876,60 +880,101 @@ long long setPartFile( inputInfo &userInput ) { //All the user input
     //If we could open both files, that's all
     if ( (testPart.good() == 1) && (testHead.good() == 1) ){
 
+
+      logMessage( std::string("Located particle and header file") );
+
+
       printf( "%s%s\n", "  Using particle file: ", ( userInput.getInputPart() ).c_str() );
       printf( "%s%s\n", "  Using   header file: ",                                tempS );
 
-      //Go through header file to determine number of particles for array allocation
-      std::string   tempStr[14];
-      double tempInt[14];
 
-      for ( int i = 0; i <= 13; ++i ){ //Number of particles is the 8th item
+
+      // Go through header file to determine number of particles for array allocation
+      std::string   tempStr[14];
+      double        tempInt[14];
+
+
+      for ( int i = 0; i <= 13; ++i ){ // Number of particles is the 13th item
         testHead >> tempStr[i];
         testHead >> tempInt[i];
       }
       numParticles = tempInt[13];
-
       userInput.setInputHead( tempS );
+
+
+      logMessage( std::string(    "File contains") +
+                  std::to_string( numParticles   ) +
+                  std::string(     " particles"  ) );
+
 
       return numParticles;
     }
-  }
 
-  //If nothing specified, or specified file not found
-  int snapNum = userInput.getSnapNum();                     //Snapshot number
-  std::string partFileStart = userInput.getPartFileStart(); //Beginning of particle file name
+    logMessage( std::string("Could not locate user specified particle file") );
 
-
-  //Generates file names for particle file, header file, based on beginning of file name
-  char testPartFile[60];
-  char testHeadFile[60];
-  sprintf(testPartFile,"%s%4.4i.DAT"       , partFileStart.c_str(), snapNum );
-  sprintf(testHeadFile,"%s%4.4i.header.dat", partFileStart.c_str(), snapNum );
+  } // User specified particle file
 
 
-  //Attempts to open the files, to see if they exist
+
+  // If nothing specified, or specified file not found
+  int               snapNum = userInput.getSnapNum();       // Snapshot number
+  std::string partFileStart = userInput.getPartFileStart(); // Beginning of particle file name
+
+
+
+  // Generates file names for particle file, header file, based on beginning of file name
+  char    testPartFile[60];
+  char    testHeadFile[60];
+  sprintf(testPartFile, "%s%4.4i.DAT"       , partFileStart.c_str(), snapNum );
+  sprintf(testHeadFile, "%s%4.4i.header.dat", partFileStart.c_str(), snapNum );
+
+
+
+  // Attempts to open the files, to see if they exist
   std::ifstream testPart( testPartFile );
   std::ifstream testHead( testHeadFile );
 
 
-  //If we could open both files, that's all
+
+  // If we could open both files, that's all
   if ( (testPart.good() == 1) && (testHead.good() == 1) ){
 
     printf( "%s%s\n", " Using particle file: ", testPartFile );
     printf( "%s%s\n", " Using   header file: ", testHeadFile );
 
-    //Go through header file to determine number of particles for array allocation
-    std::string   tempStr[8];
-    double tempInt[8];
 
-    for ( int i = 0; i <= 7; ++i ){ //Number of particles is the 8th item
+    logMessage( std::string(  "Using files: ") +
+                std::string( testPartFile    ) +
+                std::string(          " and ") +
+                std::string( testHeadFile    ) );
+
+
+
+    // Go through header file to determine number of particles for array allocation
+    std::string   tempStr[14];
+    double        tempInt[14];
+
+
+    for ( int i = 0; i <= 13; ++i ){ // Number of particles is the 14th item
       testHead >> tempStr[i];
       testHead >> tempInt[i];
     }
-    numParticles = tempInt[7];
+    numParticles = tempInt[13];
 
     userInput.setInputPart( testPartFile );
     userInput.setInputHead( testHeadFile );
+
+
+    logMessage( std::string(    "File contains") +
+                std::to_string( numParticles   ) +
+                std::string(     " particles"  ) );
+
+
+    logMessage( std::string(    "Files changed to " ) +
+                userInput.getInputPart()              +
+                std::string(                " and " ) +
+                userInput.getInputHead()              );
+
 
     return numParticles;
 
@@ -937,11 +982,13 @@ long long setPartFile( inputInfo &userInput ) { //All the user input
   //If we couldn't open both files, read in from pmss file using other input data
   else{
 
-    char tempC[60];                                           //For passing begining of file name to the fortran function
-                                                              // if blank, just uses current file directory
-    strcpy(tempC, partFileStart.c_str());                     //Copy the string to the char array
-    int fileNameLength = partFileStart.length();              //Length of the particle file name, needed for
-                                                              // fortran format string
+    char tempC[60];                                           // For passing begining of file name to the fortran function
+                                                              //   if blank, just uses current file directory
+    strcpy(      tempC , partFileStart.c_str()  );            // Copy the string to the char array
+    int fileNameLength = partFileStart.length()  ;            // Length of the particle file name, needed for
+                                                              //   fortran format string
+
+
     /*
       readpmss reads the fortran unformatted binary file for the particles
       file name from the snapshop
@@ -953,13 +1000,33 @@ long long setPartFile( inputInfo &userInput ) { //All the user input
       and then scan used halo catalog for the acceptance criteria
       Also, it returns the number of particles in the file
     */
+
+
     int firstPMssNum =    1;
     int  lastPMssNum = 2048;
 
     if ( userInput.getPMssFirstNum() != -1 ) firstPMssNum = userInput.getPMssFirstNum(); // If user specified, use specific file number extensions
     if ( userInput.getPMssLastNum()  != -1 )  lastPMssNum = userInput.getPMssLastNum() ;
 
+    logMessage( "Unable to locate particle file-attempting to read PMss files" );
+
+    logMessage( std::string( "snapNum   = " ) + std::to_string(      snapNum) );
+    logMessage( std::string( "path      = " ) + std::string(           tempC) );
+    logMessage( std::string( "firstPMss = " ) + std::to_string( firstPMssNum) );
+    logMessage( std::string( "lastPMss  = " ) + std::to_string(  lastPMssNum) );
+
+
     numParticles = readpmss_( &snapNum, tempC, &fileNameLength, &firstPMssNum, &lastPMssNum );
+
+
+    logMessage( std::string("Files changed to:" ) +
+                userInput.getInputPart()          +
+                std::string(            " and " ) +
+                userInput.getInputHead()          );
+
+    logMessage( std::string(    "Number of particles read: ") +
+                std::to_string( numParticles                ) );
+
 
     userInput.setInputPart( testPartFile );
     userInput.setInputHead( testHeadFile );
@@ -983,6 +1050,12 @@ long long readParticle( inputInfo userInfo, particlePosition *particles ){
   float x, y, z;
 
   if ( inputParticleFile.good() ){
+
+
+    logMessage( std::string("Reading file: ") +
+                userInfo.getInputPart()       );
+
+
     for ( int i = 0; i < userInfo.getNumParticles() ; ++i ){
 
       inputParticleFile >> x >> y >> z;
@@ -1010,9 +1083,13 @@ long long readParticle( inputInfo userInfo, particlePosition *particles ){
   }
   else {
 
+    logMessage( std::string("Error opening file: ") +
+                userInfo.getInputPart()             +
+                std::string(", Aborting. ")         );
+
+
     printf(" Error opening particle file: %s\n\n", ( userInfo.getInputPart() ).c_str() );
     exit(1);
-
   }
 
   printf("\n");
@@ -1030,6 +1107,12 @@ bool readHeader  ( inputInfo &userInfo ){
   long long     blahL;
 
   if ( inputHeaderFile.good() ){
+
+
+    logMessage( std::string("Reading header file:") +
+                userInfo.getInputHead()             );
+
+
 
       inputHeaderFile >>   junk; // a (cosmo)
       inputHeaderFile >>   blah;
@@ -1145,12 +1228,22 @@ bool readHeader  ( inputInfo &userInfo ){
 
       if ( blahL != userInfo.getNumParticles() ){
 
+
+        logMessage( std::string(    "Particle mismatch in header: ") +
+                    std::to_string(                          blahL ) +
+                    std::string(   " particles. Aborting"          ) );
+
+
         printf("Error: particle mismatch\n Particle read in: %lli\n Header file: %lli\n",userInfo.getNumParticles(),blahL);
         exit(1);
       }
 
   }
   else {
+
+    logMessage( std::string("Error opening header file: ") +
+                userInfo.getInputHead()                    );
+
 
     printf(" Error opening header file: %s\n\n", ( userInfo.getInputHead() ).c_str() );
     exit(1);

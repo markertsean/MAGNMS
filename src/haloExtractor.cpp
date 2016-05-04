@@ -164,17 +164,29 @@ int main( int arg, char ** argv ){
     printf("\n Number of valid halos: %lu\n",N_halos);
   }
 
-// LOGS THROUGH HERE
+  // myHalos is an array containing all relevant information about the halos
 
   haloInfo *myHalos = new haloInfo[N_halos];
     printf(" Allocated %lu halos\n",N_halos);
 
+  logMessage( std::string("Allocated ")     +
+              std::to_string( N_halos )     +
+              std::string(" halos in main") );
+
 
   {
+
     unsigned long old_N_halos = N_halos;
     N_halos = readCatalog( myHalos, &userInput, N_halos );
+
     if ( old_N_halos != N_halos ){
       printf("\nError: Read mismatch\nN_halos allocated: %lu\nN_halos read in: %lu\n\n", old_N_halos, N_halos);
+
+      logMessage( std::to_string( old_N_halos )     +
+                  std::string(" halos allocated, ") +
+                  std::to_string( N_halos     )     +
+                  std::string(" halos read the second time. Aborting") );
+
       exit(1);
     }
   }
@@ -183,6 +195,9 @@ int main( int arg, char ** argv ){
 
 
   printf("\n Catalog read in complete\n\n\n");
+
+
+  logMessage( std::string("Catalog read in complete") );
 
 
   /////////////////////////////////////////
@@ -196,7 +211,6 @@ int main( int arg, char ** argv ){
 
   std::cout << " Attempting to read particle file..." << std::endl;
 
-
   // Attempts to locate the particle file we will use,
   //  and reads the number of particles to allocate
   long long numParticles = 0;
@@ -205,6 +219,8 @@ int main( int arg, char ** argv ){
 
   // If read 0 particles, error
   if ( numParticles == 0 ){
+
+    logMessage( std::string("Read 0 particles. Aborting") );
 
     printf(" Error reading particle file:%s\n", (userInput.getInputPart()).c_str() );
     printf("Specify the file using the variable \"partFile\", using the variable \"snapNum\", and making sure you are in the proper directory\n\n");
@@ -218,17 +234,36 @@ int main( int arg, char ** argv ){
   printf("\n Number of particles: %lli\n", userInput.getNumParticles() );
 
 
-  // Allocate the partcles
+  // Allocate the partcles, only contains position information
   particlePosition *particle = new particlePosition[numParticles];
   printf(" Allocated %lli particles\n  Reading particle file...\n\n", numParticles );
 
 
+
+  logMessage( std::string(    "Allocated " ) +
+              std::to_string( numParticles ) +
+              std::string(    " Particles" ) );
+
+
+
   // Read the particle positions
-  numParticles = readParticle( userInput, particle );
+       numParticles  = readParticle( userInput, particle );
+
   if ( numParticles != userInput.getNumParticles() ){
     printf("Error: mismatch in particle read in\n Allocated: %lli\n Read in  : %lli\n", userInput.getNumParticles(), numParticles );
+
+    logMessage( std::string("First  read in: ") + std::to_string( userInput.getNumParticles() ) + std::string(" particles") );
+    logMessage( std::string("Second read in: ") + std::to_string(              numParticles   ) + std::string(" particles") );
+    logMessage( std::string("Aborting."));
+
     exit(1);
   }
+
+
+  logMessage( std::string(          "Read ") +
+              std::to_string( numParticles ) +
+              std::string(     " particles") );
+
 
 
   std::cout << " Particle read in complete\n\n" << std::endl;
