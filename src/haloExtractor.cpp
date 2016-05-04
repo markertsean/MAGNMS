@@ -44,8 +44,10 @@ int main( int arg, char ** argv ){
 
 
   // Get the time the code started at
-  time_t   nowTime =      time(        0 );
-  tm    *startTime = localtime( &nowTime );
+
+  int execution_start = clock();
+  time_t      nowTime =      time(        0 );
+  tm       *startTime = localtime( &nowTime );
 
   // Generates the log file name
   {
@@ -289,22 +291,31 @@ int main( int arg, char ** argv ){
   }
   std::cout << " Done."     << std::endl  << std::endl;
 
+  logMessage( std::string(    "Number of x cells= ") +
+              std::to_string( userInput.getNrx()+1 ) );
+  logMessage( std::string(    "Number of y cells= ") +
+              std::to_string( userInput.getNry()+1 ) );
+  logMessage( std::string(    "Number of x cells= ") +
+              std::to_string( userInput.getNrz()+1 ) );
+  logMessage( std::string(    "Total number of cells= ") +
+              std::to_string( userInput.getNtotCell()  ) );
+
 
   std::cout << " Generating link list..." << std::endl;
 
 
+  {
+    logMessage( std::string( "Halo  memory: " ) + std::to_string(  sizeof( haloInfo         ) * userInput.getNumHalos()     / (1e6) ) + std::string(" Mb") );
+    logMessage( std::string( "Part  memory: " ) + std::to_string(  sizeof( particlePosition ) * userInput.getNumParticles() / (1e9) ) + std::string(" Gb") );
+    logMessage( std::string( "Link  memory: " ) + std::to_string(  sizeof( long long        ) * userInput.getNumParticles() / (1e9) ) + std::string(" Gb") );
+    logMessage( std::string( "Label memory: " ) + std::to_string(  sizeof( long long        ) * userInput.getNtotCell    () / (1e6) ) + std::string(" Mb") );
+    logMessage( std::string( "Total memory: " ) + std::to_string(( sizeof( long long        ) * userInput.getNtotCell    () +
+                                                                   sizeof( long long        ) * userInput.getNumParticles() +
+                                                                   sizeof( particlePosition ) * userInput.getNumParticles() +
+                                                                   sizeof( haloInfo         ) * userInput.getNumHalos()   ) / (1e9) ) + std::string(" Gb") );
+  }
 
-  std::cout << "Halo  memory: " <<  sizeof( haloInfo         ) * userInput.getNumHalos()     / (1e6) << " Mb" << std::endl;
-  std::cout << "Part  memory: " <<  sizeof( particlePosition ) * userInput.getNumParticles() / (1e9) << " Gb" << std::endl;
-  std::cout << "Link  memory: " <<  sizeof( long long        ) * userInput.getNumParticles() / (1e9) << " Gb" << std::endl;
-  std::cout << "Label memory: " <<  sizeof( long long        ) * userInput.getNtotCell    () / (1e6) << " Mb" << std::endl;
-  std::cout << "Total memory: " << (sizeof( long long        ) * userInput.getNtotCell    () +
-                                    sizeof( long long        ) * userInput.getNumParticles() +
-                                    sizeof( particlePosition ) * userInput.getNumParticles() +
-                                    sizeof( haloInfo         ) * userInput.getNumHalos()   ) / (1e9) << " Gb" << std::endl;
-//*/
-
-  //Make link list between particles
+  // Make link list between particles
   long long  *linkList = new long long [ userInput.getNumParticles() ];
   long long *labelList = new long long [ userInput.getNtotCell()     ];
 
@@ -312,17 +323,32 @@ int main( int arg, char ** argv ){
   printf("  Allocated label list of %i elements\n"  , userInput.getNtotCell()     );
 
 
+  logMessage( std::string(    "Allocated link list of "   ) +
+              std::to_string( userInput.getNumParticles() ) +
+              std::string(    " elements"                 ) );
+
+  logMessage( std::string(    "Allocated label list of "   ) +
+              std::to_string(  userInput.getNtotCell()     ) +
+              std::string(     " elements"                 ) );
+
+
   makeLinkList( userInput, particle, linkList, labelList );
   std::cout << " Done."     << std::endl  << std::endl;
 
 
-  std::cout << " Refining halo list to those within our cells..." << std::endl;
-  //Find the halos who's FOV is entirely inside the box
-  {
-  //Dummy array, useless
-  haloInfo duhalos[2];
+  logMessage( std::string("Generated link list") );
 
-  N_halos = findBoxHalos( userInput, myHalos, duhalos, 0 ); //Returns the number of halos in the box on the first run through
+
+  std::cout << " Refining halo list to those within our cells..." << std::endl;
+  // Find the halos who's FOV is entirely inside the box
+  {
+    // Dummy array, useless
+    haloInfo duhalos[2];
+
+    N_halos = findBoxHalos( userInput, myHalos, duhalos, 0 ); //Returns the number of halos in the box on the first run through
+
+    logMessage( std::string(    "Number of halos located in our box: " ) +
+                std::to_string( N_halos                                ) );
   }
 
 
@@ -331,13 +357,16 @@ int main( int arg, char ** argv ){
   delete [] myHalos;                                        //        Deletes old halo array
   std::cout << "  Allocated " << N_halos    << " halos" << std::endl;
 
+
+  logMessage( std::string(    "Allocated and filled new array of halos containing " ) +
+              std::to_string( N_halos                                               ) +
+              std::string(    " halos"                                              ) );
+
+
   std::cout << " Done."       << std::endl  << std::endl;
 
 
-
-  std::cout << "Halo memory: " << sizeof( haloInfo         ) * userInput.getNumHalos()     / (1e3) << " Kb" << std::endl;
-  std::cout << "Part memory: " << sizeof( particlePosition ) * userInput.getNumParticles() / (1e6) << " Mb" << std::endl;
-//*/
+  logMessage( std::string( "New Halo  memory: " ) + std::to_string(  sizeof( haloInfo         ) * userInput.getNumHalos()     / (1e6) ) + std::string(" Mb") );
 
 
   /////////////////////////////////////////
@@ -346,8 +375,8 @@ int main( int arg, char ** argv ){
 
   // Goes through link list, checking particles against halos
   // Locates particles in halo's Rvir
-  //  box FOV x FOV x FOV
-  //  box FOV x FOV x integration lengths
+  //   box FOV x FOV x FOV
+  //   box FOV x FOV x integration lengths
   // Writes image to FITS file
 
   std::cout << " Generating FITS images..." << std::endl << std::endl;
@@ -355,5 +384,29 @@ int main( int arg, char ** argv ){
   std::cout << " Done."                     << std::endl << std::endl;
 
   std::cout << "Wrote " << userInput.getNumFiles() << " Files " << std::endl;
+
+
+  logMessage( std::string(    "Total number of output images: " ) +
+              std::to_string( userInput.getNumFiles()           ) );
+
+
+  // Record the run time in log
+
+
+  int execution_end = clock();
+  int runTime       = (execution_end - execution_start) / CLOCKS_PER_SEC;
+
+  int         hours = runTime / 3600;
+            runTime = runTime % 3600;
+  int       minutes = runTime / 60;
+            runTime = runTime % 60;
+
+  logMessage( std::string(    "Elapsed runtime= ") +
+              std::to_string( hours              ) +
+              std::string(    " hours, "         ) +
+              std::to_string( minutes            ) +
+              std::string(    " minutes, "       ) +
+              std::to_string( runTime            ) +
+              std::string(    " seconds"         ) );
 
 }

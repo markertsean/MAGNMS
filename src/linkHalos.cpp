@@ -40,7 +40,7 @@ void setMinMaxParticles( const particlePosition   *particle,  //Particles to fin
 }
 
 
-//Locates halos that could be in our box with a full FOV
+// Locates halos that could be in our box with a full FOV
 unsigned long findBoxHalos(       inputInfo  &userInput ,
                             const  haloInfo   *allHalos ,
                                    haloInfo   *boxHalos ,
@@ -48,16 +48,16 @@ unsigned long findBoxHalos(       inputInfo  &userInput ,
 
 
 
-  //Array to track how many halos are valid within the box
+  // Array to track how many halos are valid within the box
   short inBox[ userInput.getNumHalos() ];
   unsigned long sum(0);
 
 
-  //Cycle through halos to determine if in our box
+  // Cycle through halos to determine if in our box
   for ( int i  = 0 ; i < userInput.getNumHalos(); ++i ){
       inBox[i] = 0;
 
-    //If the halo is within the coordinates we have, and the FOV doesn't leave the box, save it
+    // If the halo is within the coordinates we have, and the FOV doesn't leave the box, save it
     if ( ( userInput.getXmin() < allHalos[i].getX() - userInput.getFOV() ) && ( allHalos[i].getX() + userInput.getFOV() < userInput.getXmax() ) &&
          ( userInput.getYmin() < allHalos[i].getY() - userInput.getFOV() ) && ( allHalos[i].getY() + userInput.getFOV() < userInput.getYmax() ) &&
          ( userInput.getZmin() < allHalos[i].getZ() - userInput.getFOV() ) && ( allHalos[i].getZ() + userInput.getFOV() < userInput.getZmax() )   ){
@@ -65,19 +65,19 @@ unsigned long findBoxHalos(       inputInfo  &userInput ,
       inBox[i] = 1;
     }
 
-    //Sum is the number of halos in the box
+    // Sum is the number of halos in the box
     sum += inBox[i];
   }
 
 
-  //First time through, just finding number of valid halos
+  // First time through, just finding number of valid halos
   if ( runNum == 0 ){
     return sum;
   }
-  //Second time, do the saving
+  // Second time, do the saving
   else {
 
-    //Go through and copy over the halos in the box to the new halo list
+    // Go through and copy over the halos in the box to the new halo list
     unsigned long counter(0);
     for ( int i = 0 ; i < userInput.getNumHalos(); ++i ){
       if ( inBox[i] == 1 ){
@@ -88,6 +88,14 @@ unsigned long findBoxHalos(       inputInfo  &userInput ,
 
     if ( sum != counter ){
       std::cout << " Error: Mismatch when selecting halos\n  Num in box:   " << sum << "\n  Num selected: " << counter << std::endl;
+
+      logMessage( std::string( "Mismatch in counting halos in box: Num in box: "   ) +
+                  std::to_string(  sum                                             ) +
+                  std::string(     " Num selected: "                               ) +
+                  std::to_string(  counter                                         ) );
+
+      logMessage( std::string("Aborting.") );
+
       exit(1);
     }
 
@@ -175,9 +183,15 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
   double   *integLengths = new double[ N_integSteps ];                                              // Array to fill with the different integration lengths
 
 
+  logMessage( std::string( "Integration lengths:" ) );
+
   // Populate the array with the integration lengths
   for ( int i = 0 ; i < N_integSteps ; ++i ){
     integLengths[i] = pow( 10, (i+1) * integStep  +  log10(integStart) );
+
+    logMessage( std::string(    "   "            ) +
+                std::to_string( integLengths[i]  ) );
+
   }
 
 
@@ -187,6 +201,9 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
   if ( userInput.getZmax() - zMin == userInput.getCatBoxSize() ){
         periodic = 1;
     std::cout<<"  Using periodic boundaries..." << std::endl;
+
+    logMessage( std::string( "Using periodic boundaries" ) );
+
   }
 
 
@@ -321,6 +338,15 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
     // Only continue if we found particles for our halo
     if ( ( N_sphere > 0 ) && ( N_box > 0 ) ){
 
+
+      logMessage( std::string(    "Halo: "         ) +
+                  std::to_string( halos[i].getID() ) +
+                  std::string(    ", N_sphere= "   ) +
+                  std::to_string(    N_sphere      ) +
+                  std::string(    ", N_box= "      ) +
+                  std::to_string(    N_box         ) );
+
+
       // Need to allocate for storing indexes
       long long *sphereIndexes = new long long [ N_sphere ];
       long long *   boxIndexes = new long long [ N_box    ];
@@ -423,7 +449,7 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
     delete [] N_integ;
 //*/
   }       //Halo loop
-exit(0);
+
   delete [] integLengths;
 
 }
@@ -632,6 +658,10 @@ int  writeFits( const std::string           fileName    ,  // File name to write
 
   // Write the image
   ( *pFits ).pHDU().write( 1, N_pixelsTot, *SD);
+
+
+  logMessage( std::string( "    Wrote file: " ) +
+                                fileName        );
 
 
   userInput.wroteFile();
