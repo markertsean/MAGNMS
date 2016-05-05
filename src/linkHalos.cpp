@@ -494,6 +494,17 @@ void writeImage(              inputInfo    userInput  , // All the user info
   sprintf( temp,              "%sHalo%s_%li.FITS", (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), halo.getID() );
   const std::string sphereFileName = temp;
 
+
+
+/*
+
+particle rotation
+
+
+
+*/
+
+
   // Attempt to write the file, if it fails abort
   if (  writeFits( sphereFileName ,
                       N_pixels    ,
@@ -666,5 +677,260 @@ int  writeFits( const std::string           fileName    ,  // File name to write
 
   userInput.wroteFile();
   return 0;
+}
+
+
+
+
+/*
+Need to determine triaxiality, and orientation of axis
+
+
+input: all particles, indexes, halo center
+
+output: 2 axis ratios, 2 angles describing orientation
+*/
+int triaxiality() {
+
+// [row][column]
+int N_particles = 2;
+int m1[2][3] = { 0, 1, 1, 1, -1, 0 };
+
+
+  int I[3][3] = {0,0,0,0,0,0,0,0,0};
+
+
+  for ( int i = 0; i < N_particles; ++i ){
+  for ( int j = 0; j < 3          ; ++j ){
+  for ( int k = 0; k < 3          ; ++k ){
+
+int mass = i+1;
+
+    if ( j == k ){
+      I[k][j] +=   mass * ( m1[i][0]*m1[i][0]  + m1[i][1]*m1[i][1] + m1[i][2]*m1[i][2] - m1[i][k]*m1[i][j]  );
+    }
+    else{
+      I[k][j] += - mass * ( m1[i][j]*m1[i][k] );
+    }
+
+  }
+  }
+  }
+
+for ( int j = 0; j < 3 ; ++j ){
+for ( int k = 0; k < 3 ; ++k ){
+  std::cout << I[k][j] << " ";
+}
+std::cout << std::endl;
+}
+std::cout << std::endl << std::endl;
+
+  // The determinant for the eigenvalues evaluates to d L^3 + a L^2 + b L + c = 0
+  //    with each constant being combinations of I
+
+  double d = -1;
+
+  double a = I[0][0]         + I[1][1]         + I[2][2];
+
+  double b = I[0][1]*I[0][1] + I[0][2]*I[0][2] + I[1][2]*I[1][2] -
+             I[0][0]*I[1][1] - I[0][0]*I[2][2] - I[1][1]*I[2][2] ;
+
+  double c = I[0][0]*I[1][1]*I[2][2] + 2 * I[0][1]*I[0][2]*I[1][2] -
+             I[0][0]*I[1][2]*I[1][2]   -   I[1][1]*I[0][2]*I[0][2] - I[2][2]*I[0][1]*I[0][1];
+
+
+  // Zeros of this function must lie between and outside flat part of curve,
+  //    take the derivative to find these locations with quadratic formula
+
+  double zeroL, zeroR;
+
+  {
+    double A = 3 * d;
+    double B = 2 * a;
+    double C =     b;
+
+    double zero1 = ( -B + sqrt( B*B - 4 * A * C ) ) / ( 2 * A );
+    double zero2 = ( -B - sqrt( B*B - 4 * A * C ) ) / ( 2 * A );
+
+    zeroL = std::min( zero1, zero2 );
+    zeroR = std::max( zero1, zero2 );
+  }
+
+std::cout << zeroL << " " << zeroR << std::endl << std::endl;
+
+
+  // Now have the two zero locations, use them as boundaries to find eigenvalues
+  // Generate probes based on boundaries. Move probes based on step size
+  //     if same sign move apart
+  //     if different sign:
+  //           move closer until  same sign
+  //           exit to start, decrease step size, move diff probe
+
+
+  // 1st time through do left bound
+  // 2nd time right bound
+  // 3rd time center
+  for ( int i = 0; i < 3; ++ i ){
+
+    double boundL, boundR;
+
+    // Sets boundaries based on location each run through
+    if ( 1 != setTriaxBounds( boundL, boundR, zeroL, zeroR, i, d, a, b, c ) ) {
+      return -1;
+    }
+
+    double step;
+    double diff;
+    int counter=0;
+
+    step = ( boundR - boundL );
+
+
+//    do {
+
+      step   = step / 4.;
+
+      boundL = moveProbe( boundL, boundR, step, d,a,b,c );
+
+      step   = - step;
+
+      boundR = moveProbe( boundR, boundL, step, d,a,b,c );
+
+      diff   = boundR-boundL;
+std::cout << counter << std::endl;
+      ++counter;
+//    } while ((diff > 1e-1) && counter<200);
+
+std::cout <<
+i << " " <<
+counter << " " <<
+diff << " " <<
+boundL << " " <<
+boundR << std::endl;
+  } // 3 zeros loop
+
+
+  return 1;
+}
+
+
+
+// Find new position of mProbe,
+//   moves new probe until sign matches stationary,
+//   which indicates moved too far
+double moveProbe( const double   mProbe ,  // Moving probe
+                  const double   sProbe ,  // Stationary probe
+                  const double     step ,  // Stepsize to move probe
+                  const double        a ,  // Values of polynomial
+                  const double        b ,
+                  const double        c ,
+                  const double        d ){
+
+
+  double newProbe = mProbe;
+
+  do{
+
+    newProbe += step;
+
+  } while ( sign( cubicPoly( newProbe,a,b,c,d) ) !=
+            sign( cubicPoly(   sProbe,a,b,c,d) ) );
+
+
+  return newProbe-step;
+}
+
+
+
+// Returns sign of input
+double sign( const double x ){
+  if ( x > 0 ) return  1;
+  if ( x < 0 ) return -1;
+  return 0;
+}
+
+
+
+// Sets boundaries of zerofinding routine
+// Returns 1 if set boundaries, -1 if couldn't
+int setTriaxBounds( double  &boundL ,   // Left  maximum boundary to return
+                    double  &boundR ,   // Right maximum boundary to return
+              const double    zeroL ,   // Left  location of flat part of curve
+              const double    zeroR ,   // Right location of flat part of curve
+              const int      runNum ,   // 0-left zero, 1-right 0, else middle
+              const double        a ,   // Values of polynomial
+              const double        b ,
+              const double        c ,
+              const double        d ){
+
+
+    double boundMod = 5;
+
+    if ( runNum == 0 ){ // Left zero
+
+          int counter = 0;
+               boundL = zeroL;
+               boundR = zeroL;
+
+          // Make sure we encompass the zero
+          while ( true ){
+
+            boundL = boundL - boundMod;
+
+            if ( sign( cubicPoly( boundL,a,b,c,d) ) ==
+                -sign( cubicPoly( boundR,a,b,c,d) ) ) break;
+
+            // If not able to find a bound, exit
+            if ( ++counter>10 ) return -1;
+          }
+
+    } else
+    if ( runNum == 1 ){ // Right zero
+
+          int counter = 0;
+               boundL = zeroR;
+               boundR = zeroR;
+
+          // Make sure we encompass the zero
+          while ( true ){
+
+            boundR = boundR + boundMod;
+
+            if ( sign( cubicPoly( boundL,a,b,c,d) ) ==
+                -sign( cubicPoly( boundR,a,b,c,d) ) ) break;
+
+            // If not able to find a bound, exit
+            if ( ++counter>10 ) return -1;
+          }
+
+
+    } else{        // Center
+
+               boundL = zeroL;
+               boundR = zeroR;
+
+          if ( sign( cubicPoly( boundL,a,b,c,d) ) ==
+               sign( cubicPoly( boundR,a,b,c,d) ) ){
+            return -1;
+          }
+
+    }
+
+  return 1; // Successfully swapped
+}
+
+
+// Cubic polynomial
+double cubicPoly( const double   x ,
+                  const double   a ,
+                  const double   b ,
+                  const double   c ,
+                  const double   d ){
+
+  return a * x * x * x +
+         b * x * x     +
+         c * x         +
+         d;
+
 }
 

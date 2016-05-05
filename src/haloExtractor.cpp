@@ -43,6 +43,14 @@ std::string logFileName = "";
 int main( int arg, char ** argv ){
 
 
+
+triaxiality();
+
+
+exit(0);
+
+
+
   // Get the time the code started at
 
   int execution_start = clock();
