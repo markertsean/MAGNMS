@@ -93,5 +93,10 @@ double moveProbe( const double   mProbe ,  // Moving probe
                   const double        c ,
                   const double        d );
 
+void calcEigenVector(       double    eigenVector[3] ,  // Eigenvector to return
+                      const double           i[3][3] ,  // Inertia array
+                      const double           L       ); // Eigenvalue to calc vectors for
+
+
 
 #endif // LINK_HALOS

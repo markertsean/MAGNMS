@@ -697,7 +697,7 @@ int N_particles = 2;
 int m1[2][3] = { 0, 1, 1, 1, -1, 0 };
 
 
-  int I[3][3] = {0,0,0,0,0,0,0,0,0};
+  double I[3][3] = {0,0,0,0,0,0,0,0,0};
 
 
   for ( int i = 0; i < N_particles; ++i ){
@@ -756,62 +756,178 @@ std::cout << std::endl << std::endl;
     zeroR = std::max( zero1, zero2 );
   }
 
-std::cout << zeroL << " " << zeroR << std::endl << std::endl;
+std::cout << "zeros = " << zeroL << " " << zeroR << std::endl << std::endl;
 
+  double eigenValue[3];
+  double eigenVector[3][3];
 
-  // Now have the two zero locations, use them as boundaries to find eigenvalues
-  // Generate probes based on boundaries. Move probes based on step size
-  //     if same sign move apart
-  //     if different sign:
-  //           move closer until  same sign
-  //           exit to start, decrease step size, move diff probe
-
-
-  // 1st time through do left bound
-  // 2nd time right bound
-  // 3rd time center
+  // Use moving probes to find eigenvalues
+  //   1st time through do left bound
+  //   2nd time right bound
+  //   3rd time center
   for ( int i = 0; i < 3; ++ i ){
 
+
+    // Sets boundaries for probes based on region each run through
     double boundL, boundR;
 
-    // Sets boundaries based on location each run through
     if ( 1 != setTriaxBounds( boundL, boundR, zeroL, zeroR, i, d, a, b, c ) ) {
       return -1;
     }
 
-    double step;
-    double diff;
-    int counter=0;
 
+    double step;   // Step for the probes to move
+    double diff;   // Differential to use for convergence
+    int counter=0; // Counter for non-convergence
+
+
+    // Step size will be dependent on distance between the two bounds
     step = ( boundR - boundL );
 
 
-//    do {
+    do {
 
-      step   = step / 4.;
+      step   =   step / 4.;                                // Step size needs to be reduced each runthrough
 
-      boundL = moveProbe( boundL, boundR, step, d,a,b,c );
+      boundL = moveProbe( boundL, boundR, step, d,a,b,c ); // Moves the left probe
 
-      step   = - step;
+      step   = - step;                                     // Flip sign on step for moving other probe
 
-      boundR = moveProbe( boundR, boundL, step, d,a,b,c );
+      boundR = moveProbe( boundR, boundL, step, d,a,b,c ); // Moves the right probe
 
-      diff   = boundR-boundL;
-std::cout << counter << std::endl;
+      step   = - step;                                     // Return sign to normal
+
+      diff   = boundR-boundL;                              // For checking boundary
+
       ++counter;
-//    } while ((diff > 1e-1) && counter<200);
 
-std::cout <<
-i << " " <<
-counter << " " <<
-diff << " " <<
-boundL << " " <<
-boundR << std::endl;
+    } while ((diff > 1e-8) && counter<20);
+
+
+    eigenValue[i] = (boundR + boundL) / 2;
+
+    double tempVector[3];
+
+    calcEigenVector( tempVector, I, eigenValue[i] );
+
+    for ( int j=0; j<3; ++j ){
+      eigenVector[i][j] = tempVector[j];
+    }
+
+printf("lambda = %10.7f  < %7.5f, %7.5f, %7.5f >\n",eigenValue[i],eigenVector[i][0],eigenVector[i][1],eigenVector[i][2]);
+
+
   } // 3 zeros loop
+std::cout<<std::endl<<std::endl;
 
 
   return 1;
 }
+
+
+
+
+
+// Calculates and returns eigenvector
+void calcEigenVector(       double    eigenVector[3] ,  // Eigenvector to return
+                      const double           i[3][3] ,  // Inertia array
+                      const double           L       ){ // Eigenvalue to calc vectors for
+
+  short swapAxis = -1;
+
+  double I[3][3]; // Use a different I array since axes max need to be swapped
+
+  // If any of the diagonal indexes are 0, make sure in the top left for easier calculations
+  // 1 is x-y swap
+  // 2 is x-z swap
+  if ( i[1][1] == 0 ){       I[0][0] = i[1][1];       I[0][1] = i[1][0];       I[0][2] = i[1][2];
+                             I[1][0] = i[0][1];       I[1][1] = i[0][0];       I[1][2] = i[0][2];
+                             I[2][0] = i[2][1];       I[2][1] = i[2][0];       I[2][2] = i[2][2];
+    swapAxis = 1;
+  } else
+  if ( i[2][2] == 0 ){       I[0][0] = i[2][2];       I[0][1] = i[2][1];       I[0][2] = i[2][0];
+                             I[1][0] = i[1][2];       I[1][1] = i[1][1];       I[1][2] = i[1][0];
+                             I[2][0] = i[0][2];       I[2][1] = i[0][1];       I[2][2] = i[0][0];
+    swapAxis = 2;
+  } else {                   I[0][0] = i[0][0];       I[0][1] = i[0][1];       I[0][2] = i[0][2];
+                             I[1][0] = i[1][0];       I[1][1] = i[1][1];       I[1][2] = i[1][2];
+                             I[2][0] = i[2][0];       I[2][1] = i[2][1];       I[2][2] = i[2][2];
+  }
+
+
+  double x, y, z;
+
+  // More vidually appealing array, with eigenvalues included
+
+  double a1 = I[0][0]-L ;
+  double b1 = I[0][1]   ;
+  double b2 = I[1][1]-L ;
+  double c1 = I[0][2]   ;
+  double c2 = I[1][2]   ;
+  double c3 = I[2][2]-L ;
+
+
+
+  // Eigenvectors calculated based on zeros in array due to avoid dividing by 0,
+  //   any zeros lead to special solutions,
+  //   only physically real cases included
+  if ( std::abs(a1) < 1e-8 ){
+
+  if ( std::abs(b1) < 1e-8 &&
+       std::abs(c3) < 1e-8 ){    z = 1;    y = - c2 / b2 * z;    x = - c2 / c1 * y;  } else
+  if ( std::abs(c1) < 1e-8 ){    z = 1;    y = - c3 / c2 * z;    x = - c2 / b1 * z;  } else
+  if ( std::abs(c2) < 1e-8 ){    z = 1;    y = - c1 / b1 * z;    x = - c3 / c1 * z;  } else
+  if ( std::abs(c3) < 1e-8 ){    z = 1;    y = - c1 / b1 * z;    x = - c2 / c1 * y;  } else
+                            {    z = 1;    y = - c1 / b1 * z;    x = - b2 / b1 * y
+                                                                     - c2 / b1 * z; }
+
+  } else
+  if ( std::abs(b1) < 1e-8 ){    z = 1;    y = - c2 / b2 * z;    x = - c1 / a1 * z;  } else
+  if ( std::abs(c1) < 1e-8 ){    z = 1;    y = - c3 / c2 * z;    x = - b1 / a1 * y;  } else
+  if ( std::abs(c2) < 1e-8 ){    z = 1;    x = - c3 / c1 * z;    y = - b1 / b2 * x;  } else
+  {
+
+    // If no special case, use a long form solution
+
+    z = 1;
+
+    y = ( c3 / c1 - c2 / b1 ) / ( b2 / b1 - c2 / c1 ) * z;
+
+    x = - b1 / a1 * y         -   c1 / a1 * z;
+
+  }
+
+
+  // Used to generate unit vectors
+  double r = std::sqrt( x*x + y*y + z*z );
+
+  // If we swapped values earlier when calculating the array,
+  //   be sure to swap the eigenvector back
+  if ( swapAxis == 1 ){
+
+    eigenVector[0] = y / r;
+    eigenVector[1] = x / r;
+    eigenVector[2] = z / r;
+
+  } else
+  if ( swapAxis == 2 ){
+
+    eigenVector[0] = z / r;
+    eigenVector[1] = y / r;
+    eigenVector[2] = x / r;
+
+  }else{
+
+    eigenVector[0] = x / r;
+    eigenVector[1] = y / r;
+    eigenVector[2] = z / r;
+
+  }
+
+  return;
+}
+
+
 
 
 
