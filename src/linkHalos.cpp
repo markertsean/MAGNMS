@@ -693,9 +693,22 @@ output: 2 axis ratios, 2 angles describing orientation
 int triaxiality() {
 
 // [row][column]
-int N_particles = 2;
-int m1[2][3] = { 0, 1, 1, 1, -1, 0 };
+int N_particles = 12;
+double m1[12][3] = { -1, -0.5, -5,
+                      0, -0.5, -4,
+                      1,  0.5, -3,
+                      0,  0.5, -2,
+                     -1, -0.5, -1,
+                      0, -0.5,  0,
+                      1,  0.5,  0,
+                      0,  0.5,  1,
+                     -1, -0.5,  2,
+                      0, -0.5,  3,
+                      1,  0.5,  4,
+                      0,  0.5,  5};
 
+for ( int i=0; i<N_particles; ++i )
+printf("<%5f,%5f,%5f>\n",m1[i][0],m1[i][1],m1[i][2]);
 
   double I[3][3] = {0,0,0,0,0,0,0,0,0};
 
@@ -704,7 +717,7 @@ int m1[2][3] = { 0, 1, 1, 1, -1, 0 };
   for ( int j = 0; j < 3          ; ++j ){
   for ( int k = 0; k < 3          ; ++k ){
 
-int mass = i+1;
+int mass = 1;
 
     if ( j == k ){
       I[k][j] +=   mass * ( m1[i][0]*m1[i][0]  + m1[i][1]*m1[i][1] + m1[i][2]*m1[i][2] - m1[i][k]*m1[i][j]  );
@@ -814,12 +827,64 @@ std::cout << "zeros = " << zeroL << " " << zeroR << std::endl << std::endl;
       eigenVector[i][j] = tempVector[j];
     }
 
-printf("lambda = %10.7f  < %7.5f, %7.5f, %7.5f >\n",eigenValue[i],eigenVector[i][0],eigenVector[i][1],eigenVector[i][2]);
+printf("lambda = %10.7f  < %7.4f, %7.4f, %7.4f >\n",eigenValue[i],eigenVector[i][0],eigenVector[i][1],eigenVector[i][2]);
 
 
   } // 3 zeros loop
 std::cout<<std::endl<<std::endl;
 
+
+  // Eigenvalues axes
+
+  double longAxisLength, midAxisLength, shortAxisLength;
+  short  longAxisIndex(0);
+
+  // Determine max/min eigenvales/axes
+  if (   eigenValue[0] > eigenValue[1] ){
+    if ( eigenValue[2] > eigenValue[0] ){ longAxisIndex = 1; longAxisLength = eigenValue[1]; midAxisLength = eigenValue[0]; shortAxisLength = eigenValue[2]; } else
+    if ( eigenValue[2] < eigenValue[1] ){ longAxisIndex = 2; longAxisLength = eigenValue[2]; midAxisLength = eigenValue[1]; shortAxisLength = eigenValue[0]; } else{
+                                          longAxisIndex = 1; longAxisLength = eigenValue[1]; midAxisLength = eigenValue[2]; shortAxisLength = eigenValue[0]; }
+  } else {
+    if ( eigenValue[2] > eigenValue[1] ){ longAxisIndex = 0; longAxisLength = eigenValue[0]; midAxisLength = eigenValue[1]; shortAxisLength = eigenValue[2]; } else
+    if ( eigenValue[2] < eigenValue[0] ){ longAxisIndex = 2; longAxisLength = eigenValue[2]; midAxisLength = eigenValue[0]; shortAxisLength = eigenValue[1]; } else{
+                                          longAxisIndex = 0; longAxisLength = eigenValue[0]; midAxisLength = eigenValue[2]; shortAxisLength = eigenValue[1]; }
+  }
+
+  // a, b, and c axis sizes are 1/sqrt(eigenvalue)
+
+   longAxisLength = 1./std::sqrt(  longAxisLength );
+    midAxisLength = 1./std::sqrt(   midAxisLength );
+  shortAxisLength = 1./std::sqrt( shortAxisLength );
+
+  // x horizonal axis, y verical, z along LOS
+  // theta = angle oriented on xz,
+  //         0 is oriented into z, pi/2 oriented into x
+  //         range -pi/2 to pi/2
+  // phi   = angle oriented on yz,
+  //         0 is oriented into y, pi/2 oriented into z
+  //         range 0 to pi
+
+  double  x,  y,  z,  r;
+  double ba, ca, theta, phi;
+
+  // Maxor axis direction
+  x  = eigenVector[ longAxisIndex ][0];
+  y  = eigenVector[ longAxisIndex ][1];
+  z  = eigenVector[ longAxisIndex ][2];
+  r  = std::sqrt( x*x + y*y + z*z );
+
+  // Axis ratios
+  ba =   midAxisLength / longAxisLength;
+  ca = shortAxisLength / longAxisLength;
+
+  // Orientation angle
+  theta = std::atan( x / z );
+  phi   = std::acos( y / r );
+
+printf("%7.3f <%7.4f,%7.4f,%7.4f>\n",eigenValue[0],eigenVector[0][0],eigenVector[0][1],eigenVector[0][2]);
+printf("%7.3f <%7.4f,%7.4f,%7.4f>\n",eigenValue[1],eigenVector[1][0],eigenVector[1][1],eigenVector[1][2]);
+printf("%7.3f <%7.4f,%7.4f,%7.4f>\n",eigenValue[2],eigenVector[2][0],eigenVector[2][1],eigenVector[2][2]);
+printf("\n%7.3f <%7.4f,%7.4f,%7.4f>  ba=%7.2f  ca=%7.2f  theta=%8.5f  phi=%8.5f\n",longAxisLength,x,y,z,ba,ca,theta/M_PI,phi/M_PI);
 
   return 1;
 }
