@@ -30,7 +30,7 @@ The last step tries to avoid allocating as much memory as possible, due to the e
 #include "halo_extraction_classes.h"
 #include "read_files.h"
 #include "link_halos.h"
-
+#include "triaxiality.h"
 
 
 // Keeps track of the number of FITS files written
