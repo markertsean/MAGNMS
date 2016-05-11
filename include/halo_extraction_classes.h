@@ -371,30 +371,34 @@ class haloInfo {
   public:
 //14 params
 
-    void setX ( float inpF ) {     x = inpF; }
-    void setY ( float inpF ) {     y = inpF; }
-    void setZ ( float inpF ) {     z = inpF; }
-    void setC ( float inpF ) {     C = inpF; }
-    void setM ( float inpF ) {     M = inpF; }
-    void setN ( float inpI ) {     N = inpI; }
-    void setID( long  inpL ) {    id = inpL; }
-    void setBA( float inpF ) { ba_rat= inpF; }
-    void setCA( float inpF ) { ca_rat= inpF; }
-    void setRm( float inpF ) { R_max = inpF; }
+    void setX    ( float inpF ) {     x = inpF; }
+    void setY    ( float inpF ) {     y = inpF; }
+    void setZ    ( float inpF ) {     z = inpF; }
+    void setC    ( float inpF ) {     C = inpF; }
+    void setM    ( float inpF ) {     M = inpF; }
+    void setN    ( float inpI ) {     N = inpI; }
+    void setID   ( long  inpL ) {    id = inpL; }
+    void setBA   ( float inpF ) { ba_rat= inpF; }
+    void setCA   ( float inpF ) { ca_rat= inpF; }
+    void setRm   ( float inpF ) { R_max = inpF; }
+    void setPhi  ( float inpF ) {   phi = inpF; }
+    void setTheta( float inpF ) {  theta= inpF; }
 
     void setDistinct( long inpL ) { distinct = inpL; }
 
 
-    float getX () const { return  x     ; }
-    float getY () const { return  y     ; }
-    float getZ () const { return  z     ; }
-    float getC () const { return  C     ; }
-    float getM () const { return  M     ; }
-    float getN () const { return  N     ; }
-    float getRm() const { return  R_max ; }
-    long  getID() const { return  id    ; }
-    float getBA() const { return  ba_rat; }
-    float getCA() const { return  ca_rat; }
+    float getX    () const { return  x     ; }
+    float getY    () const { return  y     ; }
+    float getZ    () const { return  z     ; }
+    float getC    () const { return  C     ; }
+    float getM    () const { return  M     ; }
+    float getN    () const { return  N     ; }
+    float getRm   () const { return  R_max ; }
+    long  getID   () const { return  id    ; }
+    float getBA   () const { return  ba_rat; }
+    float getCA   () const { return  ca_rat; }
+    float getPhi  () const { return  phi   ; }
+    float getTheta() const { return  theta ; }
 
     long  getDistinct() const { return  distinct; }
 
@@ -413,6 +417,18 @@ class haloInfo {
 
     float ba_rat  ;//= -1.0;  // Ratio of axis b to a
     float ca_rat  ;//= -1.0;  // Ratio of axis c to a
+
+    float theta   ;
+    float phi     ;
+
+    // x horizonal axis, y verical, z along LOS
+    // theta = angle oriented on xz,
+    //         0 is oriented into z, pi/2 oriented into x
+    //         range -pi/2 to pi/2
+    // phi   = angle oriented on yz,
+    //         0 is oriented into y, pi/2 oriented into z
+    //         range 0 to pi
+
 
 };
 
