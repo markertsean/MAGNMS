@@ -484,7 +484,6 @@ void writeImage(              inputInfo    userInput  , // All the user info
     SD[i] = 0;
   }
 
-
   // Determines triaxiality and orientation angles along LOS
   //   halo saves the angle info
   // If couldn't find info, return obvious flag

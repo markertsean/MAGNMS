@@ -91,6 +91,7 @@ int triaxiality(       haloInfo                  *halo ,   // The halo we are ch
       return -1;
     }
 
+
     double step;   // Step for the probes to move
     double diff;   // Differential to use for convergence
     int counter=0; // Counter for non-convergence
@@ -108,6 +109,8 @@ int triaxiality(       haloInfo                  *halo ,   // The halo we are ch
       boundR = moveProbe( boundR, boundL, step, d,a,b,c ); // Moves the right probe
       step   = - step;                                     // Return sign to normal
       diff   = boundR-boundL;                              // For checking boundary
+
+      if ( diff < 0 ) counter = 100; // Went too far in moving probe
 
       ++counter;
     } while ((diff > 1e-8) && counter<100);
@@ -127,7 +130,6 @@ int triaxiality(       haloInfo                  *halo ,   // The halo we are ch
     }
 
   } // 3 regions loop
-
 
   // Eigenvalues axes
 
@@ -296,8 +298,8 @@ double moveProbe( const double   mProbe ,  // Moving probe
 
     newProbe += step;
 
-    if ( counter>5 ) return mProbe; // If for some reason went too far, abort
-                                    //   only should be four steps max
+    if ( ++counter>5 ) return mProbe; // If for some reason went too far, abort
+                                      //   only should be four steps max
 
   } while ( sign( cubicPoly( newProbe,a,b,c,d) ) !=
             sign( cubicPoly(   sProbe,a,b,c,d) ) );
@@ -332,8 +334,8 @@ int setTriaxBounds(       double  &boundL ,   // Left  maximum boundary to retur
 
     double boundMod = zeroR-zeroL;
 
-
-    if ( (1 - boundL/boundR) < 1e-6 ) return -1;
+    // If zeros in same location, need to abort all
+    if ( (1 - zeroL/zeroR) < 1e-6 ) return -1;
 
     if ( runNum == 0 ){ // Left zero
 
