@@ -388,6 +388,8 @@ int main( int arg, char ** argv ){
   logMessage( std::string(    "Total number of output images: " ) +
               std::to_string( userInput.getNumFiles()           ) );
 
+  delete[]  linkList;
+  delete[] labelList;
 
   // Final log stuff
   // Record the run time in log
