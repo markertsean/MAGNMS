@@ -43,14 +43,6 @@ std::string logFileName = "";
 int main( int arg, char ** argv ){
 
 
-
-triaxiality();
-
-
-exit(0);
-
-
-
   // Get the time the code started at
 
   int execution_start = clock();
@@ -393,11 +385,11 @@ exit(0);
 
   std::cout << "Wrote " << userInput.getNumFiles() << " Files " << std::endl;
 
-
   logMessage( std::string(    "Total number of output images: " ) +
               std::to_string( userInput.getNumFiles()           ) );
 
 
+  // Final log stuff
   // Record the run time in log
 
 

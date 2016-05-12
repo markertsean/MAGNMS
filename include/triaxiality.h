@@ -5,7 +5,11 @@
 #define TRIAXIALITY
 
 
-int triaxiality();
+int triaxiality(       haloInfo                  *halo ,   // The halo we are checking
+                 const particlePosition     *particles ,   // The particle array
+                 const long long           N_part_halo ,   // Number of particles we are using in the array
+                 const long long          *partIndexes );  // Indexes we are using in the array
+
 
 // Returns the sign of a variable as 1, -1, or 0
 double sign( const double x );

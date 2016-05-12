@@ -5,6 +5,7 @@
 
 #include "halo_extraction_classes.h"
 #include "link_halos.h"
+#include "triaxiality.h"
 
 
 //Sets the min/max values of the particle positions
@@ -157,7 +158,7 @@ void makeLinkList( const inputInfo          userInfo ,   //Contains the global i
 
 // Matches halos with particles, and calls write functions
 void linkHaloParticles(              inputInfo   userInput ,  // Info from the user
-                        const         haloInfo      *halos ,  // The halo information
+                                      haloInfo      *halos ,  // The halo information
                         const particlePosition  *particles ,  // Position of the particles
                         const        long long  *labelList ,  // Label points to the first particle in cell
                         const        long long   *linkList ){ // Points to nearby neighbor particles
@@ -209,7 +210,6 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
 
   // Cycle through each halo, trying to locate the needed particles
   for ( int i = 0; i < userInput.getNumHalos(); ++i ){
-
 
     // Simplify coordinates
     float x   = halos[i].getX();
@@ -431,7 +431,7 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
 
       //Write the fits file for this halo
       writeImage( userInput       ,
-                   halos[i]       ,
+                  &halos[i]       ,
                   particles       ,
                    N_sphere       ,
                    N_box          ,
@@ -443,11 +443,10 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
                        boxIndexes ,
                      integIndexes );
 
-
     delete[] sphereIndexes, boxIndexes, integIndexes, integCounter;
     }     //If we found particles
     delete [] N_integ;
-//*/
+
   }       //Halo loop
 
   delete [] integLengths;
@@ -458,7 +457,7 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
 
 // Attempts to write the many images
 void writeImage(              inputInfo    userInput  , // All the user info
-                 const         haloInfo         halo  , // The halo we are considering
+                               haloInfo        *halo  , // The halo we are considering
                  const particlePosition  *particles   , // The full array of particles
                  const long long          N_sphere    ,
                  const long long          N_box       , // Number of particles in sphere set, box set, and integration length sets
@@ -486,23 +485,25 @@ void writeImage(              inputInfo    userInput  , // All the user info
   }
 
 
+  // Determines triaxiality and orientation angles along LOS
+  //   halo saves the angle info
+  // If couldn't find info, return obvious flag
+  if ( triaxiality( halo, particles, N_sphere, sphereIndexes ) == -1 ) {
+    (*halo).setPhi(   -100 );
+    (*halo).setTheta( -100 );
+
+    logMessage( std::string(    "Unable to determine primary axes for halo: ") +
+                std::to_string(                              (*halo).getID() ) );
+  }
+
   // Generate file names, require temp for the sprintf
   char temp[100];
 
 
   // Write the halo file name
-  sprintf( temp,              "%sHalo%s_%li.FITS", (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), halo.getID() );
+  sprintf( temp,              "%sHalo%s_%li.FITS", (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), (*halo).getID() );
   const std::string sphereFileName = temp;
 
-
-
-/*
-
-particle rotation
-
-
-
-*/
 
 
   // Attempt to write the file, if it fails abort
@@ -513,8 +514,9 @@ particle rotation
                       N_sphere    ,
                     sphereIndexes ,
                         particles ,
-                             halo ,
-                        userInput ) == -1 ){
+                            *halo ,
+                        userInput ,
+                                0 ) == -1 ){
 
     std::cout<<"Failed to write file: "<<sphereFileName<<std::endl;
     exit(1);
@@ -523,7 +525,7 @@ particle rotation
 
 
   // Write the box file name
-  sprintf( temp,        "%sBox%s_%li_%04.1f.FITS", (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), halo.getID(), userInput.getFOV() );
+  sprintf( temp,        "%sBox%s_%li_%04.1f.FITS", (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), (*halo).getID(), userInput.getFOV() );
   const std::string    boxFileName = temp;
 
   // Attempt to write the file, if it fails abort
@@ -534,8 +536,9 @@ particle rotation
                       N_box       ,
                        boxIndexes ,
                         particles ,
-                             halo ,
-                        userInput ) == -1 ){
+                            *halo ,
+                        userInput ,
+              userInput.getFOV()  ) == -1 ){
 
     std::cout<<"Failed to write file: "<<   boxFileName<<std::endl;
     exit(1);
@@ -550,7 +553,7 @@ particle rotation
 
     // Integration file names
     sprintf( temp, "%sBox%s_%li_%04.1f_%06.1lf.FITS",
-        (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), halo.getID(), userInput.getFOV(), 2.0* integLengths[i] );
+        (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), (*halo).getID(), userInput.getFOV(), 2.0* integLengths[i] );
     const std::string iFileName = temp;
 
 
@@ -568,8 +571,9 @@ particle rotation
                         N_integ[i]  ,
                            iIndexes ,
                           particles ,
-                               halo ,
-                          userInput ) == -1 ){
+                              *halo ,
+                          userInput ,
+              2.0 * integLengths[i] ) == -1 ){
 
     std::cout<<"Failed to write file: "<<     iFileName<<std::endl;
     exit(1);
@@ -580,7 +584,6 @@ particle rotation
   }
   }
     std::cout << std::endl;
-
 }
 
 
@@ -648,19 +651,23 @@ int  writeFits( const std::string           fileName    ,  // File name to write
   if ( userInput.getIntegAxis() == 'z' ) axisNum = 3;
 
   // Add a header
-  ( *pFits ).pHDU().addKey("Catalog"   , userInput.getCatType()   , "Simulation catalog");
-  ( *pFits ).pHDU().addKey("FOV"       , userInput.getFOV()       , "Field of view, (h^{-1} Mpc)");
-  ( *pFits ).pHDU().addKey("Integ axis", axisNum                  , "Axis parallel to LOS");
+  ( *pFits ).pHDU().addKey("Catalog"    , userInput.getCatType()   , "Simulation catalog");
+  ( *pFits ).pHDU().addKey("FOV"        , userInput.getFOV()       , "Field of view, (h^{-1} Mpc)");
+  ( *pFits ).pHDU().addKey("N_pixels_v" , userInput.getNPixelsV()  , "Number of pixels on y axis");
+  ( *pFits ).pHDU().addKey("N_pixels_h" , userInput.getNPixlesH()  , "Number of pixels on x axis");
+  ( *pFits ).pHDU().addKey("Integ axis" , axisNum                  , "Axis parallel to LOS");
 
-  ( *pFits ).pHDU().addKey("X"       , halo.getX()  , "X coordinate of the halo, center of image");
-  ( *pFits ).pHDU().addKey("Y"       , halo.getY()  , "Y coordinate of the halo, center of image");
-  ( *pFits ).pHDU().addKey("Z"       , halo.getZ()  , "Z coordinate of the halo, center of image");
-  ( *pFits ).pHDU().addKey("ID"      , halo.getID() ,          "ID number of the central halo");
-  ( *pFits ).pHDU().addKey("Mass"    , halo.getM()  ,               "Mass of the central halo (M_{\\odot})");
-  ( *pFits ).pHDU().addKey("Rvir"    , halo.getRm() ,      "Virial radius of the central halo (h^{-1}kpc)");
-  ( *pFits ).pHDU().addKey("C"       , halo.getC()  ,      "Virial radius of the central halo (h^{-1}kpc)");
-  ( *pFits ).pHDU().addKey("b/a"     , halo.getBA() ,   "Ratio of b to a axis of central halo");
-  ( *pFits ).pHDU().addKey("c/a"     , halo.getCA() ,   "Ratio of c to a axis of central halo");
+  ( *pFits ).pHDU().addKey("X"       , halo.getX()     , "X coordinate of the halo, center of image");
+  ( *pFits ).pHDU().addKey("Y"       , halo.getY()     , "Y coordinate of the halo, center of image");
+  ( *pFits ).pHDU().addKey("Z"       , halo.getZ()     , "Z coordinate of the halo, center of image");
+  ( *pFits ).pHDU().addKey("ID"      , halo.getID()    ,          "ID number of the central halo");
+  ( *pFits ).pHDU().addKey("Mass"    , halo.getM()     ,               "Mass of the central halo (M_{\\odot})");
+  ( *pFits ).pHDU().addKey("Rvir"    , halo.getRm()    ,      "Virial radius of the central halo (h^{-1}kpc)");
+  ( *pFits ).pHDU().addKey("C"       , halo.getC()     ,      "Virial radius of the central halo (h^{-1}kpc)");
+  ( *pFits ).pHDU().addKey("b/a"     , halo.getBA()    ,   "Ratio of b to a axis of central halo");
+  ( *pFits ).pHDU().addKey("c/a"     , halo.getCA()    ,   "Ratio of c to a axis of central halo");
+  ( *pFits ).pHDU().addKey("phi"     , halo.getPhi()   ,   "Angle on yz plane, 0 along +y, pi/2 along +z");
+  ( *pFits ).pHDU().addKey("theta"   , halo.getTheta() ,   "Angle on xz plane, 0 along +z, pi along +x");
 
 
   // When doing this with an integration length, add to header

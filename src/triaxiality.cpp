@@ -8,69 +8,40 @@
 
 
 
-/*
-Need to determine triaxiality, and orientation of axis
+// Determines the orientation of the halo relative to our LOS
+//   Writes orientation angles into the halo
+int triaxiality(       haloInfo                  *halo ,   // The halo we are checking
+                 const particlePosition     *particles ,   // The particle array
+                 const long long           N_part_halo ,   // Number of particles we are using in the array
+                 const long long          *partIndexes ) { // Indexes we are using in the array
 
 
-input: all particles, indexes, halo center
-
-output: 2 axis ratios, 2 angles describing orientation
-*/
-int triaxiality() {
-
-srand(153);
+  double I[3][3] = {  0 , 0 , 0 ,  // Inertia tensor
+                      0 , 0 , 0 ,
+                      0 , 0 , 0 };
 
 
-// [row][column]
-int       N_particles = 100000;
-double m1[N_particles][3];
-
-std::cout<< "x^2/1 + y^2/4 + z^2/9 = 1" << std::endl << std::endl;
-
-// Generate x^2 + 2y^2 + 3z^2 = 1
-for ( int i=0; i<N_particles;++i){
+  // Populate the inertia array with the particles
+  for ( int i = 0; i < N_part_halo; ++i ){
 
 
-  double x1;
-  double x2;
-
-  do {
-    x1 = double( rand() ) / RAND_MAX * 2 - 1;
-    x2 = double( rand() ) / RAND_MAX * 2 - 1;
-  } while ( x1*x1 + x2*x2 >= 1 );
-
-  m1[i][0] = 1. * 2 * x1 * std::sqrt( 1 - x1*x1 - x2*x2 );
-  m1[i][1] = 4. * 2 * x2 * std::sqrt( 1 - x1*x1 - x2*x2 );
-  m1[i][2] = 9. *(1 -  2 *              ( x1*x1 + x2*x2 ));
-}
+  double m[3] = { (particles[  partIndexes[i]  ]).x_pos - (*halo).getX() ,  // Easier to represent particles as array when filling
+                  (particles[  partIndexes[i]  ]).y_pos - (*halo).getY() ,  //  out the inertia tensor
+                  (particles[  partIndexes[i]  ]).z_pos - (*halo).getZ() }; // Use indexes stored in partIndexes
 
 
-
-  double I[3][3] = {0,0,0,0,0,0,0,0,0};
-
-
-  for ( int i = 0; i < N_particles; ++i ){
   for ( int j = 0; j < 3          ; ++j ){
   for ( int k = 0; k < 3          ; ++k ){
 
     if ( j == k ){
-      I[k][j] +=   ( m1[i][0]*m1[i][0]  + m1[i][1]*m1[i][1] + m1[i][2]*m1[i][2] - m1[i][k]*m1[i][j]  );
+      I[k][j] +=   ( m[0]*m[0]  + m[1]*m[1] + m[2]*m[2] - m[k]*m[j]  );
     }
     else{
-      I[k][j] += - ( m1[i][j]*m1[i][k] );
+      I[k][j] += - ( m[j]*m[k] );
     }
-
   }
   }
   }
-
-for ( int j = 0; j < 3 ; ++j ){
-for ( int k = 0; k < 3 ; ++k ){
-  printf("%10.2f ", I[k][j] );;
-}
-printf("\n");
-}
-std::cout << std::endl << std::endl;
 
 
   // The determinant for the eigenvalues evaluates to d L^3 + a L^2 + b L + c = 0
@@ -104,8 +75,6 @@ std::cout << std::endl << std::endl;
     zeroR = std::max( zero1, zero2 );
   }
 
-std::cout << "zeros = " << zeroL << " " << zeroR << std::endl << std::endl;
-
   double eigenValue[3];
   double eigenVector[3][3];
 
@@ -115,14 +84,12 @@ std::cout << "zeros = " << zeroL << " " << zeroR << std::endl << std::endl;
   //   3rd time center
   for ( int i = 0; i < 3; ++ i ){
 
-
     // Sets boundaries for probes based on region each run through
     double boundL, boundR;
 
     if ( 1 != setTriaxBounds( boundL, boundR, zeroL, zeroR, i, d, a, b, c ) ) {
       return -1;
     }
-
 
     double step;   // Step for the probes to move
     double diff;   // Differential to use for convergence
@@ -132,23 +99,22 @@ std::cout << "zeros = " << zeroL << " " << zeroR << std::endl << std::endl;
     // Step size will be dependent on distance between the two bounds
     step = ( boundR - boundL );
 
-
+    // Move probes to find 0s
     do {
 
       step   =   step / 4.;                                // Step size needs to be reduced each runthrough
-
       boundL = moveProbe( boundL, boundR, step, d,a,b,c ); // Moves the left probe
-
       step   = - step;                                     // Flip sign on step for moving other probe
-
       boundR = moveProbe( boundR, boundL, step, d,a,b,c ); // Moves the right probe
-
       step   = - step;                                     // Return sign to normal
-
       diff   = boundR-boundL;                              // For checking boundary
 
       ++counter;
     } while ((diff > 1e-8) && counter<100);
+
+    if ( counter == 100 ){
+      return -1;
+    }
 
     eigenValue[i] = (boundR + boundL) / 2;
 
@@ -165,25 +131,19 @@ std::cout << "zeros = " << zeroL << " " << zeroR << std::endl << std::endl;
 
   // Eigenvalues axes
 
-  double longAxisLength, midAxisLength, shortAxisLength;
   short  longAxisIndex(0);
 
   // Determine max/min eigenvales/axes
   if (   eigenValue[0] > eigenValue[1] ){
-    if ( eigenValue[2] > eigenValue[0] ){ longAxisIndex = 1; longAxisLength = eigenValue[1]; midAxisLength = eigenValue[0]; shortAxisLength = eigenValue[2]; } else
-    if ( eigenValue[2] < eigenValue[1] ){ longAxisIndex = 2; longAxisLength = eigenValue[2]; midAxisLength = eigenValue[1]; shortAxisLength = eigenValue[0]; } else{
-                                          longAxisIndex = 1; longAxisLength = eigenValue[1]; midAxisLength = eigenValue[2]; shortAxisLength = eigenValue[0]; }
+    if ( eigenValue[2] > eigenValue[0] ){ longAxisIndex = 1; } else
+    if ( eigenValue[2] < eigenValue[1] ){ longAxisIndex = 2; } else{
+                                          longAxisIndex = 1; }
   } else {
-    if ( eigenValue[2] > eigenValue[1] ){ longAxisIndex = 0; longAxisLength = eigenValue[0]; midAxisLength = eigenValue[1]; shortAxisLength = eigenValue[2]; } else
-    if ( eigenValue[2] < eigenValue[0] ){ longAxisIndex = 2; longAxisLength = eigenValue[2]; midAxisLength = eigenValue[0]; shortAxisLength = eigenValue[1]; } else{
-                                          longAxisIndex = 0; longAxisLength = eigenValue[0]; midAxisLength = eigenValue[2]; shortAxisLength = eigenValue[1]; }
+    if ( eigenValue[2] > eigenValue[1] ){ longAxisIndex = 0; } else
+    if ( eigenValue[2] < eigenValue[0] ){ longAxisIndex = 2; } else{
+                                          longAxisIndex = 0; }
   }
 
-  // a, b, and c axis sizes are 1/sqrt(eigenvalue)
-
-   longAxisLength = 1./std::sqrt(  longAxisLength );
-    midAxisLength = 1./std::sqrt(   midAxisLength );
-  shortAxisLength = 1./std::sqrt( shortAxisLength );
 
   // x horizonal axis, y verical, z along LOS
   // theta = angle oriented on xz,
@@ -194,7 +154,7 @@ std::cout << "zeros = " << zeroL << " " << zeroR << std::endl << std::endl;
   //         range 0 to pi
 
   double  x,  y,  z,  r;
-  double ba, ca, theta, phi;
+  double  theta, phi;
 
   // Maxor axis direction
   x  = eigenVector[ longAxisIndex ][0];
@@ -202,18 +162,12 @@ std::cout << "zeros = " << zeroL << " " << zeroR << std::endl << std::endl;
   z  = eigenVector[ longAxisIndex ][2];
   r  = std::sqrt( x*x + y*y + z*z );
 
-  // Axis ratios
-  ba =   midAxisLength / longAxisLength;
-  ca = shortAxisLength / longAxisLength;
-
   // Orientation angle
   theta = std::atan( x / z );
   phi   = std::acos( y / r );
 
-printf("%10.1f <%7.4f,%7.4f,%7.4f>\n",eigenValue[0],eigenVector[0][0],eigenVector[0][1],eigenVector[0][2]);
-printf("%10.1f <%7.4f,%7.4f,%7.4f>\n",eigenValue[1],eigenVector[1][0],eigenVector[1][1],eigenVector[1][2]);
-printf("%10.1f <%7.4f,%7.4f,%7.4f>\n",eigenValue[2],eigenVector[2][0],eigenVector[2][1],eigenVector[2][2]);
-printf("\n%10.7f <%7.4f,%7.4f,%7.4f>  ba=%7.2f  ca=%7.2f  theta=%8.5f  phi=%8.5f\n",longAxisLength,x,y,z,ba,ca,theta/M_PI,phi/M_PI);
+  (*halo).setPhi(   phi   );
+  (*halo).setTheta( theta );
 
   return 1;
 }
@@ -259,7 +213,6 @@ void calcEigenVector(       double    eigenVector[3] ,  // Eigenvector to return
   double c1 = I[0][2]   ;
   double c2 = I[1][2]   ;
   double c3 = I[2][2]-L ;
-
 
 
   // Eigenvectors calculated based on zeros in array due to avoid dividing by 0,
@@ -337,10 +290,14 @@ double moveProbe( const double   mProbe ,  // Moving probe
 
 
   double newProbe = mProbe;
+  short   counter =      0;
 
   do{
 
     newProbe += step;
+
+    if ( counter>5 ) return mProbe; // If for some reason went too far, abort
+                                    //   only should be four steps max
 
   } while ( sign( cubicPoly( newProbe,a,b,c,d) ) !=
             sign( cubicPoly(   sProbe,a,b,c,d) ) );
@@ -362,18 +319,21 @@ double sign( const double x ){
 
 // Sets boundaries of zerofinding routine
 // Returns 1 if set boundaries, -1 if couldn't
-int setTriaxBounds( double  &boundL ,   // Left  maximum boundary to return
-                    double  &boundR ,   // Right maximum boundary to return
-              const double    zeroL ,   // Left  location of flat part of curve
-              const double    zeroR ,   // Right location of flat part of curve
-              const int      runNum ,   // 0-left zero, 1-right 0, else middle
-              const double        a ,   // Values of polynomial
-              const double        b ,
-              const double        c ,
-              const double        d ){
+int setTriaxBounds(       double  &boundL ,   // Left  maximum boundary to return
+                          double  &boundR ,   // Right maximum boundary to return
+                    const double    zeroL ,   // Left  location of flat part of curve
+                    const double    zeroR ,   // Right location of flat part of curve
+                    const int      runNum ,   // 0-left zero, 1-right 0, else middle
+                    const double        a ,   // Values of polynomial
+                    const double        b ,
+                    const double        c ,
+                    const double        d ){
 
 
     double boundMod = zeroR-zeroL;
+
+
+    if ( (1 - boundL/boundR) < 1e-6 ) return -1;
 
     if ( runNum == 0 ){ // Left zero
 

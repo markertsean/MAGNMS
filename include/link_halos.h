@@ -24,14 +24,14 @@ void makeLinkList( const inputInfo          userInfo ,   //Contains the global i
 
 
 void linkHaloParticles(              inputInfo   userInput ,  // Info from the user
-                        const         haloInfo      *halos ,  // The halo information
+                                      haloInfo      *halos ,  // The halo information
                         const particlePosition  *particles ,  // Position of the particles
                         const        long long  *labelList ,  // Label points to the first particle in cell
                         const        long long   *linkList ); // Points to nearby neighbor particles
 
 
 void writeImage(              inputInfo    userInput  , // All the user info
-                 const         haloInfo         halo  , // The halo we are considering
+                               haloInfo        *halo  , // The halo we are considering
                  const particlePosition  *particles   , // The full array of particles
                  const long long          N_sphere    ,
                  const long long          N_box       , // Number of particles in sphere set, box set, and integration length sets
