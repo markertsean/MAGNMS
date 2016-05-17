@@ -73,12 +73,12 @@ int main( int arg, char ** argv ){
     logFileName= std::string(logFileNameC) ;
 
     // First line of the log file is the time
-    logMessage( (std::string(    "Code initialized at ")+
-                 std::to_string( (*startTime).tm_hour  )+
-                 std::string(    ":"                   )+
-                 std::to_string( (*startTime).tm_min   )+
-                 std::string(    ":"                   )+
-                 std::to_string( (*startTime).tm_sec   )));
+    logMessage( (std::string(                "Code initialized at ")+
+                 std::to_string( (long long) (*startTime).tm_hour  )+
+                 std::string(                ":"                   )+
+                 std::to_string( (long long) (*startTime).tm_min   )+
+                 std::string(                ":"                   )+
+                 std::to_string( (long long) (*startTime).tm_sec   )));
   }
 
 
@@ -179,9 +179,9 @@ int main( int arg, char ** argv ){
   haloInfo *myHalos = new haloInfo[N_halos];
     printf(" Allocated %lu halos\n",N_halos);
 
-  logMessage( std::string("Allocated ")     +
-              std::to_string( N_halos )     +
-              std::string(" halos in main") );
+  logMessage( std::string(            "Allocated ") +
+              std::to_string( (long long) N_halos ) +
+              std::string(        " halos in main") );
 
 
   {
@@ -192,10 +192,10 @@ int main( int arg, char ** argv ){
     if ( old_N_halos != N_halos ){
       printf("\nError: Read mismatch\nN_halos allocated: %lu\nN_halos read in: %lu\n\n", old_N_halos, N_halos);
 
-      logMessage( std::to_string( old_N_halos )     +
-                  std::string(" halos allocated, ") +
-                  std::to_string( N_halos     )     +
-                  std::string(" halos read the second time. Aborting") );
+      logMessage( std::to_string( (long long) old_N_halos     ) +
+                  std::string(            " halos allocated, ") +
+                  std::to_string( (long long) N_halos         ) +
+                  std::string(  " halos read the second time. Aborting") );
 
       exit(1);
     }
@@ -299,28 +299,28 @@ int main( int arg, char ** argv ){
   }
   std::cout << " Done."     << std::endl  << std::endl;
 
-  logMessage( std::string(    "Number of x cells= ") +
-              std::to_string( userInput.getNrx()+1 ) );
-  logMessage( std::string(    "Number of y cells= ") +
-              std::to_string( userInput.getNry()+1 ) );
-  logMessage( std::string(    "Number of x cells= ") +
-              std::to_string( userInput.getNrz()+1 ) );
-  logMessage( std::string(    "Total number of cells= ") +
-              std::to_string( userInput.getNtotCell()  ) );
+  logMessage( std::string(                "Number of x cells= ") +
+              std::to_string( (long long) userInput.getNrx()+1 ) );
+  logMessage( std::string(                "Number of y cells= ") +
+              std::to_string( (long long) userInput.getNry()+1 ) );
+  logMessage( std::string(                "Number of x cells= ") +
+              std::to_string( (long long) userInput.getNrz()+1 ) );
+  logMessage( std::string(            "Total number of cells= ") +
+              std::to_string( (long long) userInput.getNtotCell()  ) );
 
 
   std::cout << " Generating link list..." << std::endl;
 
 
   {
-    logMessage( std::string( "Halo  memory: " ) + std::to_string(  sizeof( haloInfo         ) * userInput.getNumHalos()     / (1e6) ) + std::string(" Mb") );
-    logMessage( std::string( "Part  memory: " ) + std::to_string(  sizeof( particlePosition ) * userInput.getNumParticles() / (1e9) ) + std::string(" Gb") );
-    logMessage( std::string( "Link  memory: " ) + std::to_string(  sizeof( long long        ) * userInput.getNumParticles() / (1e9) ) + std::string(" Gb") );
-    logMessage( std::string( "Label memory: " ) + std::to_string(  sizeof( long long        ) * userInput.getNtotCell    () / (1e6) ) + std::string(" Mb") );
-    logMessage( std::string( "Total memory: " ) + std::to_string(( sizeof( long long        ) * userInput.getNtotCell    () +
-                                                                   sizeof( long long        ) * userInput.getNumParticles() +
-                                                                   sizeof( particlePosition ) * userInput.getNumParticles() +
-                                                                   sizeof( haloInfo         ) * userInput.getNumHalos()   ) / (1e9) ) + std::string(" Gb") );
+    logMessage( std::string( "Halo  memory: " ) + std::to_string( (long double) (sizeof( haloInfo         ) * userInput.getNumHalos()     / (1e6)) ) + std::string(" Mb") );
+    logMessage( std::string( "Part  memory: " ) + std::to_string( (long double) (sizeof( particlePosition ) * userInput.getNumParticles() / (1e9)) ) + std::string(" Gb") );
+    logMessage( std::string( "Link  memory: " ) + std::to_string( (long double) (sizeof( long long        ) * userInput.getNumParticles() / (1e9)) ) + std::string(" Gb") );
+    logMessage( std::string( "Label memory: " ) + std::to_string( (long double) (sizeof( long long        ) * userInput.getNtotCell    () / (1e6)) ) + std::string(" Mb") );
+    logMessage( std::string( "Total memory: " ) + std::to_string( (long double)((sizeof( long long        ) * userInput.getNtotCell    () +
+                                                                                 sizeof( long long        ) * userInput.getNumParticles() +
+                                                                                 sizeof( particlePosition ) * userInput.getNumParticles() +
+                                                                                 sizeof( haloInfo         ) * userInput.getNumHalos()   ) / (1e9)) ) + std::string(" Gb") );
   }
 
   // Make link list between particles
@@ -335,9 +335,9 @@ int main( int arg, char ** argv ){
               std::to_string( userInput.getNumParticles() ) +
               std::string(    " elements"                 ) );
 
-  logMessage( std::string(    "Allocated label list of "   ) +
-              std::to_string(  userInput.getNtotCell()     ) +
-              std::string(     " elements"                 ) );
+  logMessage( std::string(                "Allocated label list of " ) +
+              std::to_string(  (long long) userInput.getNtotCell()   ) +
+              std::string(                 " elements"               ) );
 
 
   makeLinkList( userInput, particle, linkList, labelList );
@@ -356,7 +356,7 @@ int main( int arg, char ** argv ){
     N_halos = findBoxHalos( userInput, myHalos, duhalos, 0 ); //Returns the number of halos in the box on the first run through
 
     logMessage( std::string(    "Number of halos located in our box: " ) +
-                std::to_string( N_halos                                ) );
+                std::to_string( (long long) N_halos                    ) );
   }
 
 
@@ -367,14 +367,14 @@ int main( int arg, char ** argv ){
 
 
   logMessage( std::string(    "Allocated and filled new array of halos containing " ) +
-              std::to_string( N_halos                                               ) +
+              std::to_string( (long long) N_halos                                   ) +
               std::string(    " halos"                                              ) );
 
 
   std::cout << " Done."       << std::endl  << std::endl;
 
 
-  logMessage( std::string( "New Halo  memory: " ) + std::to_string(  sizeof( haloInfo         ) * userInput.getNumHalos()     / (1e6) ) + std::string(" Mb") );
+  logMessage( std::string( "New Halo  memory: " ) + std::to_string(  (long double) (sizeof( haloInfo ) * userInput.getNumHalos() / (1e6)) ) + std::string(" Mb") );
 
 
   /////////////////////////////////////////
@@ -393,8 +393,8 @@ int main( int arg, char ** argv ){
 
   std::cout << "Wrote " << userInput.getNumFiles() << " Files " << std::endl;
 
-  logMessage( std::string(    "Total number of output images: " ) +
-              std::to_string( userInput.getNumFiles()           ) );
+  logMessage( std::string(       "Total number of output images: " ) +
+              std::to_string( (long long) userInput.getNumFiles()  ) );
 
   delete[]  linkList;
   delete[] labelList;
@@ -411,12 +411,12 @@ int main( int arg, char ** argv ){
   int       minutes = runTime / 60;
             runTime = runTime % 60;
 
-  logMessage( std::string(    "Elapsed runtime= ") +
-              std::to_string( hours              ) +
-              std::string(    " hours, "         ) +
-              std::to_string( minutes            ) +
-              std::string(    " minutes, "       ) +
-              std::to_string( runTime            ) +
-              std::string(    " seconds"         ) );
+  logMessage( std::string(    "Elapsed runtime= " ) +
+              std::to_string( (long long) hours   ) +
+              std::string(    " hours, "          ) +
+              std::to_string( (long long) minutes ) +
+              std::string(    " minutes, "        ) +
+              std::to_string( (long long) runTime ) +
+              std::string(    " seconds"          ) );
 
 }

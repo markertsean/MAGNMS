@@ -368,13 +368,13 @@ unsigned long readShortCat ( std::ifstream &inpFile   ,
   if ( N_halos == 0 ){
 
     logMessage( std::string("First read in, N_halos=")+
-                std::to_string( num_Head )           );
+                std::to_string( (long long) num_Head ) );
 
     return num_Head;
   }
 
   logMessage( std::string("Second read in, N_halos=")+
-              std::to_string( num_Head )           );
+              std::to_string( (long long) num_Head  ));
 
 
   float x, y, z, M, R, C, N, ba, ca;
@@ -423,8 +423,8 @@ unsigned long readShortCat ( std::ifstream &inpFile   ,
 
   }
 
-  logMessage( std::string("Number of lines read:")+
-              std::to_string( N_valid )          );
+  logMessage( std::string("Number of lines read:" )+
+              std::to_string( (long long) N_valid ));
 
   return N_valid;
 }
@@ -493,8 +493,8 @@ unsigned long readMultiDark( std::ifstream &inpFile   ,
 
   }
 
-  logMessage( std::string("Number of lines read:")+
-              std::to_string( N_valid )          );
+  logMessage( std::string("Number of lines read:" )+
+              std::to_string( (long long) N_valid ));
 
   return N_valid;
 
@@ -622,8 +622,8 @@ unsigned long readMultiDarkPlanck( std::string     inpFile   ,
 
   myFile.close();
 
-  logMessage( std::string("Number of lines read:")+
-              std::to_string( N_valid )          );
+  logMessage( std::string("Number of lines read:" )+
+              std::to_string( (long long) N_valid ));
 
 
   return N_valid;
@@ -754,7 +754,7 @@ unsigned long readBigMultiDarkPlanck( std::string    inpFile   ,
   myFile.close();
 
   logMessage( std::string("Number of lines read:")+
-              std::to_string( N_valid )          );
+              std::to_string( (long long)N_valid ));
 
 
   return N_valid;
@@ -1010,10 +1010,10 @@ long long setPartFile( inputInfo &userInput ) { //All the user input
 
     logMessage( "Unable to locate particle file-attempting to read PMss files" );
 
-    logMessage( std::string( "snapNum   = " ) + std::to_string(      snapNum) );
-    logMessage( std::string( "path      = " ) + std::string(           tempC) );
-    logMessage( std::string( "firstPMss = " ) + std::to_string( firstPMssNum) );
-    logMessage( std::string( "lastPMss  = " ) + std::to_string(  lastPMssNum) );
+    logMessage( std::string( "snapNum   = " ) + std::to_string( (long long)      snapNum) );
+    logMessage( std::string( "path      = " ) + std::string(                       tempC) );
+    logMessage( std::string( "firstPMss = " ) + std::to_string( (long long) firstPMssNum) );
+    logMessage( std::string( "lastPMss  = " ) + std::to_string( (long long)  lastPMssNum) );
 
 
     numParticles = readpmss_( &snapNum, tempC, &fileNameLength, &firstPMssNum, &lastPMssNum );
