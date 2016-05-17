@@ -53,8 +53,16 @@ int main( int arg, char ** argv ){
   {
     char logFileNameC[100];
 
+    struct stat sb;
+    char str[] = "mkdir logfiles";
+
+    // Create logfiles directory, if one does not exist
+    if ( stat( "logfiles/", &sb) != 0 ){
+      system( str );
+    }
+
     // Log file name is mostly the date
-    sprintf( logFileNameC, "logfile_HE.%4i.%02i.%02i.%02i.%02i.%02i.log",
+    sprintf( logFileNameC, "logfiles/logfile_MAGNMS.%4i.%02i.%02i.%02i.%02i.%02i.log",
       (*startTime).tm_year+1900,
       (*startTime).tm_mon ,
       (*startTime).tm_mday,
