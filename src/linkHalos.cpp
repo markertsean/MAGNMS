@@ -500,7 +500,7 @@ void writeImage(              inputInfo    userInput  , // All the user info
 
 
   // Write the halo file name
-  sprintf( temp,              "%sHalo%s_%li.FITS", (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), (*halo).getID() );
+  sprintf( temp,              "%sHalo%s_%09li_%04.1f.FITS", (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), (*halo).getID(), userInput.getFOV() );
   const std::string sphereFileName = temp;
 
 
@@ -524,7 +524,7 @@ void writeImage(              inputInfo    userInput  , // All the user info
 
 
   // Write the box file name
-  sprintf( temp,        "%sBox%s_%li_%04.1f.FITS", (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), (*halo).getID(), userInput.getFOV() );
+  sprintf( temp,        "%sBox%s_%09li_%04.1f.FITS", (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), (*halo).getID(), userInput.getFOV() );
   const std::string    boxFileName = temp;
 
   // Attempt to write the file, if it fails abort
@@ -544,30 +544,56 @@ void writeImage(              inputInfo    userInput  , // All the user info
   }
     std::cout<<"    Wrote file: "      <<   boxFileName<<std::endl;
 
-
   // Loop over integration lengths, if there are particles in the bin, write that index file
   if ( maxN_integ    > 0 ){
   for ( int i = 0; i < N_integBins; ++i ){
   if (    N_integ[i] > 0 ){
 
     // Integration file names
-    sprintf( temp, "%sBox%s_%li_%04.1f_%06.1lf.FITS",
+    sprintf( temp, "%sBox%s_%09li_%04.1f_%06.1lf.FITS",
         (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), (*halo).getID(), userInput.getFOV(), 2.0* integLengths[i] );
     const std::string iFileName = temp;
 
 
     // Need a 1d array for writefiles, so only take those indexes
-    long long iIndexes[ maxN_integ ];
-    for ( int j = 0; j < maxN_integ; ++j ){
-      iIndexes[j] = integIndexes[ j + maxN_integ * i ];
+    long long iIndexes[ 2 ];
+    iIndexes[0] = 0;
+
+    float x_start = (*halo).getX() - userInput.getFOV() / 2.0;
+    float y_start = (*halo).getY() - userInput.getFOV() / 2.0;
+
+    // Scaling of pixels on image
+    float x_scale = N_pixels[0] / userInput.getFOV() ;
+    float y_scale = N_pixels[1] / userInput.getFOV() ;
+
+
+    // Place our particles in the SD array before entering function
+    // This is due to segfaulting the memory for large FOVs
+    for ( int ii = 0; ii < N_integ[i]; ++ii ){
+
+
+      // Index of particle in the set
+      long long index = integIndexes[ii];
+
+      // Location in the image, physical coordinates
+      float x_pos = particles[index].x_pos - x_start;
+      float y_pos = particles[index].y_pos - y_start;
+
+      // Which pixel it's in
+      int  hIndex = std::min( std::max(  int( x_pos * x_scale ) , 0 ), N_pixels[0] );
+      int  vIndex = std::min( std::max(  int( y_pos * y_scale ) , 0 ), N_pixels[1] );
+
+      // Place it
+      SD[ vIndex * N_pixels[0] + hIndex ] += userInput.getParticleMass();
     }
+
 
     // Attempt to write the file, if it fails abort
     if (  writeFits(      iFileName ,
                         N_pixels    ,
                         N_elements  ,
                                 &SD ,
-                        N_integ[i]  ,
+                                0   ,
                            iIndexes ,
                           particles ,
                               *halo ,
@@ -583,6 +609,8 @@ void writeImage(              inputInfo    userInput  , // All the user info
   }
   }
     std::cout << std::endl;
+
+
 }
 
 
@@ -606,7 +634,6 @@ int  writeFits( const std::string           fileName    ,  // File name to write
   // Furthest left locations on image in real space
   float x_start = halo.getX() - userInput.getFOV() / 2.0;
   float y_start = halo.getY() - userInput.getFOV() / 2.0;
-
 
   // Scaling of pixels on image
   float x_scale = N_pixels[0] / userInput.getFOV() ;
