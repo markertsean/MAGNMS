@@ -91,9 +91,9 @@ unsigned long findBoxHalos(       inputInfo  &userInput ,
       std::cout << " Error: Mismatch when selecting halos\n  Num in box:   " << sum << "\n  Num selected: " << counter << std::endl;
 
       logMessage( std::string( "Mismatch in counting halos in box: Num in box: "   ) +
-                  std::to_string(  sum                                             ) +
+                  std::to_string(  (long long) sum                                 ) +
                   std::string(     " Num selected: "                               ) +
-                  std::to_string(  counter                                         ) );
+                  std::to_string(  (long long) counter                             ) );
 
       logMessage( std::string("Aborting.") );
 
@@ -190,8 +190,8 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
   for ( int i = 0 ; i < N_integSteps ; ++i ){
     integLengths[i] = pow( 10, (i+1) * integStep  +  log10(integStart) );
 
-    logMessage( std::string(    "   "            ) +
-                std::to_string( integLengths[i]  ) );
+    logMessage( std::string(                  "   "            ) +
+                std::to_string( (long double) integLengths[i]  ) );
 
   }
 
@@ -340,7 +340,7 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
 
 
       logMessage( std::string(    "Halo: "         ) +
-                  std::to_string( halos[i].getID() ) +
+                  std::to_string( (long long) halos[i].getID() ) +
                   std::string(    ", N_sphere= "   ) +
                   std::to_string(    N_sphere      ) +
                   std::string(    ", N_box= "      ) +
@@ -492,7 +492,7 @@ void writeImage(              inputInfo    userInput  , // All the user info
     (*halo).setTheta( -100 );
 
     logMessage( std::string(    "Unable to determine primary axes for halo: ") +
-                std::to_string(                              (*halo).getID() ) );
+                std::to_string( (long long)                  (*halo).getID() ) );
   }
 
   // Generate file names, require temp for the sprintf
