@@ -48,6 +48,8 @@ class inputInfo{
     void setMinMass      ( double        inpD ) {   minMass       = inpD; }
     void setMaxMass      ( double        inpD ) {   maxMass       = inpD; }
     void setRadiusMult   ( double        inpD ) {radiusMultiplier = inpD; }
+    void setPhysicalSize ( double        inpD ) { physicalSize    = inpD; }
+    void setRedshift     ( double        inpD ) { redshift        = inpD; }
     void setRadiusConvert( double        inpD ) {radiusConverter  = inpD; }
     void setShortCat     ( short         inpI ) {  useShortCat    = inpI; }
     void setUseShort     ( short         inpI ) {  usingShort     = inpI; }
@@ -90,6 +92,9 @@ class inputInfo{
     double        getMinMass       () const { return        minMass   ; }
     double        getMaxMass       () const { return        maxMass   ; }
     double        getRadiusMult    () const { return radiusMultiplier ; }
+    double        getPhysicalSize  () const { return     physicalSize ; }
+    double        getPixelUnit     () const { return     pixelUnits   ; }
+    double        getRedshift      () const { return     redshift     ; }
     double        getRadiusConvert () const { return radiusConverter  ; }
     double        getFOV           () const { return   boxFOV         ; }
     short         getShortCat      () const { return   useShortCat    ; }
@@ -199,22 +204,21 @@ class inputInfo{
         return 2500.0;
     }
 
-/*
+
     void setPartMass( ){
 
-      if ( catType.compare( "BMDP"  ) == 0 ){ particleMass = 2.4e10; } else
-      if ( catType.compare( "BMD"   ) == 0 ){ particleMass = 2.1e10; } else
-      if ( catType.compare( "MDP"   ) == 0 ){ particleMass = 1.5e9 ; } else
-      if ( catType.compare( "MD"    ) == 0 ){ particleMass = 8.7e9 ; } else
-      if ( catType.compare( "BP"    ) == 0 ){ particleMass = 1.5e8 ; } else
-      if ( catType.compare( "B"     ) == 0 ){ particleMass = 1.3e8 ; } else
-      if ( catType.compare( "short" ) == 0 ){                        } else // No change needed
+      if ( catType.compare( "BMDP"  ) == 0 ){ pixelUnits = 0.6777; } else
+      if ( catType.compare( "BMD"   ) == 0 ){ pixelUnits = 0.7100; } else
+      if ( catType.compare( "MDP"   ) == 0 ){ pixelUnits = 0.6777; } else
+      if ( catType.compare( "MD"    ) == 0 ){ pixelUnits = 0.7100; } else
+      if ( catType.compare( "BP"    ) == 0 ){ pixelUnits = 0.6777; } else
+      if ( catType.compare( "B"     ) == 0 ){ pixelUnits = 0.7100; } else
       {
         std::cout<<"Unrecognized catalog: "<<catType<<std::endl;
         exit(1);
       }
     }
-//*/
+
 
   private:
 
@@ -248,6 +252,9 @@ class inputInfo{
     int             N_pixels_h ; // Editable, number of pixels in each direction
     int             N_pixels_v ;
 
+    double        physicalSize ; // In degrees, required for FITS header
+    double          redshift   ; // Required for fits header
+
     double      maxIntegLength ; // Editable, maximum integration length in z, in Mpch
     double           integStep ; // Editable, step size in dex to use
 
@@ -258,6 +265,7 @@ class inputInfo{
     short         usingShort   ;
 
     double        particleMass ;  // Mass of a single particle, set by catalog type
+    double        pixelUnits   ;
 
     float                x_min ;  // Min/Max particle locations, used to find range of particles
     float                x_max ;
@@ -347,8 +355,10 @@ inputInfo::inputInfo( ){
 
        N_pixels_h = 1024;
        N_pixels_v = 1024;
+     physicalSize = -1;
 
      particleMass = 0.0;
+         redshift = -1;
 
 //          setPartMass();
 

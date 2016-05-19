@@ -138,6 +138,18 @@ bool readUserInput( std::string fileName, inputInfo &myInput ){
         logMessage( std::string("N_pixels_v=")+ inpS);
 
       }
+      else if ( strcmp( inpC1, "physicalSize" ) == 0 ){
+        myInput.setPhysicalSize( std::stod( inpS )  );
+
+        logMessage( std::string("physicalSize=")+ inpS);
+
+      }
+      else if ( strcmp( inpC1, "redshift"   ) == 0 ){
+        myInput.setRedshift    ( std::stod( inpS )  );
+
+        logMessage( std::string("redshift=")+ inpS);
+
+      }
 
       else if ( strcmp( inpC1, "PMssFirst"  ) == 0 ){
         myInput.setPMssFirstNum( std::stoi( inpS )  );
@@ -171,6 +183,20 @@ bool readUserInput( std::string fileName, inputInfo &myInput ){
           (myInput.getInputCatalog()).c_str(),(myInput.getInputPart()).c_str());
 
     logMessage( std::string("Missing either halo catalog or particle file") );
+
+    return false;
+  }
+  if ( myInput.getPhysicalSize() == -1 ){
+    printf("Missing required parameter physicalSize\n");
+
+    logMessage( std::string("Missing physicalSize") );
+
+    return false;
+  }
+  if ( myInput.getRedshift() == -1 ){
+    printf("Missing required parameter redshift\n");
+
+    logMessage( std::string("Missing redshift") );
 
     return false;
   }

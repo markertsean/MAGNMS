@@ -677,23 +677,26 @@ int  writeFits( const std::string           fileName    ,  // File name to write
   if ( userInput.getIntegAxis() == 'z' ) axisNum = 3;
 
   // Add a header
-  ( *pFits ).pHDU().addKey("Catalog"    , userInput.getCatType()   , "Simulation catalog");
-  ( *pFits ).pHDU().addKey("FOV"        , userInput.getFOV()       , "Field of view, (h^{-1} Mpc)");
-  ( *pFits ).pHDU().addKey("N_pixels_v" , userInput.getNPixelsV()  , "Number of pixels on y axis");
-  ( *pFits ).pHDU().addKey("N_pixels_h" , userInput.getNPixlesH()  , "Number of pixels on x axis");
-  ( *pFits ).pHDU().addKey("Integ axis" , axisNum                  , "Axis parallel to LOS");
+  ( *pFits ).pHDU().addKey("Catalog"     , userInput.getCatType()      , "Simulation catalog");
+  ( *pFits ).pHDU().addKey("FOV"         , userInput.getFOV()          , "Field of view, (h^{-1} Mpc)");
+  ( *pFits ).pHDU().addKey("N_pixels_v"  , userInput.getNPixelsV()     , "Number of pixels on y axis");
+  ( *pFits ).pHDU().addKey("N_pixels_h"  , userInput.getNPixlesH()     , "Number of pixels on x axis");
+  ( *pFits ).pHDU().addKey("Integ axis"  , axisNum                     , "Axis parallel to LOS");
+  ( *pFits ).pHDU().addKey("PHYSICALSIZE", userInput.getPhysicalSize() , "Angular size designated by the user");
+  ( *pFits ).pHDU().addKey("PIXELUNITS"  , userInput.getPixelUnit()    , "Mass unit of pixels");
+  ( *pFits ).pHDU().addKey("REDSHIFT"    , userInput.getRedshift()     , "Redshift designated by the user");
 
-  ( *pFits ).pHDU().addKey("X"       , halo.getX()     , "X coordinate of the halo, center of image");
-  ( *pFits ).pHDU().addKey("Y"       , halo.getY()     , "Y coordinate of the halo, center of image");
-  ( *pFits ).pHDU().addKey("Z"       , halo.getZ()     , "Z coordinate of the halo, center of image");
-  ( *pFits ).pHDU().addKey("ID"      , halo.getID()    ,          "ID number of the central halo");
-  ( *pFits ).pHDU().addKey("Mass"    , halo.getM()     ,               "Mass of the central halo (M_{\\odot})");
-  ( *pFits ).pHDU().addKey("Rvir"    , halo.getRm()    ,      "Virial radius of the central halo (h^{-1}kpc)");
-  ( *pFits ).pHDU().addKey("C"       , halo.getC()     ,      "Virial radius of the central halo (h^{-1}kpc)");
-  ( *pFits ).pHDU().addKey("b/a"     , halo.getBA()    ,   "Ratio of b to a axis of central halo");
-  ( *pFits ).pHDU().addKey("c/a"     , halo.getCA()    ,   "Ratio of c to a axis of central halo");
-  ( *pFits ).pHDU().addKey("phi"     , halo.getPhi()   ,   "Angle on yz plane, 0 along +y, pi/2 along +z");
-  ( *pFits ).pHDU().addKey("theta"   , halo.getTheta() ,   "Angle on xz plane, 0 along +z, pi along +x");
+  ( *pFits ).pHDU().addKey("X"       , halo.getX()      , "X coordinate of the halo, center of image");
+  ( *pFits ).pHDU().addKey("Y"       , halo.getY()      , "Y coordinate of the halo, center of image");
+  ( *pFits ).pHDU().addKey("Z"       , halo.getZ()      , "Z coordinate of the halo, center of image");
+  ( *pFits ).pHDU().addKey("ID"      , halo.getID()     ,          "ID number of the central halo");
+  ( *pFits ).pHDU().addKey("Mass"    , halo.getM()      ,               "Mass of the central halo (M_{\\odot})");
+  ( *pFits ).pHDU().addKey("Rvir"    , halo.getRm()     ,      "Virial radius of the central halo (h^{-1}kpc)");
+  ( *pFits ).pHDU().addKey("C"       , halo.getC()      ,      "Virial radius of the central halo (h^{-1}kpc)");
+  ( *pFits ).pHDU().addKey("b/a"     , halo.getBA()     ,   "Ratio of b to a axis of central halo");
+  ( *pFits ).pHDU().addKey("c/a"     , halo.getCA()     ,   "Ratio of c to a axis of central halo");
+  ( *pFits ).pHDU().addKey("phi"     , halo.getPhi()    ,   "Angle on yz plane, 0 along +y, pi/2 along +z");
+  ( *pFits ).pHDU().addKey("theta"   , halo.getTheta()  ,   "Angle on xz plane, 0 along +z, pi along +x");
 
 
   // When doing this with an integration length, add to header
