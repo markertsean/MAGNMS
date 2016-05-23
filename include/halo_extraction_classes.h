@@ -34,7 +34,8 @@ class inputInfo{
     void setInputHead    ( std::string   inpS ) { inputHeadFiles  = inpS; }
     void setParticleDir  ( std::string   inpS ) { particleDir     = inpS; }
     void setHeaderDir    ( std::string   inpS ) {   headerDir     = inpS; }
-    void setCatType      ( std::string   inpS ) {   catType       = inpS; }
+    void setCatType      ( std::string   inpS ) {   catType       = inpS; 
+                                                    setPartMass();        }
 
     void setIntegAxis    ( char          inpC ) {  if ( inpC != 'x' &&
                                                         inpC != 'y' &&

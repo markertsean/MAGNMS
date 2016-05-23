@@ -65,4 +65,5 @@ endif (Fortran_COMPILER_NAME MATCHES "gfortran.*")
 
 add_executable(MAGNMS ${SOURCES})
 
-target_link_libraries(MAGNMS "/usr/local/lib/libCCfits.so")
+#target_link_libraries(MAGNMS "/usr/local/lib/libCCfits.so")
+target_link_libraries(MAGNMS "-I/usr/local/lib" "-lCCfits" "-lcfitsio")

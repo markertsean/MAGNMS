@@ -683,7 +683,7 @@ int  writeFits( const std::string           fileName    ,  // File name to write
   ( *pFits ).pHDU().addKey("N_pixels_h"  , userInput.getNPixlesH()     , "Number of pixels on x axis");
   ( *pFits ).pHDU().addKey("Integ axis"  , axisNum                     , "Axis parallel to LOS");
   ( *pFits ).pHDU().addKey("PHYSICALSIZE", userInput.getPhysicalSize() , "Angular size designated by the user");
-  ( *pFits ).pHDU().addKey("PIXELUNITS"  , userInput.getPixelUnit()    , "Mass unit of pixels");
+  ( *pFits ).pHDU().addKey("PIXELUNIT"   , userInput.getPixelUnit()    , "Mass unit of pixels");
   ( *pFits ).pHDU().addKey("REDSHIFT"    , userInput.getRedshift()     , "Redshift designated by the user");
 
   ( *pFits ).pHDU().addKey("X"       , halo.getX()      , "X coordinate of the halo, center of image");
