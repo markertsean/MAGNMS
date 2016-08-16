@@ -690,7 +690,7 @@ int  writeFits( const std::string           fileName    ,  // File name to write
   ( *pFits ).pHDU().addKey("Integ axis"  , axisNum                     , "Axis parallel to LOS");
   ( *pFits ).pHDU().addKey("TotMass"     , totM                        , "Total mass in the image");
   ( *pFits ).pHDU().addKey("PHYSICALSIZE", userInput.getPhysicalSize() , "Angular size designated by the user");
-  ( *pFits ).pHDU().addKey("PIXELUNIT"   , userInput.getPixelUnit()    , "Mass unit of pixels");
+  ( *pFits ).pHDU().addKey("PIXELUNIT"   , 1./userInput.getPixelUnit() , "Mass unit of pixels");
   ( *pFits ).pHDU().addKey("REDSHIFT"    , userInput.getRedshift()     , "Redshift designated by the user");
 
 
