@@ -659,6 +659,12 @@ int  writeFits( const std::string           fileName    ,  // File name to write
   }
 
 
+  // Get total mass in image
+  float totM = 0;
+  for ( int i = 0; i < N_pixelsTot; ++i ){
+    totM += (*SD)[i];
+  }
+
 
   using namespace CCfits;
   std::auto_ptr<FITS> pFits(0);
@@ -682,9 +688,11 @@ int  writeFits( const std::string           fileName    ,  // File name to write
   ( *pFits ).pHDU().addKey("N_pixels_v"  , userInput.getNPixelsV()     , "Number of pixels on y axis");
   ( *pFits ).pHDU().addKey("N_pixels_h"  , userInput.getNPixlesH()     , "Number of pixels on x axis");
   ( *pFits ).pHDU().addKey("Integ axis"  , axisNum                     , "Axis parallel to LOS");
+  ( *pFits ).pHDU().addKey("TotMass"     , totM                        , "Total mass in the image");
   ( *pFits ).pHDU().addKey("PHYSICALSIZE", userInput.getPhysicalSize() , "Angular size designated by the user");
   ( *pFits ).pHDU().addKey("PIXELUNIT"   , userInput.getPixelUnit()    , "Mass unit of pixels");
   ( *pFits ).pHDU().addKey("REDSHIFT"    , userInput.getRedshift()     , "Redshift designated by the user");
+
 
   ( *pFits ).pHDU().addKey("X"       , halo.getX()      , "X coordinate of the halo, center of image");
   ( *pFits ).pHDU().addKey("Y"       , halo.getY()      , "Y coordinate of the halo, center of image");
@@ -696,7 +704,7 @@ int  writeFits( const std::string           fileName    ,  // File name to write
   ( *pFits ).pHDU().addKey("b/a"     , halo.getBA()     ,   "Ratio of b to a axis of central halo");
   ( *pFits ).pHDU().addKey("c/a"     , halo.getCA()     ,   "Ratio of c to a axis of central halo");
   ( *pFits ).pHDU().addKey("phi"     , halo.getPhi()    ,   "Angle on yz plane, 0 along +y, pi/2 along +z");
-  ( *pFits ).pHDU().addKey("theta"   , halo.getTheta()  ,   "Angle on xz plane, 0 along +z, pi along +x");
+  ( *pFits ).pHDU().addKey("theta"   , halo.getTheta()  ,   "Angle on xz plane, 0 along +z, pi/2 along +x");
 
 
   // When doing this with an integration length, add to header
