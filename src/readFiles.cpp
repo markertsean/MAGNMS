@@ -63,6 +63,12 @@ bool readUserInput( std::string fileName, inputInfo &myInput ){
         logMessage( std::string("catType=")+ inpS);
 
       }
+      else if ( strcmp( inpC1, "outDir"   ) == 0 ){
+        myInput.setOutputDir   ( inpS  );
+
+        logMessage( std::string("outDir=") + inpS);
+
+      }
 
       else if ( strcmp( inpC1, "integAxis") == 0 ){
         myInput.setIntegAxis   (*inpC2 );

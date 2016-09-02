@@ -63,7 +63,6 @@ endif (Fortran_COMPILER_NAME MATCHES "gfortran.*")
 # Generate executable
 ####
 
-add_executable(MAGNMS ${SOURCES})
+add_executable(halo_extractor ${SOURCES})
 
-#target_link_libraries(MAGNMS "/usr/local/lib/libCCfits.so")
-target_link_libraries(MAGNMS "-I/usr/local/lib" "-lCCfits" "-lcfitsio")
+target_link_libraries(halo_extractor "/usr/local/lib/libCCfits.so")

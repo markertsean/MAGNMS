@@ -34,7 +34,8 @@ class inputInfo{
     void setInputHead    ( std::string   inpS ) { inputHeadFiles  = inpS; }
     void setParticleDir  ( std::string   inpS ) { particleDir     = inpS; }
     void setHeaderDir    ( std::string   inpS ) {   headerDir     = inpS; }
-    void setCatType      ( std::string   inpS ) {   catType       = inpS; 
+    void setOutputDir    ( std::string   inpS ) {   outputDir     = inpS; }
+    void setCatType      ( std::string   inpS ) {   catType       = inpS;
                                                     setPartMass();        }
 
     void setIntegAxis    ( char          inpC ) {  if ( inpC != 'x' &&
@@ -86,6 +87,7 @@ class inputInfo{
     std::string   getHeaderDir     () const { return   headerDir      ; }
     std::string   getPartFileStart () const { return partFileStart    ; }
     std::string   getCatType       () const { return   catType        ; }
+    std::string   getOutputDir     () const { return   outputDir      ; }
 
     char          getIntegAxis     () const { return   integAxis      ; }
 
@@ -147,9 +149,10 @@ class inputInfo{
     void setDirectory(){
 
       //Finds the last occurance of '/', which indicates directory
-      int lastSlash = inputCatalog.find_last_of("/\\");
-      catDir        = inputCatalog.substr( 0, lastSlash + 1 );
-      catName       = inputCatalog.substr(    lastSlash + 1 );
+      int lastSlashCat =   inputCatalog.find_last_of("/\\");
+      int lastSlashPar = inputPartFiles.find_last_of("/\\");
+      catDir        = inputCatalog.substr( 0, lastSlashCat + 1 );
+      catName       = inputCatalog.substr(    lastSlashCat + 1 );
 
       //Finds the last occurance of '.', which gives first file name
       int lastDot = catName.find_last_of(".");
@@ -160,15 +163,15 @@ class inputInfo{
 
       //If directories for header and particle files
       // haven't been set, use catalog directory
-      if ( particleDir=="" ){
-          particleDir = catDir + catName.substr( 0, lastDot ) + "_MassMaps/";
-      }
+//      if ( particleDir=="" ){
+//          particleDir = particleDir + catName.substr( 0, lastDot ) + "_MassMaps/";
+//      }
 
       if (   headerDir=="" ){
-          headerDir   = catDir + catName.substr( 0, lastDot ) + "_Headers/";
+          headerDir   = catDir      + catName.substr( 0, lastDot ) + "_Headers/";
       }
 
-      partFileStart = catDir + "Part." ;
+      partFileStart = particleDir + "Part." ;
     }
 
     bool setBox( float inpCell ) {
@@ -238,6 +241,7 @@ class inputInfo{
     std::string  partFileStart; // Determine the start of the particle file, for passing to the fortran file
     std::string     catDir    ; // Directory of the halo catalog
     std::string     catName   ; // Name of the halo catalog
+    std::string  outputDir    ;
 
 
     // Halo restrictions imposed by user
@@ -321,6 +325,7 @@ inputInfo::inputInfo( ){
       catDir     = "";
       catName    = "";
       catType    = "MD";
+    outputDir    = "";
 
       integAxis  = 'z';
 

@@ -108,7 +108,7 @@ int main( int arg, char ** argv ){
     printf("  Halo Catalog       : %s\n  Particle File      : %s\n  Mass map Directory : %s\n\n",
     (userInput.getInputCatalog()).c_str(),
     (userInput.getInputPart   ()).c_str(),
-    (userInput.getParticleDir ()).c_str());
+    (userInput.getOutputDir   ()).c_str());
 
   }
   else {
@@ -153,6 +153,18 @@ int main( int arg, char ** argv ){
 
     logMessage( std::string("Using particle directory: ") +
                 std::string( userInput.getParticleDir() ));
+
+    sprintf( str, "mkdir %s", (userInput.getOutputDir()).c_str() );
+    if ( stat((userInput.getOutputDir()).c_str(), &sb) == 0 ){
+      std::cout << "  Found directory    : " << userInput.getOutputDir() << std::endl;
+    } else {
+      std::cout << "  Writing directory  : " << userInput.getOutputDir() << std::endl;
+      system(str);
+    }
+
+    logMessage( std::string("Using output directory: ") +
+                std::string( userInput.getOutputDir() ));
+
 
     printf("\n\n");
   }

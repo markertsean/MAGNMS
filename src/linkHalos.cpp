@@ -500,7 +500,7 @@ void writeImage(              inputInfo    userInput  , // All the user info
 
 
   // Write the halo file name
-  sprintf( temp,              "%sHalo%s_%09li_%04.1f.FITS", (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), (*halo).getID(), userInput.getFOV() );
+  sprintf( temp,              "%sHalo%s_%09li_%04.1f.FITS", (userInput.getOutputDir()).c_str(), (userInput.getCatType()).c_str(), (*halo).getID(), userInput.getFOV() );
   const std::string sphereFileName = temp;
 
 
@@ -524,7 +524,7 @@ void writeImage(              inputInfo    userInput  , // All the user info
 
 
   // Write the box file name
-  sprintf( temp,        "%sBox%s_%09li_%04.1f.FITS", (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), (*halo).getID(), userInput.getFOV() );
+  sprintf( temp,        "%sBox%s_%09li_%04.1f.FITS", (userInput.getOutputDir()).c_str(), (userInput.getCatType()).c_str(), (*halo).getID(), userInput.getFOV() );
   const std::string    boxFileName = temp;
 
   // Attempt to write the file, if it fails abort
@@ -551,7 +551,7 @@ void writeImage(              inputInfo    userInput  , // All the user info
 
     // Integration file names
     sprintf( temp, "%sBox%s_%09li_%04.1f_%06.1lf.FITS",
-        (userInput.getParticleDir()).c_str(), (userInput.getCatType()).c_str(), (*halo).getID(), userInput.getFOV(), 2.0* integLengths[i] );
+        (userInput.getOutputDir()).c_str(), (userInput.getCatType()).c_str(), (*halo).getID(), userInput.getFOV(), 2.0* integLengths[i] );
     const std::string iFileName = temp;
 
 
