@@ -957,8 +957,8 @@ long long setPartFile( inputInfo &userInput ) { //All the user input
   // Generates file names for particle file, header file, based on beginning of file name
   char    testPartFile[60];
   char    testHeadFile[60];
-  sprintf(testPartFile, "%s%4.4i.DAT"       , partFileStart.c_str(), snapNum );
-  sprintf(testHeadFile, "%s%4.4i.header.dat", partFileStart.c_str(), snapNum );
+  sprintf(testPartFile, "%s%4.4i.%4.4i.%4.4i.DAT"       , partFileStart.c_str(), userInput.getPMssFirstNum(), userInput.getPMssLastNum(), snapNum );
+  sprintf(testHeadFile, "%s%4.4i.%4.4i.%4.4i.header.dat", partFileStart.c_str(), userInput.getPMssFirstNum(), userInput.getPMssLastNum(), snapNum );
 
 
 
