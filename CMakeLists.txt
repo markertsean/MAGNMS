@@ -21,7 +21,7 @@ set(sample_VERSION_MINOR 0)
 
 enable_language(Fortran)
 
-project(haloExtractor C CXX Fortran)
+project(MAGNMS C CXX Fortran)
 
 get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 get_filename_component (    CXX_COMPILER_NAME ${CMAKE_CXX_COMPILER}     NAME)
@@ -63,6 +63,6 @@ endif (Fortran_COMPILER_NAME MATCHES "gfortran.*")
 # Generate executable
 ####
 
-add_executable(halo_extractor ${SOURCES})
+add_executable(MAGNMS ${SOURCES})
 
-target_link_libraries(halo_extractor "/usr/local/lib/libCCfits.so")
+target_link_libraries(MAGNMS "/usr/local/lib/libCCfits.so")
