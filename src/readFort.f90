@@ -143,14 +143,14 @@ integer*8 function readpmss( initjstep, filestart, filestartlength, firstPMss, l
 
   ! Creates write statement for output file names, using length of filestart
   if (filestartlength.ge.10) then
-    write(formatstr,'(a,i2,a)') '(a',filestartlength,',i4.4,a)'
+    write(formatstr,'(a,i2,a)') '(a',filestartlength,',i4.4,a,i4.4,a,i4.4,a)'
   else
-    write(formatstr,'(a,i1,a)') '(a',filestartlength,',i4.4,a)'
+    write(formatstr,'(a,i1,a)') '(a',filestartlength,',i4.4,a,i4.4,a,i4.4,a)'
   endif
 
   ! Generates file names
-  write( particle_name, formatstr) trim(filestart),jStep,'.DAT'
-  write(   header_name, formatstr) trim(filestart),jStep,'.header.dat'
+  write( particle_name, formatstr) trim(filestart),jStep,'.',PMssFirst,'.',PMssLast,'.DAT'
+  write(   header_name, formatstr) trim(filestart),jStep,'.',PMssFirst,'.',PMssLast,'.header.dat'
 
 
   call readconfig   ! Configures variables about the simulation into our common block
