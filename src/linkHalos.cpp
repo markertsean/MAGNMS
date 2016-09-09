@@ -443,7 +443,10 @@ void linkHaloParticles(              inputInfo   userInput ,  // Info from the u
                        boxIndexes ,
                      integIndexes );
 
-    delete[] sphereIndexes, boxIndexes, integIndexes, integCounter;
+      delete[] sphereIndexes;
+      delete[]    boxIndexes;
+      delete[]  integIndexes;
+      delete[]  integCounter;
     }     //If we found particles
     delete [] N_integ;
 
