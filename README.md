@@ -10,27 +10,50 @@ for input parameters to write FITS mass maps from simulations. Each argument mus
 and the value seperated by whitespace. Accepted variables:
 
 haloFile        -               Halo catalog to use, must have same format as MDPlanck CatshortW files
+
 partFile        -               PMss particle file to use
+
 headFile        -               Header file to use for PMss file, if seperate from PMss file
+
 partDir         -               Directory of particle file, useful for when multiple PMss particles being read in
+
 headDir         -               Directory of header file, useful for when multiple PMss particles being read in
+
 catType         - Default MD  , CURRENTLY ONLY SUPPORT FOR MDP (MultiDark Planck)
+
 integAxis       - Default z   , support for x, y, and z axis
+
 minMass         - Defualt 1e15, lower halo mass limit to read from file
+
 maxMass         -               Upper halo mass to read from file
+
 rMult           - Default 1.0 , sphere images extend to rMult * r_vir
+
 rConv           - Default 1e-3, conversion factor between r_vir units and coordinates
+
 FOV             - Default 8.0 , field of view in h^-1 Mpc
+
 integLength     - Default 400 , maximum integration length in h^-1 Mpc
+
 integStep       - Default 0.2 , integration length step in dex
+
 useShortCatalog - Default 1   , 0 or 1 to turn on or off reading/writing a short list of particles to speed up read in
+
 snapNum         -               PMss snapshot number to search for
+
 N_pixels_h      - Default 1024, number of horizontal pixels in FITS image
+
 N_pixels_v      - Default 1024, number of vertical pixels in FITS image
+
 physicalSize    -               Misleading title, angular field of view in degrees of image
+
 redshift        -               Redshift of halo, does not need to match catalog
+
 PMssFirst       -               First node of PMss files to search for
+
 PMssLast        -               Last  node of PMss files to search for
+
+
 
 The procedure of the code is outlined below:
 
